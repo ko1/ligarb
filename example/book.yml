@@ -1,9 +1,9 @@
 title: "ligarb チュートリアル"
-author: "ligarb contributors"
+author: "Claude Code (asked by @ko1)"
 language: "ja"
 output_dir: "build"
 # style: "custom.css"
-# repository: "https://github.com/user/ligarb"
+repository: "https://github.com/ko1/ligarb"
 chapters:
   - cover: chapters/cover.md
   - part: chapters/part1.md

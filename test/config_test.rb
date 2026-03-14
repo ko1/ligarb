@@ -16,9 +16,11 @@ class ConfigTest < Minitest::Test
   end
 
   def test_required_fields
-    assert_raises(SystemExit) { with_book({}) { } }
-    assert_raises(SystemExit) { with_book({"title" => "T"}) { } }
-    assert_raises(SystemExit) { with_book({"chapters" => ["a.md"]}) { } }
+    capture_io do
+      assert_raises(SystemExit) { with_book({}) { } }
+      assert_raises(SystemExit) { with_book({"title" => "T"}) { } }
+      assert_raises(SystemExit) { with_book({"chapters" => ["a.md"]}) { } }
+    end
   end
 
   def test_defaults

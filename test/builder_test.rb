@@ -11,7 +11,7 @@ class BuilderTest < Minitest::Test
         File.write(path, content)
       end
       File.write(File.join(dir, "book.yml"), YAML.dump(data))
-      Ligarb::Builder.new(File.join(dir, "book.yml")).build
+      capture_io { Ligarb::Builder.new(File.join(dir, "book.yml")).build }
       yield dir
     end
   end
