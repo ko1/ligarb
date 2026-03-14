@@ -163,6 +163,23 @@
     if (searchInput && searchInput.value) {
       highlightContent(searchInput.value);
     }
+
+    // Render mermaid/KaTeX in newly visible chapter if not yet rendered
+    var section = document.getElementById('chapter-' + slug);
+    if (section) {
+      if (typeof mermaid !== 'undefined') {
+        var unrendered = section.querySelectorAll('.mermaid:not([data-processed])');
+        if (unrendered.length > 0) mermaid.run({nodes: unrendered});
+      }
+      if (typeof katex !== 'undefined') {
+        section.querySelectorAll('.math-block:empty, .math-block[data-math]').forEach(function(el) {
+          if (el.getAttribute('data-math') && el.childNodes.length === 0) {
+            try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
+            catch(e) { el.textContent = el.getAttribute('data-math'); }
+          }
+        });
+      }
+    }
   }
 
   function showChapterAndScroll(slug, headingId) {
@@ -357,16 +374,26 @@
 <script src="js/mermaid.min.js"></script>
 <script>
 mermaid.initialize({startOnLoad: false});
-mermaid.run({querySelector: '.mermaid'});
+// Render mermaid in the currently visible chapter
+var visibleSection = document.querySelector('.chapter[style*="display: block"]');
+if (visibleSection) {
+  var nodes = visibleSection.querySelectorAll('.mermaid:not([data-processed])');
+  if (nodes.length > 0) mermaid.run({nodes: nodes});
+}
 </script>
 <%- end -%>
 <%- if assets.need?(:katex) -%>
 <script src="js/katex.min.js"></script>
 <script>
-document.querySelectorAll('.math-block').forEach(function(el) {
-  try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
-  catch(e) { el.textContent = el.getAttribute('data-math'); }
-});
+// Render KaTeX in the currently visible chapter
+(function() {
+  var visibleSection = document.querySelector('.chapter[style*="display: block"]');
+  var targets = visibleSection ? visibleSection.querySelectorAll('.math-block[data-math]') : document.querySelectorAll('.math-block[data-math]');
+  targets.forEach(function(el) {
+    try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
+    catch(e) { el.textContent = el.getAttribute('data-math'); }
+  });
+})();
 </script>
 <%- end -%>
 </body>
