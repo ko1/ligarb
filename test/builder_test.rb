@@ -112,4 +112,40 @@ class BuilderTest < Minitest::Test
       assert File.exist?(File.join(dir, "build", "images", "pic.png"))
     end
   end
+
+  def test_cross_reference
+    data = {"title" => "Test", "chapters" => ["ch1.md", "ch2.md"]}
+    files = {
+      "ch1.md" => "# First\n\nSee [second chapter](ch2.md) and [setup](ch2.md#Setup).",
+      "ch2.md" => "# Second\n\n## Setup\n\nContent"
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, 'href="#ch2"'
+      assert_includes html, 'href="#ch2--setup"'
+      assert_includes html, ">second chapter</a>"
+      assert_includes html, ">setup</a>"
+    end
+  end
+
+  def test_cross_reference_auto_text
+    data = {"title" => "Test", "chapters" => ["ch1.md", "ch2.md"]}
+    files = {
+      "ch1.md" => "# First\n\nSee [](ch2.md) and [](ch2.md#Details).",
+      "ch2.md" => "# Second\n\n## Details\n\nContent"
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, ">2. Second</a>"
+      assert_includes html, ">2.1 Details</a>"
+    end
+  end
+
+  def test_cross_reference_missing_target
+    data = {"title" => "Test", "chapters" => ["ch1.md"]}
+    files = {"ch1.md" => "# Ch\n\n[link](missing.md)"}
+    assert_raises(Ligarb::Chapter::CrossReferenceError) do
+      build_book(data, files: files) { |_dir| }
+    end
+  end
 end

@@ -879,6 +879,21 @@ mark.search-highlight {
               <li>
                 <a href="#04-markdown--実際の例" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--実際の例')">4.3.4 実際の例</a>
               </li>
+              <li>
+                <a href="#04-markdown--相互参照cross-references" class="toc-h2" onclick="showChapterAndScroll('04-markdown', '04-markdown--相互参照cross-references')">4.4 相互参照（Cross-References）</a>
+              </li>
+              <li>
+                <a href="#04-markdown--基本的な使い方" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--基本的な使い方')">4.4.1 基本的な使い方</a>
+              </li>
+              <li>
+                <a href="#04-markdown--リンクテキストの自動挿入" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--リンクテキストの自動挿入')">4.4.2 リンクテキストの自動挿入</a>
+              </li>
+              <li>
+                <a href="#04-markdown--パスの解決" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--パスの解決')">4.4.3 パスの解決</a>
+              </li>
+              <li>
+                <a href="#04-markdown--エラー検出" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--エラー検出')">4.4.4 エラー検出</a>
+              </li>
             </ul>
           </li>
           <li class="toc-chapter" data-chapter="05-build">
@@ -1514,6 +1529,51 @@ LaTeX 記法で数式を記述します。</p>
   <p>索引マーカーは通常のテキストとして表示され、リンクのスタイルにはなりません。
 本の末尾に「索引」セクションが自動的に追加されます。</p>
 </blockquote>
+
+<h2 id="04-markdown--相互参照cross-references">4.4 相互参照（Cross-References）</h2>
+
+<p>他の章や見出しへのリンクを、標準の Markdown リンク記法で作成できます。
+ビルド時に <code>.md</code> ファイルへの相対リンクが単一 HTML 内のアンカーに変換されます。</p>
+
+<h3 id="04-markdown--基本的な使い方">4.4.1 基本的な使い方</h3>
+
+<p><span id="04-markdown--idx-10">相互参照</span>は通常の Markdown リンクとして記述します。リンク先に <code>.md</code> ファイルを指定すると、ビルド時に自動的に解決されます:</p>
+
+<pre><code class="language-markdown">[設定の詳細](03-book-yml.md)
+</code></pre>
+
+<p>特定の見出しへリンクするには <code>#</code> でフラグメントを指定します:</p>
+
+<pre><code class="language-markdown">[chapters フィールド](03-book-yml.md#chapters フィールド)
+</code></pre>
+
+<h3 id="04-markdown--リンクテキストの自動挿入">4.4.2 リンクテキストの自動挿入</h3>
+
+<p>リンクテキストを空にすると、リンク先の章タイトルや見出しテキスト（番号付き）が自動的に挿入されます:</p>
+
+<pre><code class="language-markdown">詳しくは [](03-book-yml.md) を参照してください。
+設定項目は [](03-book-yml.md#chapters フィールド) で説明しています。
+</code></pre>
+
+<p>上の例では、リンクテキストがそれぞれ「3. book.yml の設定」「3.1 chapters フィールド」のように章番号・セクション番号付きで表示されます。</p>
+
+<h3 id="04-markdown--パスの解決">4.4.3 パスの解決</h3>
+
+<p><code>.md</code> のパスは、現在の Markdown ファイルのディレクトリからの相対パスとして解決されます。同じディレクトリにある章ファイルへはファイル名だけで参照できます。</p>
+
+<h3 id="04-markdown--エラー検出">4.4.4 エラー検出</h3>
+
+<p>参照先の章ファイルや見出しが存在しない場合、ビルドはエラーで停止します:</p>
+
+<pre><code>Error: cross-reference target not found: missing.md (from 01-introduction.md)
+Error: cross-reference heading not found: 03-book-yml.md#typo (from 04-markdown.md)
+</code></pre>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>相互参照は GitHub 上でも通常の相対リンクとして機能するため、
+GitHub でソースを閲覧する際にもリンクが有効です。</p>
+</div>
 <div class="footnotes" role="doc-endnotes">
   <ol>
     <li id="fn:04-markdown--1">
@@ -1967,6 +2027,13 @@ book.yml にも登録してください。
       <dl class="index-entries">
         <dt>目次</dt>
         <dd><a href="#01-introduction--idx-2" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-2'); return false;">1. はじめに</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">相</h2>
+      <dl class="index-entries">
+        <dt>相互参照</dt>
+        <dd><a href="#04-markdown--idx-10" onclick="showChapterAndScroll('04-markdown', '04-markdown--idx-10'); return false;">4. Markdown の書き方と画像の配置</a></dd>
       </dl>
     </div>
     <div class="index-group">

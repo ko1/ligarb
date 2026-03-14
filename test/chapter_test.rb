@@ -185,4 +185,119 @@ class ChapterTest < Minitest::Test
       assert_empty ch.index_entries
     end
   end
+
+  # Cross-reference tests
+
+  def test_cross_reference_with_text
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [config chapter](ch2.md).")
+      File.write(File.join(dir, "ch2.md"), "# Config\n\n## Setup\n\nContent")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch2 = Ligarb::Chapter.new(File.join(dir, "ch2.md"), dir)
+
+      chapter_map = {
+        File.join(dir, "ch2.md") => {
+          slug: ch2.slug, chapter: ch2,
+          headings: ch2.headings.each_with_object({}) { |h, m| m[h.id] = h }
+        }
+      }
+      ch1.resolve_cross_references!(chapter_map)
+      assert_includes ch1.html, '<a href="#ch2">config chapter</a>'
+    end
+  end
+
+  def test_cross_reference_with_heading
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [setup](ch2.md#Setup).")
+      File.write(File.join(dir, "ch2.md"), "# Config\n\n## Setup\n\nContent")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch2 = Ligarb::Chapter.new(File.join(dir, "ch2.md"), dir)
+
+      chapter_map = {
+        File.join(dir, "ch2.md") => {
+          slug: ch2.slug, chapter: ch2,
+          headings: ch2.headings.each_with_object({}) { |h, m| m[h.id] = h }
+        }
+      }
+      ch1.resolve_cross_references!(chapter_map)
+      assert_includes ch1.html, '<a href="#ch2--setup">setup</a>'
+    end
+  end
+
+  def test_cross_reference_auto_text_chapter
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [](ch2.md).")
+      File.write(File.join(dir, "ch2.md"), "# Config Guide\n\nContent")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch2 = Ligarb::Chapter.new(File.join(dir, "ch2.md"), dir)
+      ch2.number = 3
+
+      chapter_map = {
+        File.join(dir, "ch2.md") => {
+          slug: ch2.slug, chapter: ch2,
+          headings: ch2.headings.each_with_object({}) { |h, m| m[h.id] = h }
+        }
+      }
+      ch1.resolve_cross_references!(chapter_map)
+      assert_includes ch1.html, '<a href="#ch2">3. Config Guide</a>'
+    end
+  end
+
+  def test_cross_reference_auto_text_heading
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [](ch2.md#Setup).")
+      File.write(File.join(dir, "ch2.md"), "# Config\n\n## Setup\n\nContent")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch2 = Ligarb::Chapter.new(File.join(dir, "ch2.md"), dir)
+      ch2.number = 2
+
+      chapter_map = {
+        File.join(dir, "ch2.md") => {
+          slug: ch2.slug, chapter: ch2,
+          headings: ch2.headings.each_with_object({}) { |h, m| m[h.id] = h }
+        }
+      }
+      ch1.resolve_cross_references!(chapter_map)
+      assert_includes ch1.html, '<a href="#ch2--setup">2.1 Setup</a>'
+    end
+  end
+
+  def test_cross_reference_missing_chapter
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [x](missing.md).")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+
+      assert_raises(Ligarb::Chapter::CrossReferenceError) do
+        ch1.resolve_cross_references!({})
+      end
+    end
+  end
+
+  def test_cross_reference_missing_heading
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# Intro\n\nSee [x](ch2.md#nonexistent).")
+      File.write(File.join(dir, "ch2.md"), "# Config\n\nContent")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch2 = Ligarb::Chapter.new(File.join(dir, "ch2.md"), dir)
+
+      chapter_map = {
+        File.join(dir, "ch2.md") => {
+          slug: ch2.slug, chapter: ch2,
+          headings: ch2.headings.each_with_object({}) { |h, m| m[h.id] = h }
+        }
+      }
+      assert_raises(Ligarb::Chapter::CrossReferenceError) do
+        ch1.resolve_cross_references!(chapter_map)
+      end
+    end
+  end
+
+  def test_cross_reference_external_url_not_rewritten
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "ch1.md"), "# T\n\n[link](https://example.com/foo.md)")
+      ch1 = Ligarb::Chapter.new(File.join(dir, "ch1.md"), dir)
+      ch1.resolve_cross_references!({})
+      assert_includes ch1.html, 'href="https://example.com/foo.md"'
+    end
+  end
 end

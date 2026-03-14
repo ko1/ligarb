@@ -5,6 +5,8 @@ require "kramdown-parser-gfm"
 
 module Ligarb
   class Chapter
+    class CrossReferenceError < StandardError; end
+
     attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries
     attr_accessor :part_title, :cover, :relative_path
 
@@ -41,6 +43,44 @@ module Ligarb
 
     def cover?
       @cover
+    end
+
+    def self.generate_id(text)
+      text.downcase
+          .gsub(/[^\p{L}\p{N}\s_-]/u, "")
+          .strip
+          .gsub(/\s+/, "-")
+    end
+
+    def resolve_cross_references!(chapter_map)
+      source_dir = File.dirname(@path)
+
+      @html = @html.gsub(%r{<a\s+href="((?!https?://)[^"]+\.md)(?:#([^"]*))?">(.*?)</a>}m) do
+        href_path = $1
+        fragment = $2
+        link_text = $3
+
+        target_path = File.expand_path(href_path, source_dir)
+        entry = chapter_map[target_path]
+        unless entry
+          raise CrossReferenceError, "cross-reference target not found: #{href_path} (from #{File.basename(@path)})"
+        end
+
+        if fragment && !fragment.empty?
+          normalized = self.class.generate_id(fragment)
+          heading = entry[:headings][normalized]
+          unless heading
+            raise CrossReferenceError, "cross-reference heading not found: #{href_path}##{fragment} (from #{File.basename(@path)})"
+          end
+          anchor = "#{entry[:slug]}--#{heading.id}"
+          text = link_text.empty? ? heading.display_text : link_text
+        else
+          anchor = entry[:slug]
+          text = link_text.empty? ? entry[:chapter].display_title : link_text
+        end
+
+        %(<a href="##{anchor}">#{text}</a>)
+      end
     end
 
     def display_title
@@ -96,10 +136,7 @@ module Ligarb
     end
 
     def generate_id(text)
-      text.downcase
-          .gsub(/[^\p{L}\p{N}\s_-]/u, "") # keep letters (any script), digits, spaces, _, -
-          .strip
-          .gsub(/\s+/, "-")
+      self.class.generate_id(text)
     end
 
     def apply_heading_ids(html)

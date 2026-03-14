@@ -374,6 +374,33 @@ module Ligarb
         - CAUTION: red (stop)
         - IMPORTANT: purple (exclamation)
 
+        == Cross-References ==
+
+        Link to other chapters or headings using standard Markdown relative links.
+        ligarb resolves .md file references to internal anchors in the single-page
+        output.
+
+        Syntax:
+
+            [link text](other-chapter.md)            Link to a chapter
+            [link text](other-chapter.md#Heading)    Link to a specific heading
+            [](other-chapter.md)                     Auto-fill with chapter title
+            [](other-chapter.md#Heading)             Auto-fill with heading text
+
+        The .md path is resolved relative to the current Markdown file's directory.
+        The heading fragment is matched against heading IDs (case-insensitive,
+        normalized the same way heading slugs are generated).
+
+        When the link text is empty, ligarb fills it with the target's display text:
+        - Chapter link: the chapter's display title (e.g. "3. Config Guide")
+        - Heading link: the heading's display text (e.g. "3.2 Setup")
+
+        If a referenced chapter or heading does not exist, the build fails with an
+        error message indicating the broken reference and its source file.
+
+        External URLs ending in .md (e.g. https://example.com/README.md) are not
+        affected — only relative paths are resolved.
+
         == Previous/Next Navigation ==
 
         Each chapter displays Previous and Next navigation links at the bottom.

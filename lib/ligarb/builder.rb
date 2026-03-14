@@ -16,6 +16,7 @@ module Ligarb
       structure = load_structure
 
       all_chapters = collect_all_chapters(structure)
+      resolve_cross_references(all_chapters)
       assign_relative_paths(all_chapters) if @config.repository
 
       assets = AssetManager.new(@config.output_path)
@@ -103,6 +104,22 @@ module Ligarb
         when :appendix_group
           (node.children || []).map(&:chapter)
         end
+      end
+    end
+
+    def resolve_cross_references(all_chapters)
+      chapter_map = {}
+      all_chapters.each do |ch|
+        abs_path = File.expand_path(ch.instance_variable_get(:@path))
+        chapter_map[abs_path] = {
+          slug: ch.slug,
+          chapter: ch,
+          headings: ch.headings.each_with_object({}) { |h, map| map[h.id] = h }
+        }
+      end
+
+      all_chapters.each do |ch|
+        ch.resolve_cross_references!(chapter_map)
       end
     end
 
