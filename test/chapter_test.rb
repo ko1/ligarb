@@ -113,4 +113,40 @@ class ChapterTest < Minitest::Test
       assert_equal "docs/ch1.md", ch.relative_path
     end
   end
+
+  # Index tests
+
+  def test_index_basic
+    make_chapter("# T\n\n[Ruby](#index) is great.") do |ch|
+      assert_equal 1, ch.index_entries.size
+      assert_equal "Ruby", ch.index_entries[0].term
+      assert_equal "Ruby", ch.index_entries[0].display_text
+      refute_includes ch.html, 'href="#index"'
+      assert_includes ch.html, '<span id="01-test--idx-0">Ruby</span>'
+    end
+  end
+
+  def test_index_custom_term
+    make_chapter("# T\n\n[dynamic typing](#index:動的型付け)") do |ch|
+      assert_equal 1, ch.index_entries.size
+      assert_equal "動的型付け", ch.index_entries[0].term
+      assert_equal "dynamic typing", ch.index_entries[0].display_text
+    end
+  end
+
+  def test_index_multiple_terms
+    make_chapter("# T\n\n[Ruby](#index:Ruby,プログラミング言語/Ruby)") do |ch|
+      assert_equal 2, ch.index_entries.size
+      assert_equal "Ruby", ch.index_entries[0].term
+      assert_equal "プログラミング言語/Ruby", ch.index_entries[1].term
+      # Both share the same anchor
+      assert_equal ch.index_entries[0].anchor_id, ch.index_entries[1].anchor_id
+    end
+  end
+
+  def test_index_no_entries
+    make_chapter("# T\n\nNo index markers here.") do |ch|
+      assert_empty ch.index_entries
+    end
+  end
 end

@@ -4,8 +4,8 @@
 
 ligarb を使うには以下が必要です:
 
-- Ruby 3.0 以上
-- Bundler（gem install bundler）
+- [Ruby](#index) 3.0 以上
+- [Bundler](#index)（gem install bundler）
 
 ## インストール
 
@@ -31,4 +31,4 @@ my-book/
     └── screenshot.png
 ```
 
-`book.yml` が設定ファイル、`chapters/` 以下に各章の Markdown ファイルを配置します。
+[`book.yml`](#index:book.yml) が設定ファイル、`chapters/` 以下に各章の Markdown ファイルを配置します。

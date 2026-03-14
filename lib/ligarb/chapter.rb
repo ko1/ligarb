@@ -5,10 +5,11 @@ require "kramdown-parser-gfm"
 
 module Ligarb
   class Chapter
-    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter
+    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries
     attr_accessor :part_title, :cover, :relative_path
 
     Heading = Struct.new(:level, :text, :id, :display_text, keyword_init: true)
+    IndexEntry = Struct.new(:term, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
 
     def initialize(path, base_dir)
       @path     = path
@@ -61,6 +62,8 @@ module Ligarb
       @html = apply_heading_ids(@html)
       @html = convert_special_code_blocks(@html)
       @html = scope_footnote_ids(@html)
+      @index_entries = []
+      @html = extract_index_markers(@html)
       @title = @headings.first&.text || @slug
     end
 
@@ -142,6 +145,33 @@ module Ligarb
     def scope_footnote_ids(html)
       html.gsub(/(id="|href="#)(fn:|fnref:)(\w+)/) do
         "#{$1}#{$2}#{@slug}--#{$3}"
+      end
+    end
+
+    def extract_index_markers(html)
+      idx_count = 0
+      html.gsub(%r{<a\s+href="#index(?::([^"]*))?">(.*?)</a>}m) do
+        terms_str = $1
+        display_text = $2
+        anchor_id = "#{@slug}--idx-#{idx_count}"
+        idx_count += 1
+
+        terms = if terms_str && !terms_str.empty?
+                  terms_str.split(",").map(&:strip)
+                else
+                  [display_text.gsub(/<[^>]+>/, "")]  # strip any HTML tags for the term
+                end
+
+        terms.each do |term|
+          @index_entries << IndexEntry.new(
+            term: term,
+            display_text: display_text,
+            chapter_slug: @slug,
+            anchor_id: anchor_id
+          )
+        end
+
+        %(<span id="#{anchor_id}">#{display_text}</span>)
       end
     end
 

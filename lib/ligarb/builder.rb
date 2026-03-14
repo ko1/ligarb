@@ -22,8 +22,16 @@ module Ligarb
       assets.detect(all_chapters)
       assets.provision!
 
+      index_entries = all_chapters.flat_map { |ch|
+        ch.index_entries.map { |e|
+          e.class.new(term: e.term, display_text: e.display_text,
+                      chapter_slug: e.chapter_slug, anchor_id: e.anchor_id)
+        }
+      }
+
       html = Template.new.render(config: @config, chapters: all_chapters,
-                                 structure: structure, assets: assets)
+                                 structure: structure, assets: assets,
+                                 index_entries: index_entries)
 
       FileUtils.mkdir_p(@config.output_path)
       output_file = File.join(@config.output_path, "index.html")

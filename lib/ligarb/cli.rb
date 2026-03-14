@@ -296,6 +296,21 @@ module Ligarb
         Footnote IDs are scoped per chapter to avoid collisions in the single-page
         output.
 
+        == Index ==
+
+        Mark terms for the book index using Markdown link syntax with #index:
+
+            [Ruby](#index)                           Index the link text as-is
+            [dynamic typing](#index:動的型付け)       Index under a specific term
+            [Ruby](#index:Ruby,Languages/Ruby)       Multiple index entries (comma-separated)
+            [Ruby](#index:Languages/Ruby)            Hierarchical: Languages > Ruby
+
+        The link is rendered as plain text in the output (no link styling).
+        An "Index" section is automatically appended at the end of the book,
+        with terms sorted alphabetically and grouped by first character.
+
+        Clicking an index entry navigates to the exact location in the chapter.
+
         == Custom CSS ==
 
         Add a 'style' field to book.yml to inject custom CSS:

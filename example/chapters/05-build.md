@@ -2,7 +2,7 @@
 
 ## ビルドコマンド
 
-本のプロジェクトディレクトリで以下を実行します:
+本のプロジェクトディレクトリで以下を実行します（[`ligarb build`](#index:ligarb build)）:
 
 ```bash
 ligarb build
@@ -26,7 +26,7 @@ build/
 
 ## 確認方法
 
-生成された `index.html` をブラウザで直接開くだけで閲覧できます。
+生成された [`index.html`](#index:index.html) をブラウザで直接開くだけで閲覧できます。
 Web サーバーは不要です:
 
 ```bash
@@ -49,7 +49,7 @@ xdg-open build/index.html
 
 ## ヘルプ
 
-ligarb の詳しい使い方は `help` コマンドで確認できます:
+ligarb の詳しい使い方は [`ligarb help`](#index:ligarb help) コマンドで確認できます:
 
 ```bash
 ligarb help

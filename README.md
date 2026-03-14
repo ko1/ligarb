@@ -1,19 +1,33 @@
 # ligarb
 
-複数の Markdown ファイルから単一の HTML ファイルを生成する CLI ツール。
+複数の Markdown ファイルから単一ページの HTML 本を生成する CLI ツール。
+
+**[チュートリアル（実際の出力例）](https://ko1.github.io/ligarb/example/build/index.html)**
 
 ## 特徴
 
-- Markdown ファイル群 → 単一 `index.html`
+- Markdown ファイル群 → 単一 `index.html`（Web サーバー不要）
 - 検索可能な目次サイドバー（h1〜h3）
 - 章ごとの表示切り替え + パーマリンク
-- レスポンシブ・印刷対応
-- Web サーバー不要（ファイルを開くだけ）
+- Part / Appendix による構造化
+- 章・節の自動ナンバリング
+- コードハイライト（highlight.js）、図表（mermaid）、数式（KaTeX）を自動検出・ダウンロード
+- 脚注（kramdown 記法、章ごとにスコープ）
+- ダークモード切り替え
+- カスタム CSS 対応
+- GitHub リンク（View on GitHub）
+- レスポンシブ・印刷対応（ページ番号付き）
 
 ## インストール
 
 ```bash
-git clone https://github.com/ligarb/ligarb.git
+gem install ligarb
+```
+
+開発版を使う場合:
+
+```bash
+git clone https://github.com/ko1/ligarb.git
 cd ligarb
 bundle install
 ```
@@ -22,53 +36,67 @@ bundle install
 
 ### 1. プロジェクトを作成
 
-```
-my-book/
-├── book.yml
-├── chapters/
-│   ├── 01-introduction.md
-│   └── 02-details.md
-└── images/
-    └── screenshot.png
+```bash
+ligarb init my-book
+cd my-book
 ```
 
-### 2. book.yml を書く
+`book.yml` と雛形の Markdown ファイルが生成されます。
+
+### 2. book.yml を編集
 
 ```yaml
 title: "My Book"
-author: "Author"
+author: "Author Name"
 language: "ja"
 chapters:
-  - chapters/01-introduction.md
-  - chapters/02-details.md
+  - 01-introduction.md
+  - 02-getting-started.md
+```
+
+Part や Appendix を使った構造化も可能です:
+
+```yaml
+title: "My Book"
+author: "Author Name"
+language: "ja"
+repository: "https://github.com/user/repo"
+chapters:
+  - cover: cover.md
+  - part: part1.md
+    chapters:
+      - 01-introduction.md
+      - 02-getting-started.md
+  - part: part2.md
+    chapters:
+      - 03-advanced.md
+  - appendix:
+    - a1-references.md
 ```
 
 ### 3. ビルド
 
 ```bash
-ruby exe/ligarb build my-book/book.yml
+ligarb build
 ```
 
-`build/index.html` が生成されます。ブラウザで開いて確認してください。
+`build/index.html` が生成されます。ブラウザで開いてください。
 
 ## AI 連携
 
-`ligarb help` の出力を AI に読ませることで、AI が仕様に従って本を自動生成できます。
+`ligarb help` の出力は AI が読むことを想定した仕様書を兼ねています。AI に読ませることで、仕様に従った本の自動生成が可能です。
 
 ```bash
-ruby exe/ligarb help
+ligarb help
 ```
 
-## サンプル
+サンプルプロンプト:
 
-`example/` にチュートリアル本が含まれています:
-
-```bash
-ruby exe/ligarb build example/book.yml
-open example/build/index.html
 ```
-
-オンラインでも確認できます: [ligarb チュートリアル](https://ko1.github.io/ligarb/example/build/index.html)
+$(ligarb help) を読んで、ligarb の仕様に従って「Git 入門」という本を作ってください。
+対象読者は初心者で、5 章構成にしてください。
+mermaid でワークフロー図を入れてください。
+```
 
 ## 詳細仕様
 

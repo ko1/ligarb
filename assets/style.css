@@ -561,6 +561,52 @@ mark.search-highlight {
   }
 }
 
+/* === Index === */
+.index-group {
+  margin-bottom: 1.5rem;
+}
+
+.index-letter {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.index-entries {
+  margin-left: 0;
+}
+
+.index-entries dt {
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.index-entries dt.index-sub {
+  font-weight: 400;
+  margin-left: 1.5rem;
+}
+
+.index-entries dd {
+  margin-left: 1.5rem;
+  font-size: 0.92rem;
+}
+
+.index-entries dd.index-sub {
+  margin-left: 3rem;
+}
+
+.index-entries dd a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.index-entries dd a:hover {
+  text-decoration: underline;
+}
+
 /* === Print === */
 @media print {
   .sidebar,

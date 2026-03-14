@@ -4,12 +4,12 @@
 
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
-| `title` | String | はい | — | 本のタイトル |
-| `author` | String | いいえ | `""` | 著者名 |
-| `language` | String | いいえ | `"en"` | HTML の `lang` 属性 |
-| `output_dir` | String | いいえ | `"build"` | 出力ディレクトリ |
-| `chapter_numbers` | Boolean | いいえ | `true` | 章番号の表示 |
-| `chapters` | Array | はい | — | 章・パート・付録の構成 |
+| [`title`](#index:book.yml/title) | String | はい | — | 本のタイトル |
+| [`author`](#index:book.yml/author) | String | いいえ | `""` | 著者名 |
+| [`language`](#index:book.yml/language) | String | いいえ | `"en"` | HTML の `lang` 属性 |
+| [`output_dir`](#index:book.yml/output_dir) | String | いいえ | `"build"` | 出力ディレクトリ |
+| [`chapter_numbers`](#index:book.yml/chapter_numbers) | Boolean | いいえ | `true` | 章番号の表示 |
+| [`chapters`](#index:book.yml/chapters) | Array | はい | — | 章・パート・付録の構成 |
 
 ## chapters の構成要素
 

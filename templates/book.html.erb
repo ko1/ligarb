@@ -103,6 +103,11 @@
       </li>
         <%- end -%>
       <%- end -%>
+      <%- unless index_tree.empty? -%>
+      <li class="toc-chapter" data-chapter="__index__">
+        <a href="#__index__" class="toc-h1" onclick="showChapter('__index__')"><%= language == 'ja' ? '索引' : 'Index' %></a>
+      </li>
+      <%- end -%>
     </ul>
   </nav>
 </div>
@@ -132,11 +137,35 @@
     <%- end -%>
   </section>
   <%- end -%>
+  <%- unless index_tree.empty? -%>
+  <section class="chapter index-chapter" id="chapter-__index__" style="display: none;">
+    <h1><%= language == 'ja' ? '索引' : 'Index' %></h1>
+    <%- index_tree.keys.sort.each do |letter| -%>
+    <div class="index-group">
+      <h2 class="index-letter"><%= letter %></h2>
+      <dl class="index-entries">
+        <%- index_tree[letter].each do |item| -%>
+        <dt><%= item[:term] %></dt>
+        <%- item[:refs].each do |ref| -%>
+        <dd><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
+        <%- end -%>
+        <%- item[:children].each do |child| -%>
+        <dt class="index-sub"><%= child[:term] %></dt>
+        <%- child[:refs].each do |ref| -%>
+        <dd class="index-sub"><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
+        <%- end -%>
+        <%- end -%>
+        <%- end -%>
+      </dl>
+    </div>
+    <%- end -%>
+  </section>
+  <%- end -%>
 </main>
 
 <script>
 (function() {
-  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %>];
+  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__index__"' unless index_tree.empty? %>];
   var currentChapter = null;
 
   function showChapter(slug) {
