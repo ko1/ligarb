@@ -2,7 +2,7 @@
 
 複数の Markdown ファイルから単一ページの HTML 本を生成する CLI ツール。
 
-**[チュートリアル（実際の出力例）](https://ko1.github.io/ligarb/example/build/index.html)**
+**[マニュアル（実際の出力例）](https://ko1.github.io/ligarb/manual/build/index.html)**
 
 ## 特徴
 

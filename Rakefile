@@ -10,9 +10,9 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["test/**/*_test.rb"]
 end
 
-desc "Build the example book"
-task :example do
-  ruby "exe/ligarb build example/book.yml"
+desc "Build the manual book"
+task :manual do
+  ruby "exe/ligarb build manual/book.yml"
 end
 
-task default: [:test, :example]
+task default: [:test, :manual]

@@ -15,7 +15,7 @@ Markdown ファイルから単一ページの HTML 本を生成する CLI ツー
 - `templates/book.html.erb` - 出力 HTML のテンプレート（JS 含む）
 - `assets/style.css` - 出力 HTML のスタイル（ダークモード含む）
 - `test/` - minitest テスト
-- `example/` - チュートリアル本（ligarb 自身で作成）
+- `manual/` - マニュアル本（ligarb 自身で作成）
 - `docs/spec.md` - 日本語の詳細仕様
 - `docs/todo.md` - 未実装機能の TODO
 
@@ -25,11 +25,11 @@ Markdown ファイルから単一ページの HTML 本を生成する CLI ツー
 # テスト実行
 rake test
 
-# example/ のビルド
-rake example
+# manual/ のビルド
+rake manual
 
 # 直接ビルド
-ruby exe/ligarb build example/book.yml
+ruby exe/ligarb build manual/book.yml
 
 # help 出力確認（AI 向け仕様書を兼ねる）
 ruby exe/ligarb help
@@ -52,4 +52,4 @@ ruby exe/ligarb help
 仕様変更時は以下の 3 箇所を同期すること:
 1. `lib/ligarb/cli.rb` の `print_spec`（`ligarb help` の出力、英語）
 2. `docs/spec.md`（日本語の詳細仕様）
-3. `example/chapters/` の該当チュートリアル章
+3. `manual/chapters/` の該当マニュアル章

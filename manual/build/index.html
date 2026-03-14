@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ligarb チュートリアル</title>
+<title>ligarb マニュアル</title>
 <style>
 /* === Reset & Base === */
 *, *::before, *::after {
@@ -383,6 +383,53 @@ mark.search-highlight {
   border-radius: 2px;
 }
 
+/* === Admonitions === */
+.admonition {
+  border-left: 4px solid;
+  border-radius: 0 4px 4px 0;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.admonition p:last-child {
+  margin-bottom: 0;
+}
+
+.admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem !important;
+}
+
+.admonition-note {
+  border-left-color: #2563eb;
+  background: #eff6ff;
+}
+.admonition-note .admonition-title::before { content: "\2139\FE0F  "; }
+
+.admonition-tip {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+.admonition-tip .admonition-title::before { content: "\1F4A1  "; }
+
+.admonition-warning {
+  border-left-color: #ca8a04;
+  background: #fefce8;
+}
+.admonition-warning .admonition-title::before { content: "\26A0\FE0F  "; }
+
+.admonition-caution {
+  border-left-color: #dc2626;
+  background: #fef2f2;
+}
+.admonition-caution .admonition-title::before { content: "\1F6D1  "; }
+
+.admonition-important {
+  border-left-color: #9333ea;
+  background: #faf5ff;
+}
+.admonition-important .admonition-title::before { content: "\2757  "; }
+
 /* === Dark Mode === */
 [data-theme="dark"] {
   --color-bg: #1a1a2e;
@@ -395,6 +442,22 @@ mark.search-highlight {
   --color-accent-light: #1c3a5c;
   --color-code-bg: #0f172a;
   --color-code-border: #2d3748;
+}
+
+[data-theme="dark"] .admonition-note {
+  background: #1e2a3a;
+}
+[data-theme="dark"] .admonition-tip {
+  background: #1a2e1a;
+}
+[data-theme="dark"] .admonition-warning {
+  background: #2e2a1a;
+}
+[data-theme="dark"] .admonition-caution {
+  background: #2e1a1a;
+}
+[data-theme="dark"] .admonition-important {
+  background: #2a1a2e;
 }
 
 [data-theme="dark"] .search-box input {
@@ -674,7 +737,7 @@ mark.search-highlight {
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-top">
-      <h1 class="book-title"><a href="#cover" onclick="showChapter('cover'); return false;">ligarb チュートリアル</a></h1>
+      <h1 class="book-title"><a href="#cover" onclick="showChapter('cover'); return false;">ligarb マニュアル</a></h1>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
     </div>
     <p class="book-author">Claude Code (asked by @ko1)</p>
@@ -698,7 +761,7 @@ mark.search-highlight {
                 <a href="#01-introduction--特徴" class="toc-h2" onclick="showChapterAndScroll('01-introduction', '01-introduction--特徴')">1.2 特徴</a>
               </li>
               <li>
-                <a href="#01-introduction--このチュートリアルについて" class="toc-h2" onclick="showChapterAndScroll('01-introduction', '01-introduction--このチュートリアルについて')">1.3 このチュートリアルについて</a>
+                <a href="#01-introduction--このマニュアルについて" class="toc-h2" onclick="showChapterAndScroll('01-introduction', '01-introduction--このマニュアルについて')">1.3 このマニュアルについて</a>
               </li>
             </ul>
           </li>
@@ -784,7 +847,10 @@ mark.search-highlight {
                 <a href="#04-markdown--引用" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--引用')">4.1.7 引用</a>
               </li>
               <li>
-                <a href="#04-markdown--脚注" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--脚注')">4.1.8 脚注</a>
+                <a href="#04-markdown--admonition注意書きボックス" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--admonition注意書きボックス')">4.1.8 Admonition（注意書きボックス）</a>
+              </li>
+              <li>
+                <a href="#04-markdown--脚注" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--脚注')">4.1.9 脚注</a>
               </li>
               <li>
                 <a href="#04-markdown--画像の配置" class="toc-h2" onclick="showChapterAndScroll('04-markdown', '04-markdown--画像の配置')">4.2 画像の配置</a>
@@ -902,9 +968,9 @@ mark.search-highlight {
 
 <main class="content" id="content">
   <section class="chapter cover-page" id="chapter-cover" style="display: none;">
-    <h1 id="cover--ligarb-チュートリアル">ligarb チュートリアル</h1>
+    <h1 id="cover--ligarb-マニュアル">ligarb マニュアル</h1>
 
-<p>Markdown ファイルから本を作る、シンプルな CLI ツールの使い方を学びましょう。</p>
+<p>Markdown ファイルから本を作る、シンプルな CLI ツールの完全解説。</p>
 
   </section>
   <section class="chapter" id="chapter-part1" style="display: none;">
@@ -937,13 +1003,13 @@ mark.search-highlight {
   <li><strong>印刷対応</strong>: 印刷時はすべての章を展開して出力します</li>
 </ul>
 
-<h2 id="01-introduction--このチュートリアルについて">1.3 このチュートリアルについて</h2>
+<h2 id="01-introduction--このマニュアルについて">1.3 このマニュアルについて</h2>
 
-<p>このチュートリアル自体が ligarb で作られています。
-以降の章で、インストールから本のビルドまでの手順を説明します。</p>
+<p>このマニュアル自体が ligarb で作られています。
+以降の章で、インストールから本のビルドまでを解説します。</p>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/01-introduction.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/01-introduction.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('part1'); return false;">&larr; 基本編</a>
@@ -987,7 +1053,7 @@ bundle install
 <p><span id="02-install--idx-2"><code>book.yml</code></span> が設定ファイル、<code>chapters/</code> 以下に各章の Markdown ファイルを配置します。</p>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/02-install.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/02-install.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('01-introduction'); return false;">&larr; 1. はじめに</a>
@@ -1155,7 +1221,7 @@ chapters:
 </code></pre>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/03-book-yml.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/03-book-yml.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('02-install'); return false;">&larr; 2. インストールと準備</a>
@@ -1321,7 +1387,47 @@ LaTeX 記法で数式を記述します。</p>
 &gt; 複数行に渡ることもできます。
 </code></pre>
 
-<h3 id="04-markdown--脚注">4.1.8 脚注</h3>
+<h3 id="04-markdown--admonition注意書きボックス">4.1.8 Admonition（注意書きボックス）</h3>
+
+<p>GFM の blockquote alert 記法で、スタイル付きの注意書きボックスを作成できます:</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>これは補足情報です。読者に追加のコンテキストを提供します。</p>
+</div>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>役立つアドバイスやベストプラクティスを伝えるときに使います。</p>
+</div>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>注意が必要な事項を伝えるときに使います。</p>
+</div>
+
+<div class="admonition admonition-caution">
+<p class="admonition-title">Caution</p>
+<p>危険な操作や取り返しのつかない変更について警告します。</p>
+</div>
+
+<div class="admonition admonition-important">
+<p class="admonition-title">Important</p>
+<p>重要な情報を強調します。</p>
+</div>
+
+<p>記法は以下の通りです:</p>
+
+<pre><code class="language-markdown">&gt; [!NOTE]
+&gt; ここに補足情報を書きます。
+
+&gt; [!TIP]
+&gt; ここにアドバイスを書きます。
+</code></pre>
+
+<p>対応するタイプは <code>NOTE</code>、<code>TIP</code>、<code>WARNING</code>、<code>CAUTION</code>、<code>IMPORTANT</code> の 5 種類です。</p>
+
+<h3 id="04-markdown--脚注">4.1.9 脚注</h3>
 
 <p>テキスト中に<span id="04-markdown--idx-4">脚注</span>を挿入できます<sup id="fnref:04-markdown--1"><a href="#fn:04-markdown--1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>。複数の脚注も使えます<sup id="fnref:04-markdown--2"><a href="#fn:04-markdown--2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup>。</p>
 
@@ -1397,7 +1503,7 @@ LaTeX 記法で数式を記述します。</p>
 
 <h3 id="04-markdown--実際の例">4.3.4 実際の例</h3>
 
-<p>以下はこのチュートリアル内での索引マーカーの例です:</p>
+<p>以下はこのマニュアル内での索引マーカーの例です:</p>
 
 <p><span id="04-markdown--idx-6">Markdown</span> は軽量マークアップ言語です。
 <span id="04-markdown--idx-7">highlight.js</span> によるシンタックスハイライト、
@@ -1420,7 +1526,7 @@ LaTeX 記法で数式を記述します。</p>
 </div>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/04-markdown.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/04-markdown.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('part2'); return false;">&larr; 活用編</a>
@@ -1486,7 +1592,7 @@ xdg-open build/index.html
 AI が仕様を読み取って <code>book.yml</code> と Markdown ファイルを自動生成できます。</p>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/05-build.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/05-build.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('04-markdown'); return false;">&larr; 4. Markdown の書き方と画像の配置</a>
@@ -1517,7 +1623,7 @@ AI が本を作るために必要な情報がすべて含まれています。</
 - 章構成: 5 章程度
 - 言語: 日本語
 
-[ligarb init](#index:ligarb init) で雛形を作ってから、章を追加してください。
+ligarb init で雛形を作ってから、章を追加してください。
 </code></pre>
 
 <h3 id="06-ai--既存のドキュメントを本にする">6.2.2 既存のドキュメントを本にする</h3>
@@ -1562,7 +1668,7 @@ book.yml にも登録してください。
 </ul>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/06-ai.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/06-ai.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('05-build'); return false;">&larr; 5. ビルドと確認</a>
@@ -1663,7 +1769,7 @@ book.yml にも登録してください。
 <p>付録の章には数字ではなくアルファベット（A, B, C, …）で番号が付きます。</p>
 
     <div class="edit-link">
-      <a href="https://github.com/ko1/ligarb/blob/HEAD/example/chapters/a1-config-reference.md" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/a1-config-reference.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('06-ai'); return false;">&larr; 6. AI と一緒に使う</a>
