@@ -167,6 +167,36 @@ body {
   background: var(--color-accent-light);
 }
 
+/* Part & Appendix titles in TOC */
+.toc-part-title {
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  color: var(--color-text) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-top: 0.6rem !important;
+  padding-bottom: 0.3rem !important;
+  border-left-color: transparent !important;
+}
+
+.toc-part > ul {
+  margin-bottom: 0.5rem;
+}
+
+.toc-appendix-title {
+  display: block;
+  padding: 0.6rem 1rem 0.3rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.toc-appendix > ul {
+  margin-bottom: 0.5rem;
+}
+
 /* Sidebar toggle */
 .sidebar-toggle {
   display: none;
