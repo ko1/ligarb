@@ -68,6 +68,8 @@ ruby exe/ligarb build example/book.yml
 open example/build/index.html
 ```
 
+オンラインでも確認できます: [ligarb チュートリアル](https://ko1.github.io/ligarb/docs/tutorial.html)
+
 ## 詳細仕様
 
 [docs/spec.md](docs/spec.md) を参照してください。
