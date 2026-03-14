@@ -68,7 +68,7 @@ ruby exe/ligarb build example/book.yml
 open example/build/index.html
 ```
 
-オンラインでも確認できます: [ligarb チュートリアル](https://ko1.github.io/ligarb/docs/tutorial.html)
+オンラインでも確認できます: [ligarb チュートリアル](https://ko1.github.io/ligarb/example/build/index.html)
 
 ## 詳細仕様
 
