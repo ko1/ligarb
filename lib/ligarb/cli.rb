@@ -345,6 +345,35 @@ module Ligarb
         Each chapter will show a "View on GitHub" link pointing to:
         {repository}/blob/HEAD/{path-from-git-root}
 
+        == Admonitions ==
+
+        GFM-style blockquote alerts are converted to styled admonition boxes.
+        Five types are supported: NOTE, TIP, WARNING, CAUTION, IMPORTANT.
+
+        Syntax:
+
+            > [!NOTE]
+            > This is a note.
+
+            > [!TIP]
+            > Helpful advice here.
+
+            > [!WARNING]
+            > Be careful about this.
+
+            > [!CAUTION]
+            > Dangerous operation.
+
+            > [!IMPORTANT]
+            > Critical information.
+
+        Each type renders with a distinct color and icon:
+        - NOTE: blue (info)
+        - TIP: green (lightbulb)
+        - WARNING: yellow (warning)
+        - CAUTION: red (stop)
+        - IMPORTANT: purple (exclamation)
+
         == Previous/Next Navigation ==
 
         Each chapter displays Previous and Next navigation links at the bottom.

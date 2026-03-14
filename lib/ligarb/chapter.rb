@@ -61,6 +61,7 @@ module Ligarb
       @html = rewrite_image_paths(doc.to_html)
       @html = apply_heading_ids(@html)
       @html = convert_special_code_blocks(@html)
+      @html = convert_admonitions(@html)
       @html = scope_footnote_ids(@html)
       @index_entries = []
       @html = extract_index_markers(@html)
@@ -140,6 +141,32 @@ module Ligarb
 
     def encode_attr(text)
       text.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
+    end
+
+    ADMONITION_TITLES = {
+      "NOTE" => "Note",
+      "TIP" => "Tip",
+      "WARNING" => "Warning",
+      "CAUTION" => "Caution",
+      "IMPORTANT" => "Important",
+    }.freeze
+
+    def convert_admonitions(html)
+      html.gsub(%r{<blockquote>\s*<p>\[!(NOTE|TIP|WARNING|CAUTION|IMPORTANT)\]\s*\n?(.*?)</p>(.*?)</blockquote>}m) do
+        type = $1
+        first_content = $2.strip
+        rest = $3
+        css_class = type.downcase
+        title = ADMONITION_TITLES[type]
+
+        inner = if first_content.empty?
+                  rest
+                else
+                  "<p>#{first_content}</p>#{rest}"
+                end
+
+        %(<div class="admonition admonition-#{css_class}">\n<p class="admonition-title">#{title}</p>\n#{inner}</div>)
+      end
     end
 
     def scope_footnote_ids(html)

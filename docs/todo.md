@@ -1,9 +1,5 @@
 # TODO
 
-## admonition（note/warning/tip ボックス）
-
-GFM の blockquote alert 記法（`> [!NOTE]`, `> [!WARNING]`, `> [!TIP]` 等）を検出して、スタイル付きの HTML ボックスに変換する。GitHub で既に広く使われている記法なので、互換性が高い。
-
 ## コードタブ
 
 連続するコードブロックをタブ UIでまとめて表示する機能。記法の設計が必要。

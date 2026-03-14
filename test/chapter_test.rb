@@ -144,6 +144,42 @@ class ChapterTest < Minitest::Test
     end
   end
 
+  # Admonition tests
+
+  def test_admonition_note
+    make_chapter("# T\n\n> [!NOTE]\n> This is a note.") do |ch|
+      assert_includes ch.html, '<div class="admonition admonition-note">'
+      assert_includes ch.html, '<p class="admonition-title">Note</p>'
+      assert_includes ch.html, "This is a note."
+      refute_includes ch.html, "<blockquote>"
+    end
+  end
+
+  def test_admonition_all_types
+    %w[NOTE TIP WARNING CAUTION IMPORTANT].each do |type|
+      make_chapter("# T\n\n> [!#{type}]\n> Content.") do |ch|
+        assert_includes ch.html, "admonition-#{type.downcase}", "Expected admonition-#{type.downcase}"
+        refute_includes ch.html, "<blockquote>"
+      end
+    end
+  end
+
+  def test_admonition_multiple_paragraphs
+    md = "# T\n\n> [!WARNING]\n> First paragraph.\n>\n> Second paragraph."
+    make_chapter(md) do |ch|
+      assert_includes ch.html, "admonition-warning"
+      assert_includes ch.html, "First paragraph."
+      assert_includes ch.html, "Second paragraph."
+    end
+  end
+
+  def test_normal_blockquote_not_converted
+    make_chapter("# T\n\n> Just a regular quote.") do |ch|
+      assert_includes ch.html, "<blockquote>"
+      refute_includes ch.html, "admonition"
+    end
+  end
+
   def test_index_no_entries
     make_chapter("# T\n\nNo index markers here.") do |ch|
       assert_empty ch.index_entries
