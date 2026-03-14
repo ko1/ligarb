@@ -188,6 +188,18 @@
       return;
     }
 
+    // Check for footnote links (fn: or fnref:)
+    var fnMatch = hash.match(/^(?:fn|fnref):(.+?)--/);
+    if (fnMatch) {
+      var fnChSlug = fnMatch[1];
+      if (chapters.indexOf(fnChSlug) !== -1) {
+        if (currentChapter !== fnChSlug) showChapter(fnChSlug);
+        var fnTarget = document.getElementById(hash);
+        if (fnTarget) fnTarget.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+
     // Check for deep link (chapter--heading)
     var parts = hash.split('--');
     if (parts.length >= 2) {
@@ -300,6 +312,32 @@
     var next = current === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('ligarb-theme', next);
+  });
+
+  // Footnote link click handler — scroll within current chapter without triggering chapter switch
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href^="#fn:"], a[href^="#fnref:"]');
+    if (!link) return;
+    var targetId = link.getAttribute('href').substring(1);
+    var target = document.getElementById(targetId);
+    if (target) {
+      e.preventDefault();
+      history.replaceState(null, '', '#' + targetId);
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Add title attribute to footnote references for hover preview
+  document.querySelectorAll('sup a[href^="#fn:"]').forEach(function(link) {
+    var targetId = link.getAttribute('href').substring(1);
+    var footnoteLi = document.getElementById(targetId);
+    if (footnoteLi) {
+      // Clone to strip the back-reference link, then get text
+      var clone = footnoteLi.cloneNode(true);
+      var backlinks = clone.querySelectorAll('a[href^="#fnref:"]');
+      backlinks.forEach(function(bl) { bl.remove(); });
+      link.title = clone.textContent.trim();
+    }
   });
 
   // Expose to onclick handlers
