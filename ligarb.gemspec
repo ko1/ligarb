@@ -18,4 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "kramdown", "~> 2.4"
   spec.add_dependency "kramdown-parser-gfm", "~> 1.1"
+
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "minitest"
 end
