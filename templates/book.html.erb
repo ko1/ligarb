@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="<%= language %>">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %></title>
+<style>
+<%= css %>
+</style>
+<%- if custom_css -%>
+<style>
+<%= custom_css %>
+</style>
+<%- end -%>
+<%- if assets.need?(:highlight) -%>
+<link rel="stylesheet" href="css/highlight.css">
+<%- end -%>
+<%- if assets.need?(:katex) -%>
+<link rel="stylesheet" href="css/katex.min.css">
+<%- end -%>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-header-top">
+      <%- cover_chapter = chapters.find(&:cover?) -%>
+      <%- if cover_chapter -%>
+      <h1 class="book-title"><a href="#<%= cover_chapter.slug %>" onclick="showChapter('<%= cover_chapter.slug %>'); return false;"><%= title %></a></h1>
+      <%- else -%>
+      <h1 class="book-title"><%= title %></h1>
+      <%- end -%>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
+    </div>
+    <%- unless author.empty? -%>
+    <p class="book-author"><%= author %></p>
+    <%- end -%>
+  </div>
+  <div class="search-box">
+    <input type="text" id="toc-search" placeholder="Search..." autocomplete="off">
+    <button class="search-clear" id="search-clear" type="button" aria-label="Clear search">&times;</button>
+  </div>
+  <nav class="toc" id="toc">
+    <ul>
+      <%- structure.each do |node| -%>
+        <%- case node.type -%>
+        <%- when :cover -%>
+        <%- when :chapter -%>
+      <li class="toc-chapter" data-chapter="<%= node.chapter.slug %>">
+        <a href="#<%= node.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= node.chapter.slug %>')"><%= node.chapter.display_title %></a>
+        <%- sub_headings = node.chapter.headings.select { |h| h.level >= 2 } -%>
+        <%- unless sub_headings.empty? -%>
+        <ul>
+          <%- sub_headings.each do |heading| -%>
+          <li>
+            <a href="#<%= node.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+          </li>
+          <%- end -%>
+        </ul>
+        <%- end -%>
+      </li>
+        <%- when :part -%>
+      <li class="toc-part">
+        <a href="#<%= node.chapter.slug %>" class="toc-part-title" onclick="showChapter('<%= node.chapter.slug %>')"><%= node.chapter.title %></a>
+        <ul>
+          <%- (node.children || []).each do |child| -%>
+          <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= child.chapter.display_title %></a>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
+            <%- unless sub_headings.empty? -%>
+            <ul>
+              <%- sub_headings.each do |heading| -%>
+              <li>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+              </li>
+              <%- end -%>
+            </ul>
+            <%- end -%>
+          </li>
+          <%- end -%>
+        </ul>
+      </li>
+        <%- when :appendix_group -%>
+      <li class="toc-appendix">
+        <span class="toc-appendix-title"><%= appendix_label %></span>
+        <ul>
+          <%- (node.children || []).each do |child| -%>
+          <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= child.chapter.display_title %></a>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
+            <%- unless sub_headings.empty? -%>
+            <ul>
+              <%- sub_headings.each do |heading| -%>
+              <li>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+              </li>
+              <%- end -%>
+            </ul>
+            <%- end -%>
+          </li>
+          <%- end -%>
+        </ul>
+      </li>
+        <%- end -%>
+      <%- end -%>
+    </ul>
+  </nav>
+</div>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+
+<main class="content" id="content">
+  <%- chapters.each_with_index do |chapter, idx| -%>
+  <section class="<%= chapter.cover? ? 'chapter cover-page' : 'chapter' %>" id="chapter-<%= chapter.slug %>" style="display: none;">
+    <%= chapter.html %>
+    <%- if repository && !chapter.part_title? && !chapter.cover? -%>
+    <div class="edit-link">
+      <a href="<%= repository.chomp('/') %>/blob/HEAD/<%= chapter.relative_path %>" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <%- end -%>
+    <%- unless chapter.part_title? || chapter.cover? -%>
+    <nav class="chapter-nav">
+      <%- if idx > 0 -%>
+      <a href="#" class="nav-prev" onclick="showChapter('<%= chapters[idx-1].slug %>'); return false;">&larr; <%= chapters[idx-1].display_title %></a>
+      <%- else -%>
+      <span></span>
+      <%- end -%>
+      <%- if idx < chapters.size - 1 -%>
+      <a href="#" class="nav-next" onclick="showChapter('<%= chapters[idx+1].slug %>'); return false;"><%= chapters[idx+1].display_title %> &rarr;</a>
+      <%- end -%>
+    </nav>
+    <%- end -%>
+  </section>
+  <%- end -%>
+</main>
+
+<script>
+(function() {
+  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %>];
+  var currentChapter = null;
+
+  function showChapter(slug) {
+    chapters.forEach(function(ch) {
+      var el = document.getElementById('chapter-' + ch);
+      if (el) el.style.display = (ch === slug) ? 'block' : 'none';
+    });
+
+    // Update active state in TOC
+    var tocItems = document.querySelectorAll('.toc-chapter');
+    tocItems.forEach(function(item) {
+      if (item.dataset.chapter === slug) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+
+    currentChapter = slug;
+    history.replaceState(null, '', '#' + slug);
+    window.scrollTo(0, 0);
+
+    // Re-apply highlight if search is active
+    if (searchInput && searchInput.value) {
+      highlightContent(searchInput.value);
+    }
+  }
+
+  function showChapterAndScroll(slug, headingId) {
+    showChapter(slug);
+    history.replaceState(null, '', '#' + headingId);
+    setTimeout(function() {
+      var target = document.getElementById(headingId);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+  }
+
+  // Handle initial hash
+  function handleHash() {
+    var hash = location.hash.replace('#', '');
+    if (!hash) {
+      if (chapters.length > 0) showChapter(chapters[0]);
+      return;
+    }
+
+    // Check if hash matches a chapter slug directly
+    if (chapters.indexOf(hash) !== -1) {
+      showChapter(hash);
+      return;
+    }
+
+    // Check for deep link (chapter--heading)
+    var parts = hash.split('--');
+    if (parts.length >= 2) {
+      var chSlug = parts[0];
+      if (chapters.indexOf(chSlug) !== -1) {
+        showChapterAndScroll(chSlug, hash);
+        return;
+      }
+    }
+
+    // Fallback
+    if (chapters.length > 0) showChapter(chapters[0]);
+  }
+
+  // TOC search + content highlight
+  var searchInput = document.getElementById('toc-search');
+  var clearBtn = document.getElementById('search-clear');
+
+  function updateSearch() {
+    var query = searchInput.value.toLowerCase();
+    var items = document.querySelectorAll('.toc-chapter');
+    items.forEach(function(item) {
+      var text = item.textContent.toLowerCase();
+      item.style.display = text.indexOf(query) !== -1 ? '' : 'none';
+    });
+    clearBtn.style.display = query ? 'block' : 'none';
+    highlightContent(searchInput.value);
+  }
+
+  searchInput.addEventListener('input', updateSearch);
+
+  clearBtn.addEventListener('click', function() {
+    searchInput.value = '';
+    updateSearch();
+    searchInput.focus();
+  });
+
+  // Content highlight
+  function highlightContent(query) {
+    // Remove existing highlights
+    var marks = document.querySelectorAll('mark.search-highlight');
+    marks.forEach(function(mark) {
+      var parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+
+    if (!query || query.length < 2) return;
+
+    // Highlight in current chapter
+    if (!currentChapter) return;
+    var section = document.getElementById('chapter-' + currentChapter);
+    if (!section) return;
+
+    highlightInNode(section, query.toLowerCase());
+  }
+
+  function highlightInNode(node, query) {
+    if (node.nodeType === 3) { // Text node
+      var text = node.textContent;
+      var lower = text.toLowerCase();
+      var idx = lower.indexOf(query);
+      if (idx === -1) return;
+
+      var frag = document.createDocumentFragment();
+      var lastIdx = 0;
+      while (idx !== -1) {
+        frag.appendChild(document.createTextNode(text.substring(lastIdx, idx)));
+        var mark = document.createElement('mark');
+        mark.className = 'search-highlight';
+        mark.textContent = text.substring(idx, idx + query.length);
+        frag.appendChild(mark);
+        lastIdx = idx + query.length;
+        idx = lower.indexOf(query, lastIdx);
+      }
+      frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === 1 && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'MARK' && node.tagName !== 'PRE') {
+      // Collect children into array first (live NodeList changes during iteration)
+      var children = Array.prototype.slice.call(node.childNodes);
+      children.forEach(function(child) { highlightInNode(child, query); });
+    }
+  }
+
+  // Sidebar toggle for mobile
+  var toggle = document.getElementById('sidebar-toggle');
+  var sidebar = document.getElementById('sidebar');
+  toggle.addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+  });
+
+  // Close sidebar when clicking a link on mobile
+  var tocLinks = document.querySelectorAll('.toc a');
+  tocLinks.forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+
+  // Dark mode toggle
+  var themeToggle = document.getElementById('theme-toggle');
+  var savedTheme = localStorage.getItem('ligarb-theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }
+  themeToggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ligarb-theme', next);
+  });
+
+  // Expose to onclick handlers
+  window.showChapter = showChapter;
+  window.showChapterAndScroll = showChapterAndScroll;
+
+  // Initialize
+  handleHash();
+  window.addEventListener('hashchange', handleHash);
+})();
+</script>
+<%- if assets.need?(:highlight) -%>
+<script src="js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<%- end -%>
+<%- if assets.need?(:mermaid) -%>
+<script src="js/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad: false});
+mermaid.run({querySelector: '.mermaid'});
+</script>
+<%- end -%>
+<%- if assets.need?(:katex) -%>
+<script src="js/katex.min.js"></script>
+<script>
+document.querySelectorAll('.math-block').forEach(function(el) {
+  try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
+  catch(e) { el.textContent = el.getAttribute('data-math'); }
+});
+</script>
+<%- end -%>
+</body>
+</html>

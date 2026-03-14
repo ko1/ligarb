@@ -1,0 +1,97 @@
+# frozen_string_literal: true
+
+require "fileutils"
+require "yaml"
+
+module Ligarb
+  class Initializer
+    def initialize(directory = nil)
+      @directory = directory || "."
+    end
+
+    def run
+      target = File.expand_path(@directory)
+      book_yml = File.join(target, "book.yml")
+
+      if File.exist?(book_yml)
+        $stderr.puts "Error: book.yml already exists in #{target}"
+        exit 1
+      end
+
+      FileUtils.mkdir_p(target)
+      FileUtils.mkdir_p(File.join(target, "images"))
+
+      title = dir_to_title(File.basename(File.expand_path(target)))
+
+      existing_md = collect_markdown_files(target)
+      if existing_md.any?
+        chapter_paths = existing_md
+      else
+        chapter_paths = ["01-introduction.md"]
+        File.write(File.join(target, "01-introduction.md"), generate_chapter)
+      end
+
+      File.write(book_yml, generate_book_yml(title, chapter_paths))
+      File.write(File.join(target, "images", ".gitkeep"), "")
+
+      print_success(target, chapter_paths)
+    end
+
+    private
+
+    def dir_to_title(dirname)
+      dirname.gsub(/[-_]/, " ").gsub(/\b\w/, &:upcase)
+    end
+
+    def collect_markdown_files(target)
+      Dir.glob("*.md", base: target).sort
+    end
+
+    def generate_book_yml(title, chapter_paths)
+      {
+        "title" => title,
+        "author" => "",
+        "language" => "en",
+        "output_dir" => "build",
+        "chapters" => chapter_paths,
+      }.to_yaml
+    end
+
+    def generate_chapter
+      <<~MARKDOWN
+        # Introduction
+
+        Welcome to your new book.
+      MARKDOWN
+    end
+
+    def print_success(target, chapter_paths)
+      rel = relative_path(target)
+      name = File.basename(File.expand_path(target))
+
+      puts "Created new book project in #{rel}"
+      puts
+      puts "  #{name}/"
+      puts "  ├── book.yml"
+      chapter_paths.each_with_index do |path, i|
+        prefix = i == chapter_paths.size - 1 && !File.exist?(File.join(target, "images", ".gitkeep")) ? "└──" : "├──"
+        puts "  #{prefix} #{path}"
+      end
+      puts "  └── images/"
+      puts
+      puts "Next steps:"
+      puts "  cd #{rel}" if @directory && @directory != "."
+      puts "  Edit book.yml to set your book title and author"
+      puts "  Add Markdown files and list them in book.yml"
+      puts "  Run 'ligarb build' to generate HTML"
+    end
+
+    def relative_path(target)
+      if @directory && @directory != "."
+        @directory.start_with?("/") ? @directory : "./#{@directory}"
+      else
+        "."
+      end
+    end
+  end
+end

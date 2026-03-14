@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+require "yaml"
+
+module Ligarb
+  class Config
+    REQUIRED_KEYS = %w[title chapters].freeze
+
+    # Represents a structural entry in the book
+    StructEntry = Struct.new(:type, :path, :children, keyword_init: true)
+    # type: :chapter, :part, or :appendix_group
+    # path: markdown file path (for :chapter and :part), nil for :appendix_group
+    # children: array of StructEntry (for :part and :appendix_group)
+
+    attr_reader :title, :author, :language, :output_dir, :base_dir,
+                :chapter_numbers, :structure, :style, :repository
+
+    def initialize(path)
+      @base_dir = File.dirname(File.expand_path(path))
+      data = YAML.safe_load_file(path)
+
+      validate!(data)
+
+      @title           = data["title"]
+      @author          = data.fetch("author", "")
+      @language        = data.fetch("language", "en")
+      @output_dir      = data.fetch("output_dir", "build")
+      @chapter_numbers = data.fetch("chapter_numbers", true)
+      @style           = data.fetch("style", nil)
+      @repository      = data.fetch("repository", nil)
+      @structure       = parse_structure(data["chapters"])
+    end
+
+    def output_path
+      File.join(@base_dir, @output_dir)
+    end
+
+    def style_path
+      @style ? File.join(@base_dir, @style) : nil
+    end
+
+    def appendix_label
+      @language == "ja" ? "付録" : "Appendix"
+    end
+
+    # Returns a flat list of all chapter file paths (excluding part title pages)
+    def chapter_paths
+      collect_chapter_paths(@structure)
+    end
+
+    # Returns all file paths including part title pages
+    def all_file_paths
+      collect_all_paths(@structure)
+    end
+
+    private
+
+    def parse_structure(entries)
+      entries.map do |entry|
+        case entry
+        when String
+          StructEntry.new(type: :chapter, path: File.join(@base_dir, entry))
+        when Hash
+          if entry.key?("part")
+            children = (entry["chapters"] || []).map do |ch|
+              StructEntry.new(type: :chapter, path: File.join(@base_dir, ch))
+            end
+            StructEntry.new(type: :part, path: File.join(@base_dir, entry["part"]), children: children)
+          elsif entry.key?("cover")
+            StructEntry.new(type: :cover, path: File.join(@base_dir, entry["cover"]))
+          elsif entry.key?("appendix")
+            children = entry["appendix"].map do |ch|
+              StructEntry.new(type: :chapter, path: File.join(@base_dir, ch))
+            end
+            StructEntry.new(type: :appendix_group, path: nil, children: children)
+          else
+            abort "Error: unknown entry type in chapters: #{entry.inspect}"
+          end
+        else
+          abort "Error: invalid entry in chapters: #{entry.inspect}"
+        end
+      end
+    end
+
+    def collect_chapter_paths(entries)
+      entries.flat_map do |entry|
+        case entry.type
+        when :chapter, :cover
+          [entry.path]
+        when :part
+          [entry.path] + collect_chapter_paths(entry.children || [])
+        when :appendix_group
+          collect_chapter_paths(entry.children || [])
+        end
+      end
+    end
+
+    def collect_all_paths(entries)
+      collect_chapter_paths(entries)
+    end
+
+    def validate!(data)
+      unless data.is_a?(Hash)
+        abort "Error: book.yml must be a YAML mapping"
+      end
+
+      REQUIRED_KEYS.each do |key|
+        unless data.key?(key)
+          abort "Error: book.yml is missing required key '#{key}'"
+        end
+      end
+
+      unless data["chapters"].is_a?(Array) && !data["chapters"].empty?
+        abort "Error: 'chapters' must be a non-empty array"
+      end
+    end
+  end
+end
