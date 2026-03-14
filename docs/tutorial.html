@@ -577,6 +577,14 @@ mark.search-highlight {
     display: none !important;
   }
 
+  html {
+    font-size: 11pt;
+  }
+
+  body {
+    line-height: 1.5;
+  }
+
   .content {
     margin-left: 0;
     max-width: 100%;
@@ -595,6 +603,19 @@ mark.search-highlight {
   .chapter pre {
     white-space: pre-wrap;
     word-wrap: break-word;
+  }
+
+  .chapter pre code {
+    font-size: 0.8rem;
+  }
+
+  @page {
+    margin: 20mm 15mm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 9pt;
+      color: #666;
+    }
   }
 }
 

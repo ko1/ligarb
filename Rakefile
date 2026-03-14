@@ -15,4 +15,4 @@ task :example do
   ruby "exe/ligarb build example/book.yml"
 end
 
-task default: :test
+task default: [:test, :example]
