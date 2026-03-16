@@ -165,21 +165,26 @@ module Ligarb
       tools = "Write,Bash,WebFetch,WebSearch"
       allowed = "Write,Bash(mkdir:*),Bash(ls:*),Bash(ligarb:*),WebFetch,WebSearch"
       cmd = ["claude", "-p", prompt, "--tools", tools, "--allowedTools", allowed,
-             "--output-format", "stream-json"]
+             "--output-format", "stream-json", "--verbose"]
       puts "Writing with Claude... (this may take a few minutes)"
+      unparsed_lines = []
       IO.popen(cmd, err: [:child, :out]) do |io|
         io.each_line do |line|
-          parse_stream_event(line)
+          unless parse_stream_event(line)
+            unparsed_lines << line.rstrip
+          end
         end
       end
       unless $?.success?
+        msg = unparsed_lines.reject(&:empty?).last(10).join("\n")
         $stderr.puts "Error: Claude process failed."
+        $stderr.puts msg unless msg.empty?
         exit 1
       end
     end
 
     def parse_stream_event(line)
-      json = JSON.parse(line) rescue return
+      json = JSON.parse(line) rescue (return false)
       case json["type"]
       when "content_block_start"
         tool = json.dig("content_block", "tool_use")
@@ -188,6 +193,7 @@ module Ligarb
           puts "  [#{name}]..." if name
         end
       end
+      true
     end
   end
 end
