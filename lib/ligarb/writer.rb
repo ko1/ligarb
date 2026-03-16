@@ -62,9 +62,33 @@ module Ligarb
           5章くらいで。
       YAML
 
+      claude_md = File.join(target, "CLAUDE.md")
+      created_claude_md = false
+      unless File.exist?(claude_md)
+        File.write(claude_md, <<~MD)
+          # ligarb book project
+
+          This is a book project using [ligarb](https://github.com/ko1/ligarb).
+
+          ## Commands
+
+          - `ligarb build` — Build the book (generates build/index.html)
+          - `ligarb help` — Show full specification (Markdown syntax, config options, etc.)
+
+          ## Key rules
+
+          - All chapter files are Markdown (.md), listed in book.yml
+          - The first h1 in each file is the chapter title
+          - Use ```mermaid, ```math, admonitions (> [!NOTE]), etc. as needed
+          - Run `ligarb build` after changes to verify the output
+        MD
+        created_claude_md = true
+      end
+
       puts "Created #{path}"
-      puts "Edit it, then run 'ligarb write #{path}' to generate the book." if directory
-      puts "Edit it, then run 'ligarb write' to generate the book." unless directory
+      puts "Created #{claude_md}" if created_claude_md
+      brief_arg = directory ? " #{path}" : ""
+      puts "Edit brief.yml, then run 'ligarb write#{brief_arg}' to generate the book."
     end
 
     private
@@ -126,6 +150,7 @@ module Ligarb
 
       lines << ""
       lines << "Create all files in: #{abs_output_dir}"
+      lines << "In book.yml, always set: ai_generated: true"
       lines << "Create book.yml first, then each chapter .md file."
       lines << "Include a cover page for books with 4+ chapters."
       lines << "Each chapter: substantive content with multiple ## sections."
