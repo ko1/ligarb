@@ -211,6 +211,12 @@
           catch(e) { el.textContent = el.getAttribute('data-math'); }
         }
       });
+      section.querySelectorAll('.math-inline[data-math]').forEach(function(el) {
+        if (el.childNodes.length === 0) {
+          try { katex.render(el.getAttribute('data-math'), el, {displayMode: false, throwOnError: false}); }
+          catch(e) { el.textContent = el.getAttribute('data-math'); }
+        }
+      });
     }
   }
 

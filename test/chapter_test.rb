@@ -292,6 +292,46 @@ class ChapterTest < Minitest::Test
     end
   end
 
+  # Inline math tests
+
+  def test_inline_math_basic
+    make_chapter("# T\n\nThe formula $E = mc^2$ is famous.") do |ch|
+      assert_includes ch.html, 'class="math-inline"'
+      assert_includes ch.html, 'data-math="E = mc^2"'
+    end
+  end
+
+  def test_inline_math_not_in_code
+    make_chapter("# T\n\nUse `$x$` in code.") do |ch|
+      refute_includes ch.html, 'class="math-inline"'
+      assert_includes ch.html, "<code>$x$</code>"
+    end
+  end
+
+  def test_inline_math_not_in_pre
+    make_chapter("# T\n\n```\n$x$\n```") do |ch|
+      refute_includes ch.html, 'class="math-inline"'
+    end
+  end
+
+  def test_inline_math_not_dollar_amount
+    make_chapter("# T\n\nIt costs $10 or more.") do |ch|
+      refute_includes ch.html, 'class="math-inline"'
+    end
+  end
+
+  def test_inline_math_not_double_dollar
+    make_chapter("# T\n\nUse $$x$$ for display.") do |ch|
+      refute_includes ch.html, 'class="math-inline"'
+    end
+  end
+
+  def test_inline_math_entities_decoded
+    make_chapter("# T\n\nFormula $a &lt; b$ here.") do |ch|
+      assert_includes ch.html, 'data-math="a &lt; b"'
+    end
+  end
+
   def test_cross_reference_external_url_not_rewritten
     Dir.mktmpdir do |dir|
       File.write(File.join(dir, "ch1.md"), "# T\n\n[link](https://example.com/foo.md)")

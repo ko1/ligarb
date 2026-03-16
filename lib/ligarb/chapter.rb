@@ -101,6 +101,7 @@ module Ligarb
       @html = rewrite_image_paths(doc.to_html)
       @html = apply_heading_ids(@html)
       @html = convert_special_code_blocks(@html)
+      @html = convert_inline_math(@html)
       @html = convert_admonitions(@html)
       @html = scope_footnote_ids(@html)
       @index_entries = []
@@ -170,6 +171,24 @@ module Ligarb
           %(<div class="math-block" data-math="#{encode_attr(raw)}"></div>)
         end
       end
+    end
+
+    def convert_inline_math(html)
+      # Protect <pre>...</pre> and <code>...</code> from conversion
+      placeholders = []
+      protected = html.gsub(%r{<(pre|code)([ >])(.*?)</\1>}m) do
+        placeholders << $&
+        "\x00PROTECT#{placeholders.size - 1}\x00"
+      end
+
+      # Convert $...$ to inline math (exclude $$, and $ followed/preceded by space)
+      result = protected.gsub(/(?<!\$)\$(?!\$)(?!\s)(.+?)(?<!\s)(?<!\$)\$(?!\$)/m) do
+        raw = decode_entities($1)
+        %(<span class="math-inline" data-math="#{encode_attr(raw)}"></span>)
+      end
+
+      # Restore protected parts
+      result.gsub(/\x00PROTECT(\d+)\x00/) { placeholders[$1.to_i] }
     end
 
     def decode_entities(text)

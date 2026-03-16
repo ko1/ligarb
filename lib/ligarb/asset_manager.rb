@@ -22,7 +22,7 @@ module Ligarb
         },
       },
       katex: {
-        fence_pattern: /class="math-block"/,
+        fence_pattern: /class="math-(block|inline)"/,
         files: {
           "js/katex.min.js" => "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js",
           "css/katex.min.css" => "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css",
