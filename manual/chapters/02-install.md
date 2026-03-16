@@ -12,7 +12,7 @@ ligarb を使うには以下が必要です:
 ligarb のリポジトリをクローンし、依存ライブラリをインストールします:
 
 ```bash
-git clone https://github.com/ligarb/ligarb.git
+git clone https://github.com/ko1/ligarb.git
 cd ligarb
 bundle install
 ```
