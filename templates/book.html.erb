@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><%= title %></title>
+<%- if ai_generated -%>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="robots" content="noai, noimageai">
+<%- end -%>
 <style>
 <%= css %>
 </style>
@@ -34,6 +38,9 @@
     </div>
     <%- unless author.empty? -%>
     <p class="book-author"><%= author %></p>
+    <%- end -%>
+    <%- if ai_generated -%>
+    <span class="ai-badge"><%= language == 'ja' ? 'AI 生成' : 'AI Generated' %></span>
     <%- end -%>
   </div>
   <div class="search-box">
@@ -123,7 +130,10 @@
       <a href="<%= repository.chomp('/') %>/blob/HEAD/<%= chapter.relative_path %>" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <%- end -%>
-    <%- unless chapter.part_title? || chapter.cover? -%>
+    <%- if footer && !chapter.part_title? && !chapter.cover? -%>
+    <div class="chapter-footer"><%= footer %></div>
+    <%- end -%>
+    <%- unless chapter.cover? -%>
     <nav class="chapter-nav">
       <%- if idx > 0 -%>
       <a href="#" class="nav-prev" onclick="showChapter('<%= chapters[idx-1].slug %>'); return false;">&larr; <%= chapters[idx-1].display_title %></a>

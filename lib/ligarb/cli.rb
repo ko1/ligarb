@@ -65,6 +65,8 @@ module Ligarb
           chapter_numbers  (optional) Show chapter/section numbers (default: true)
           style            (optional) Custom CSS file path (default: none)
           repository       (optional) GitHub repository URL for "Edit on GitHub" links
+          ai_generated     (optional) Mark as AI-generated (badge + meta tags, default: false)
+          footer           (optional) Custom text at bottom of each chapter
 
         Example:
           ligarb build
@@ -129,6 +131,14 @@ module Ligarb
                          When set, each chapter shows a "View on GitHub" link.
                          The link points to {repository}/blob/HEAD/{path-from-git-root}.
                          The chapter path is resolved relative to the Git repository root.
+        ai_generated:    (optional) Mark the book as AI-generated content. Default: false.
+                         When true: adds an "AI Generated" badge in the sidebar header,
+                         adds a default disclaimer footer to each chapter, and adds
+                         noindex/noai meta tags to prevent search indexing and AI training.
+                         The footer text can be overridden with the 'footer' field.
+        footer:          (optional) Custom text displayed at the bottom of each chapter.
+                         Overrides the default ai_generated disclaimer if both are set.
+                         Useful for copyright notices, disclaimers, or other per-chapter text.
         chapters:        (required) Book structure. An array that can contain:
                          - A cover: a centered title/landing page
                          - A string: a chapter Markdown file path (relative to book.yml)
@@ -428,7 +438,7 @@ module Ligarb
 
         Each chapter displays Previous and Next navigation links at the bottom.
         These follow the flat chapter order (including across parts and appendix).
-        Part title pages do not show navigation.
+        Cover pages do not show navigation.
 
         == Write Command ==
 

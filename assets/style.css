@@ -670,6 +670,34 @@ mark.search-highlight {
   text-decoration: underline;
 }
 
+/* === AI Generated Notice === */
+.ai-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ca8a04;
+  background: #fefce8;
+  border: 1px solid #facc15;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  margin-top: 0.3rem;
+  letter-spacing: 0.03em;
+}
+
+[data-theme="dark"] .ai-badge {
+  color: #fbbf24;
+  background: #2e2a1a;
+  border-color: #854d0e;
+}
+
+.chapter-footer {
+  margin-top: 2rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}
+
 /* === Print === */
 @media print {
   .sidebar,

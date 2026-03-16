@@ -31,6 +31,8 @@ module Ligarb
       b.local_variable_set(:assets, assets)
       b.local_variable_set(:repository, config.repository)
       b.local_variable_set(:appendix_label, config.appendix_label)
+      b.local_variable_set(:ai_generated, config.ai_generated)
+      b.local_variable_set(:footer, config.effective_footer)
       b.local_variable_set(:index_tree, build_index_tree(index_entries, chapters))
 
       ERB.new(template, trim_mode: "-").result(b)
