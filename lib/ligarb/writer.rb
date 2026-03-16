@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "yaml"
+require "json"
 require "fileutils"
 
 module Ligarb
@@ -163,10 +164,29 @@ module Ligarb
     def run_claude(prompt)
       tools = "Write,Bash,WebFetch,WebSearch"
       allowed = "Write,Bash(mkdir:*),Bash(ls:*),Bash(ligarb:*),WebFetch,WebSearch"
-      cmd = ["claude", "-p", "--verbose", prompt, "--tools", tools, "--allowedTools", allowed]
-      unless system(*cmd)
+      cmd = ["claude", "-p", prompt, "--tools", tools, "--allowedTools", allowed,
+             "--output-format", "stream-json"]
+      puts "Writing with Claude... (this may take a few minutes)"
+      IO.popen(cmd, err: [:child, :out]) do |io|
+        io.each_line do |line|
+          parse_stream_event(line)
+        end
+      end
+      unless $?.success?
         $stderr.puts "Error: Claude process failed."
         exit 1
+      end
+    end
+
+    def parse_stream_event(line)
+      json = JSON.parse(line) rescue return
+      case json["type"]
+      when "content_block_start"
+        tool = json.dig("content_block", "tool_use")
+        if tool
+          name = tool["name"]
+          puts "  [#{name}]..." if name
+        end
       end
     end
   end
