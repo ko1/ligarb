@@ -82,15 +82,32 @@ ligarb build
 
 `build/index.html` が生成されます。ブラウザで開いてください。
 
-## AI 連携
+## AI で本を書く
 
-`ligarb help` の出力は AI が読むことを想定した仕様書を兼ねています。AI に読ませることで、仕様に従った本の自動生成が可能です。
+`ligarb write` コマンドで、AI（Claude）に本を丸ごと書かせることができます。
 
 ```bash
-ligarb help
+ligarb write --init ruby_book    # ruby_book/brief.yml を生成
+vi ruby_book/brief.yml           # 企画を編集
+ligarb write ruby_book/brief.yml # 本を生成 + ビルド
 ```
 
-サンプルプロンプト:
+`brief.yml`（企画書）の例:
+
+```yaml
+title: "Ruby入門"
+language: ja
+audience: "プログラミング初心者"
+notes: |
+  5章くらいで。
+  コード例を多めにしてください。
+```
+
+[Claude Code](https://claude.com/claude-code) の CLI が必要です。
+
+### 手動で AI を使う
+
+`ligarb help` の出力は AI が読むことを想定した仕様書を兼ねています。AI に直接読ませることで、仕様に従った本の生成も可能です。
 
 ```
 $(ligarb help) を読んで、ligarb の仕様に従って「Git 入門」という本を作ってください。

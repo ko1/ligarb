@@ -195,13 +195,27 @@ graph TD
 ```
 ````
 
-数式:
+数式（ブロック）:
 
 ````markdown
 ```math
 E = mc^2
 ```
 ````
+
+インライン数式:
+
+```markdown
+有名な式 $E = mc^2$ を考える。
+```
+
+`$...$` で囲むとインライン数式になる。以下のルールに従う:
+
+- `$$` はマッチしない（ブロック数式は ` ```math ` を使う）
+- `$` の直後にスペースがある場合はマッチしない（例: `$10`）
+- `$` の直前にスペースがある場合はマッチしない
+- `<code>` / `<pre>` 内の `$` は変換されない
+- KaTeX で `displayMode: false` としてレンダリングされる
 
 ## 出力 HTML
 
@@ -234,9 +248,54 @@ JavaScript で `display: none/block` を切り替え。
 ```
 ligarb init [DIRECTORY]  新しい本プロジェクトの雛形を生成
 ligarb build [CONFIG]    HTML を生成（CONFIG のデフォルトは book.yml）
+ligarb write [BRIEF]         AI（Claude）で本を自動生成（BRIEF のデフォルトは brief.yml）
+ligarb write --init [DIR]    DIR/brief.yml のひな形を生成（省略時はカレント）
 ligarb help              詳細なヘルプを表示
 ligarb version           バージョンを表示
 ```
+
+### ligarb write
+
+AI（Claude CLI）を使って、企画書（`brief.yml`）から本を自動生成する。
+
+- `ligarb write --init ruby_book` — `ruby_book/brief.yml` のひな形を生成（ディレクトリも作成）
+- `ligarb write --init` — カレントディレクトリに `brief.yml` を生成
+- `ligarb write ruby_book/brief.yml` — `ruby_book/` に本を生成し、ビルドまで実行
+- `ligarb write` — カレントの `brief.yml` を読んで本を生成
+- `ligarb write --no-build` — 生成のみ（ビルドしない）
+
+#### brief.yml
+
+| フィールド | 必須 | 用途 | 説明 |
+|-----------|------|------|------|
+| `title` | はい | brief + book.yml | 本のタイトル |
+| `language` | いいえ | brief + book.yml | 言語（デフォルト: `"ja"`） |
+| `audience` | いいえ | brief のみ | 対象読者（プロンプトに使用） |
+| `notes` | いいえ | brief のみ | 追加の指示・要望（自由記述） |
+| `author` | いいえ | book.yml に反映 | 著者名 |
+| `output_dir` | いいえ | book.yml に反映 | 出力ディレクトリ |
+| `chapter_numbers` | いいえ | book.yml に反映 | 章番号の表示 |
+| `style` | いいえ | book.yml に反映 | カスタム CSS パス |
+| `repository` | いいえ | book.yml に反映 | GitHub リポジトリ URL |
+
+`title` だけあれば動作する。最小限は `title: "テーマ"` の 1 行。
+
+#### 出力先
+
+`brief.yml` のあるディレクトリに本のファイル（`book.yml`、章の `.md` ファイル）が生成される。例: `ligarb write ruby_book/brief.yml` → `ruby_book/` に生成。
+
+#### エラー
+
+- `claude` コマンドが見つからない → エラー終了
+- `brief.yml` が見つからない → エラー終了
+- `title` がない → バリデーションエラー
+- 出力先に `book.yml` が既存 → 中断（上書き防止）
+- Claude プロセスが失敗 → エラー終了
+- `book.yml` が生成されなかった → エラー終了
+
+#### 前提条件
+
+[Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）がインストールされている必要がある。
 
 ### ligarb init
 

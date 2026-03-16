@@ -17,6 +17,16 @@ module Ligarb
         Builder.new(config_path).build
       when "init"
         Initializer.new(args.first).run
+      when "write"
+        if args.delete("--init")
+          require_relative "writer"
+          Writer.init_brief(args.first)
+        else
+          brief_path = args.reject { |a| a.start_with?("--") }.first || "brief.yml"
+          no_build = args.include?("--no-build")
+          require_relative "writer"
+          Writer.new(brief_path, no_build: no_build).run
+        end
       when "--help", "-h", nil
         print_usage
       when "help"
@@ -37,6 +47,8 @@ module Ligarb
         Usage:
           ligarb init [DIRECTORY]  Create a new book project
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
+          ligarb write [BRIEF]         Generate a book with AI from brief.yml
+          ligarb write --init [DIR]    Create DIR/brief.yml template
           ligarb help              Show detailed specification (for AI integration)
           ligarb version          Show version number
 
@@ -60,8 +72,8 @@ module Ligarb
       USAGE
     end
 
-    def print_spec
-      puts <<~SPEC
+    def spec_text
+      <<~SPEC
         ligarb - Generate a single-page HTML book from Markdown files
 
         Version: #{VERSION}
@@ -262,6 +274,17 @@ module Ligarb
             E = mc^2
             ```
 
+        Inline math uses $...$ syntax within text:
+
+            The equation $E = mc^2$ is well-known.
+
+        Rules for inline math:
+        - $$ is not matched (use ```math for display math)
+        - $ followed by a space is not matched (e.g. $10)
+        - $ preceded by a space is not matched
+        - Content inside <code> and <pre> is not affected
+        - The content is rendered with KaTeX (displayMode: false)
+
         == Images ==
 
         Place image files in the 'images/' directory next to book.yml.
@@ -406,7 +429,42 @@ module Ligarb
         Each chapter displays Previous and Next navigation links at the bottom.
         These follow the flat chapter order (including across parts and appendix).
         Part title pages do not show navigation.
+
+        == Write Command ==
+
+        ligarb write [BRIEF]        Generate a complete book using AI (Claude).
+                                    BRIEF defaults to 'brief.yml' in the current directory.
+                                    Reads the brief, sends a prompt to Claude, and builds
+                                    the generated book. Files are created in the same
+                                    directory as brief.yml.
+
+        ligarb write --init [DIR]   Create a brief.yml template.
+                                    If DIR is given, creates DIR/brief.yml (mkdir as needed).
+                                    If omitted, creates brief.yml in the current directory.
+
+        ligarb write --no-build     Generate files only, skip the build step.
+
+        brief.yml fields:
+
+        title:           (required) The book title.
+        language:        (optional) Language. Default: "ja".
+        audience:        (optional) Target audience (used in the prompt).
+        notes:           (optional) Additional instructions for Claude (free text).
+        author:          (optional) Passed through to book.yml.
+        output_dir:      (optional) Passed through to book.yml.
+        chapter_numbers: (optional) Passed through to book.yml.
+        style:           (optional) Passed through to book.yml.
+        repository:      (optional) Passed through to book.yml.
+
+        The book is generated in the directory containing brief.yml.
+        Example: 'ligarb write ruby_book/brief.yml' creates files in ruby_book/.
+
+        Requires the 'claude' CLI to be installed.
       SPEC
+    end
+
+    def print_spec
+      puts spec_text
     end
   end
 end
