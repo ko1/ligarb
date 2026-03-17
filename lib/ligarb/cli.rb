@@ -17,6 +17,12 @@ module Ligarb
         Builder.new(config_path).build
       when "init"
         Initializer.new(args.first).run
+      when "serve"
+        config_path = args.reject { |a| a.start_with?("--") }.first || "book.yml"
+        port_idx = args.index("--port")
+        port = port_idx ? args[port_idx + 1].to_i : 3000
+        require_relative "server"
+        Server.new(config_path, port: port).start
       when "write"
         if args.delete("--init")
           require_relative "writer"
@@ -47,6 +53,7 @@ module Ligarb
         Usage:
           ligarb init [DIRECTORY]  Create a new book project
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
+          ligarb serve [CONFIG]   Serve the book with live reload and review UI
           ligarb write [BRIEF]         Generate a book with AI from brief.yml
           ligarb write --init [DIR]    Create DIR/brief.yml template
           ligarb help              Show detailed specification (for AI integration)
@@ -108,6 +115,19 @@ module Ligarb
 
         ligarb build [CONFIG]   Build the HTML book.
                                 CONFIG defaults to 'book.yml' in the current directory.
+
+        ligarb serve [CONFIG]   Start a local web server with live reload and review UI.
+                                CONFIG defaults to 'book.yml' in the current directory.
+                                Options:
+                                  --port PORT  Server port (default: 3000)
+                                Features:
+                                - Serves the built HTML book at http://localhost:PORT
+                                - Injects a reload button that pulses when build output changes
+                                - Injects a review UI for commenting on book text
+                                - Review comments are saved to .ligarb/reviews/*.json
+                                - If 'claude' CLI is installed, comments are sent to Claude
+                                  for review suggestions, and approved changes are applied
+                                  to the source Markdown files and the book is rebuilt
 
         ligarb help             Show this detailed specification.
 

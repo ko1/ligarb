@@ -1,0 +1,455 @@
+/* ligarb serve — review UI styles */
+
+/* ── Reload Button ── */
+
+#ligarb-reload {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border, #e0e0e0);
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #333);
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#ligarb-reload:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+#ligarb-reload.has-update {
+  animation: ligarb-pulse 1s ease-in-out infinite;
+  border-color: var(--color-accent, #2563eb);
+  color: var(--color-accent, #2563eb);
+}
+
+#ligarb-reload.refreshing {
+  animation: ligarb-spin 0.8s linear infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@keyframes ligarb-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(37,99,235,0.2); }
+  50% { box-shadow: 0 2px 16px rgba(37,99,235,0.5); }
+}
+
+@keyframes ligarb-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Review List Button ── */
+
+#ligarb-list-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 74px;
+  z-index: 10000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border, #e0e0e0);
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #333);
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+#ligarb-list-btn:hover {
+  transform: scale(1.1);
+}
+
+#ligarb-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* ── Comment Button (on text selection) ── */
+
+#ligarb-comment-btn {
+  position: absolute;
+  z-index: 10001;
+  background: var(--color-accent, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+#ligarb-comment-btn:hover {
+  opacity: 0.9;
+}
+
+/* ── Review Panel (Thread View) ── */
+
+#ligarb-panel {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 370px;
+  height: 100vh;
+  z-index: 10002;
+  background: var(--color-bg, #fff);
+  border-left: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  transition: right 0.25s ease;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+#ligarb-panel.open {
+  right: 0;
+}
+
+.ligarb-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  flex-shrink: 0;
+}
+
+.ligarb-panel-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.ligarb-panel-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--color-text-muted, #666);
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.ligarb-panel-close:hover {
+  color: var(--color-text, #333);
+}
+
+.ligarb-panel-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Context (selected text) ── */
+
+.ligarb-context {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  flex-shrink: 0;
+}
+
+.ligarb-selected-text {
+  font-style: italic;
+  color: var(--color-text-muted, #666);
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+.ligarb-meta {
+  font-size: 12px;
+  color: var(--color-text-muted, #999);
+  margin-top: 4px;
+}
+
+/* ── Messages ── */
+
+.ligarb-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+}
+
+.ligarb-message {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ligarb-message-user {
+  background: var(--color-accent-light, #eff6ff);
+  margin-left: 20px;
+}
+
+.ligarb-message-assistant {
+  background: var(--color-code-bg, #f6f8fa);
+  margin-right: 20px;
+}
+
+.ligarb-message-role {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #666);
+  margin-bottom: 4px;
+}
+
+.ligarb-message-content {
+  word-wrap: break-word;
+}
+
+.ligarb-message-content code {
+  background: var(--color-code-bg, #f0f0f0);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.ligarb-message-time {
+  font-size: 11px;
+  color: var(--color-text-muted, #999);
+  margin-top: 4px;
+}
+
+.ligarb-loading {
+  text-align: center;
+  color: var(--color-text-muted, #999);
+  padding: 20px;
+  font-size: 14px;
+}
+
+/* ── Input Area ── */
+
+.ligarb-input-area {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border, #e0e0e0);
+  flex-shrink: 0;
+}
+
+.ligarb-input {
+  width: 100%;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #333);
+  box-sizing: border-box;
+}
+
+.ligarb-input:focus {
+  outline: none;
+  border-color: var(--color-accent, #2563eb);
+}
+
+.ligarb-input:disabled {
+  opacity: 0.5;
+}
+
+.ligarb-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.ligarb-btn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border, #e0e0e0);
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--color-bg, #fff);
+  color: var(--color-text, #333);
+  transition: background 0.15s;
+}
+
+.ligarb-btn:hover {
+  background: var(--color-code-bg, #f6f8fa);
+}
+
+.ligarb-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ligarb-btn-send {
+  background: var(--color-accent, #2563eb);
+  color: #fff;
+  border-color: var(--color-accent, #2563eb);
+}
+
+.ligarb-btn-send:hover {
+  opacity: 0.9;
+  background: var(--color-accent, #2563eb);
+}
+
+.ligarb-btn-approve {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+
+.ligarb-btn-approve:hover {
+  opacity: 0.9;
+  background: #16a34a;
+}
+
+/* ── Review List Panel ── */
+
+#ligarb-list-panel {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 370px;
+  height: 100vh;
+  z-index: 10001;
+  background: var(--color-bg, #fff);
+  border-left: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: -4px 0 16px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  transition: right 0.25s ease;
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+#ligarb-list-panel.open {
+  right: 0;
+}
+
+.ligarb-list-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.ligarb-list-empty {
+  text-align: center;
+  color: var(--color-text-muted, #999);
+  padding: 30px;
+  font-size: 14px;
+}
+
+.ligarb-list-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ligarb-list-item:hover {
+  background: var(--color-code-bg, #f6f8fa);
+}
+
+.ligarb-list-item-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ligarb-list-status {
+  flex-shrink: 0;
+  font-size: 10px;
+}
+
+.ligarb-list-open .ligarb-list-status {
+  color: #f59e0b;
+}
+
+.ligarb-list-applied .ligarb-list-status {
+  color: #16a34a;
+}
+
+.ligarb-list-closed .ligarb-list-status {
+  color: var(--color-text-muted, #999);
+}
+
+.ligarb-list-text {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text, #333);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ligarb-list-item-meta {
+  font-size: 11px;
+  color: var(--color-text-muted, #999);
+  margin-top: 4px;
+  padding-left: 18px;
+}
+
+/* ── Dark Mode ── */
+
+[data-theme="dark"] #ligarb-reload,
+[data-theme="dark"] #ligarb-list-btn {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] #ligarb-panel,
+[data-theme="dark"] #ligarb-list-panel {
+  background: var(--color-bg);
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .ligarb-message-user {
+  background: rgba(37, 99, 235, 0.15);
+}
+
+[data-theme="dark"] .ligarb-message-assistant {
+  background: var(--color-code-bg);
+}
+
+[data-theme="dark"] .ligarb-input {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* ── Print: hide review UI ── */
+
+@media print {
+  #ligarb-reload,
+  #ligarb-list-btn,
+  #ligarb-comment-btn,
+  #ligarb-panel,
+  #ligarb-list-panel {
+    display: none !important;
+  }
+}
