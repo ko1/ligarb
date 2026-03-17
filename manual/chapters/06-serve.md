@@ -60,6 +60,26 @@ Linux 環境では [inotify](#index:inotify) を使って `index.html` の変更
     └── 7d4e5f6a-...json
 ```
 
+## マルチブックモードでの AI 執筆
+
+マルチブックモード（2 つ以上の `book.yml` を指定して起動）では、トップページに「+ Write a new book」ボタンが表示されます。
+ボタンをクリックするとフォームが開き、以下を入力できます:
+
+- **Directory**（必須）: 新しい本を置くディレクトリ名
+- **Title**（必須）: 本のタイトル
+- **Language**: 言語（デフォルト: `ja`）
+- **Audience**: 対象読者
+- **Notes**: 追加の指示・要望
+
+「Start Writing」を押すと、バックグラウンドで `brief.yml` が生成され、[`ligarb write`](07-ai.md) と同等の処理が実行されます。
+左ペインには「Writing...」バッジ（オレンジ、パルスアニメーション）付きで本が追加されます。
+
+執筆が完了すると「New!」バッジ（緑）に変わり、クリックで TOC を表示できます。
+エラーが発生した場合は「Error」バッジ（赤）でエラー内容を確認できます。
+
+> [!NOTE]
+> この機能を使うには [Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）が必要です。
+
 ## 内部 API
 
 サーバーは `/_ligarb/` プレフィックスで内部 API を提供します。
@@ -67,7 +87,9 @@ Linux 環境では [inotify](#index:inotify) を使って `index.html` の変更
 
 | メソッド | パス | 説明 |
 |---------|------|------|
-| GET | `/_ligarb/events` | SSE ストリーム（`build_updated` / `review_updated`） |
+| GET | `/_ligarb/events` | SSE ストリーム（`build_updated` / `review_updated` / `write_updated`） |
 | GET | `/_ligarb/reviews` | スレッド一覧 |
 | POST | `/_ligarb/reviews` | 新規スレッド作成 |
 | POST | `/_ligarb/reviews/:id/approve` | パッチ適用＆リビルド |
+| POST | `/_ligarb/write` | AI 執筆を開始（マルチブックモードのみ） |
+| GET | `/_ligarb/write/status` | 全 write ジョブのステータス一覧 |

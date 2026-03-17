@@ -33,7 +33,7 @@
     reloadBtn.classList.remove('has-update');
     reloadBtn.classList.add('refreshing');
 
-    fetch('/?_t=' + Date.now())
+    fetch((window._ligarbBase || '/') + '?_t=' + Date.now())
       .then(function(r) { return r.text(); })
       .then(function(html) {
         var parser = new DOMParser();
@@ -65,7 +65,7 @@
   }
 
   // SSE connection
-  var eventSource = new EventSource('/_ligarb/events');
+  var eventSource = new EventSource((window._ligarbAPI || '/_ligarb') + '/events');
 
   eventSource.addEventListener('build_updated', function() {
     showReloadButton();

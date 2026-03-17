@@ -504,6 +504,20 @@
   padding-left: 18px;
 }
 
+/* ── Review Highlights in Document ── */
+
+mark.ligarb-highlight {
+  background: rgba(245, 158, 11, 0.25);
+  border-bottom: 2px solid #f59e0b;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+mark.ligarb-highlight:hover {
+  background: rgba(245, 158, 11, 0.45);
+}
+
 /* ── Dark Mode ── */
 
 [data-theme="dark"] #ligarb-reload,
@@ -533,6 +547,15 @@
   border-color: var(--color-border);
 }
 
+[data-theme="dark"] mark.ligarb-highlight {
+  background: rgba(245, 158, 11, 0.2);
+  border-bottom-color: #d97706;
+}
+
+[data-theme="dark"] mark.ligarb-highlight:hover {
+  background: rgba(245, 158, 11, 0.35);
+}
+
 /* ── Print: hide review UI ── */
 
 @media print {
@@ -540,7 +563,8 @@
   #ligarb-list-btn,
   #ligarb-comment-btn,
   #ligarb-panel,
-  #ligarb-list-panel {
+  #ligarb-list-panel,
+  mark.ligarb-highlight {
     display: none !important;
   }
 }

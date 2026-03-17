@@ -6,6 +6,8 @@ require "fileutils"
 
 module Ligarb
   class Writer
+    class WriterError < RuntimeError; end
+
     BRIEF_FIELDS_FOR_BOOK_YML = %w[author output_dir chapter_numbers style repository].freeze
 
     def initialize(brief_path, no_build: false)
@@ -20,8 +22,7 @@ module Ligarb
       book_yml_path = File.join(output_dir, "book.yml")
 
       if File.exist?(book_yml_path)
-        $stderr.puts "Error: #{book_yml_path} already exists. Remove it first to regenerate."
-        exit 1
+        raise WriterError, "#{book_yml_path} already exists. Remove it first to regenerate."
       end
 
       FileUtils.mkdir_p(output_dir)
@@ -29,8 +30,7 @@ module Ligarb
       run_claude(prompt)
 
       unless File.exist?(book_yml_path)
-        $stderr.puts "Error: Claude did not generate book.yml in #{output_dir}"
-        exit 1
+        raise WriterError, "Claude did not generate book.yml in #{output_dir}"
       end
 
       puts "Book files generated in #{output_dir}"
@@ -40,6 +40,8 @@ module Ligarb
         require_relative "builder"
         Builder.new(book_yml_path).build
       end
+
+      book_yml_path
     end
 
     def self.init_brief(directory = nil)
@@ -48,8 +50,7 @@ module Ligarb
       path = File.join(target, "brief.yml")
 
       if File.exist?(path)
-        $stderr.puts "Error: #{path} already exists."
-        exit 1
+        raise WriterError, "#{path} already exists."
       end
 
       FileUtils.mkdir_p(target)
@@ -96,21 +97,18 @@ module Ligarb
 
     def check_claude_installed!
       unless system("claude", "--version", out: File::NULL, err: File::NULL)
-        $stderr.puts "Error: 'claude' command not found. Install Claude Code first."
-        exit 1
+        raise WriterError, "'claude' command not found. Install Claude Code first."
       end
     end
 
     def load_brief
       unless File.exist?(@brief_path)
-        $stderr.puts "Error: #{@brief_path} not found."
-        exit 1
+        raise WriterError, "#{@brief_path} not found."
       end
 
       brief = YAML.safe_load_file(@brief_path)
       unless brief.is_a?(Hash) && brief["title"] && !brief["title"].empty?
-        $stderr.puts "Error: 'title' is required in #{@brief_path}."
-        exit 1
+        raise WriterError, "'title' is required in #{@brief_path}."
       end
 
       brief
@@ -177,9 +175,7 @@ module Ligarb
       end
       unless $?.success?
         msg = unparsed_lines.reject(&:empty?).last(10).join("\n")
-        $stderr.puts "Error: Claude process failed."
-        $stderr.puts msg unless msg.empty?
-        exit 1
+        raise WriterError, "Claude process failed.#{"\n#{msg}" unless msg.empty?}"
       end
     end
 

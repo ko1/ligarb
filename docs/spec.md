@@ -291,6 +291,18 @@ ligarb serve --port 8080        ポート指定（デフォルト: 3000）
 - レビュースレッドは `.ligarb/reviews/{uuid}.json` に保存
 - 各スレッドには status（`open` / `applied` / `closed`）、コンテキスト（章、選択テキスト）、メッセージ履歴が含まれる
 
+#### マルチブックモードでの AI 執筆
+
+マルチブックモード（2+ CONFIG）のトップページに「Write a new book」ボタンを表示。フォームから brief を入力し、バックグラウンドで Writer を実行して本を生成する。
+
+1. フォームに Directory（slug）、Title、Language、Audience、Notes を入力
+2. POST `/_ligarb/write` で `brief.yml` を生成し、Writer をバックグラウンドで起動
+3. 左ペインに「Writing...」バッジ（パルスアニメーション）付きで表示
+4. 完了: 「New!」バッジに変わり、クリックで TOC 表示可能。ページリロードで正式に books に追加
+5. エラー: 「Error」バッジでエラー内容を確認可能
+
+SSE の `write_updated` イベントでリアルタイムにステータスを通知する。
+
 #### API
 
 サーバーは `/_ligarb/` プレフィックスで内部 API を提供する。
@@ -298,7 +310,7 @@ ligarb serve --port 8080        ポート指定（デフォルト: 3000）
 | メソッド | パス | 説明 |
 |---------|------|------|
 | GET | `/_ligarb/status` | `{mtime: <epoch>}` — ビルド出力の更新検知 |
-| GET | `/_ligarb/events` | SSE ストリーム — `build_updated` / `review_updated` イベント |
+| GET | `/_ligarb/events` | SSE ストリーム — `build_updated` / `review_updated` / `write_updated` イベント |
 | GET | `/_ligarb/assets/:file` | 注入用 JS/CSS の配信 |
 | GET | `/_ligarb/reviews` | スレッド一覧 |
 | GET | `/_ligarb/reviews/:id` | スレッド詳細 |
@@ -306,10 +318,14 @@ ligarb serve --port 8080        ポート指定（デフォルト: 3000）
 | POST | `/_ligarb/reviews/:id/messages` | 返信追加 → Claude 起動 |
 | POST | `/_ligarb/reviews/:id/approve` | パッチ適用 → リビルド |
 | DELETE | `/_ligarb/reviews/:id` | スレッドを閉じる |
+| POST | `/_ligarb/write` | AI 執筆開始（マルチブックモードのみ）。brief データ送信 → バックグラウンドで Writer 実行 |
+| GET | `/_ligarb/write/status` | 全 write ジョブのステータス一覧 |
+
+マルチブックモードでは、パス中にスラッグが入る（例: `/_ligarb/{slug}/reviews`）。`/_ligarb/write` と `/_ligarb/write/status` はグローバル API（slug 不要）。
 
 #### 前提条件
 
-レビュー機能を使うには [Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）が必要。サーバー配信・ライブリロードだけなら不要。
+レビュー機能と AI 執筆機能を使うには [Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）が必要。サーバー配信・ライブリロードだけなら不要。
 
 ### ligarb write
 

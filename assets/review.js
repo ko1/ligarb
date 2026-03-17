@@ -2,7 +2,7 @@
 (function() {
   'use strict';
 
-  var API = '/_ligarb';
+  var API = window._ligarbAPI || '/_ligarb';
   var panel = null;
   var listPanel = null;
   var currentReviewId = null;
@@ -343,6 +343,8 @@
       method: 'POST'
     }).then(function(review) {
       renderReview(review);
+      closePanel();
+      updateBadge();
     });
   }
 
@@ -447,6 +449,140 @@
     });
   }
 
-  // Initial badge
+  // ── Highlight open reviews in the document ──
+
+  function updateHighlights() {
+    // Remove existing highlights
+    var existing = document.querySelectorAll('mark.ligarb-highlight');
+    existing.forEach(function(el) {
+      var parent = el.parentNode;
+      while (el.firstChild) parent.insertBefore(el.firstChild, el);
+      parent.removeChild(el);
+      parent.normalize();
+    });
+
+    fetchJSON(API + '/reviews').then(function(reviews) {
+      if (!reviews) return;
+
+      reviews.forEach(function(r) {
+        if (r.status !== 'open') return;
+        var ctx = r.context;
+        if (!ctx || !ctx.selected_text) return;
+
+        var chapter = document.getElementById('chapter-' + ctx.chapter_slug);
+        if (!chapter) return;
+
+        // Narrow scope using heading_id if available
+        var scope = chapter;
+        if (ctx.heading_id) {
+          var heading = document.getElementById(ctx.heading_id);
+          if (heading) {
+            // Use the heading's parent section or next sibling content
+            scope = heading.parentElement || chapter;
+          }
+        }
+
+        highlightText(scope, ctx.selected_text, r.id);
+      });
+    });
+  }
+
+  function highlightText(root, text, reviewId) {
+    // Use TreeWalker to find text nodes containing the target text
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    var node;
+    while ((node = walker.nextNode())) {
+      // Skip nodes inside review UI elements
+      if (node.parentElement.closest('#ligarb-panel, #ligarb-list-panel, #ligarb-comment-btn, #ligarb-list-btn')) continue;
+      nodes.push(node);
+    }
+
+    // Try to find a contiguous range of text nodes that contain the selected text
+    // First, try single-node match
+    for (var i = 0; i < nodes.length; i++) {
+      var content = nodes[i].textContent;
+      var idx = content.indexOf(text);
+      if (idx !== -1) {
+        wrapRange(nodes[i], idx, idx + text.length, reviewId);
+        return;
+      }
+    }
+
+    // Multi-node match: concatenate adjacent text and find the match
+    for (var start = 0; start < nodes.length; start++) {
+      var combined = '';
+      var segments = []; // {node, startInCombined, length}
+      for (var end = start; end < nodes.length && combined.length < text.length + 500; end++) {
+        segments.push({ node: nodes[end], startInCombined: combined.length, length: nodes[end].textContent.length });
+        combined += nodes[end].textContent;
+        var matchIdx = combined.indexOf(text);
+        if (matchIdx !== -1) {
+          wrapMultiNodeRange(segments, matchIdx, matchIdx + text.length, reviewId);
+          return;
+        }
+      }
+    }
+  }
+
+  function wrapRange(textNode, startOffset, endOffset, reviewId) {
+    var range = document.createRange();
+    range.setStart(textNode, startOffset);
+    range.setEnd(textNode, endOffset);
+    var mark = createMark(reviewId);
+    range.surroundContents(mark);
+  }
+
+  function wrapMultiNodeRange(segments, matchStart, matchEnd, reviewId) {
+    // Collect the text node ranges that overlap with [matchStart, matchEnd)
+    var parts = [];
+    for (var i = 0; i < segments.length; i++) {
+      var seg = segments[i];
+      var segStart = seg.startInCombined;
+      var segEnd = segStart + seg.length;
+      // Check overlap with [matchStart, matchEnd)
+      var overlapStart = Math.max(segStart, matchStart);
+      var overlapEnd = Math.min(segEnd, matchEnd);
+      if (overlapStart < overlapEnd) {
+        parts.push({
+          node: seg.node,
+          start: overlapStart - segStart,
+          end: overlapEnd - segStart
+        });
+      }
+    }
+
+    // Wrap each part in reverse order to preserve node offsets
+    for (var j = parts.length - 1; j >= 0; j--) {
+      var p = parts[j];
+      var range = document.createRange();
+      range.setStart(p.node, p.start);
+      range.setEnd(p.node, p.end);
+      var mark = createMark(reviewId);
+      range.surroundContents(mark);
+    }
+  }
+
+  function createMark(reviewId) {
+    var mark = document.createElement('mark');
+    mark.className = 'ligarb-highlight';
+    mark.dataset.reviewId = reviewId;
+    mark.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      openReviewPanel(reviewId);
+    });
+    return mark;
+  }
+
+  // ── Update highlights on review changes ──
+
+  var origUpdateBadge = updateBadge;
+  updateBadge = function() {
+    origUpdateBadge();
+    updateHighlights();
+  };
+
+  // Initial badge + highlights
   updateBadge();
 })();

@@ -18,20 +18,25 @@ module Ligarb
       when "init"
         Initializer.new(args.first).run
       when "serve"
-        config_path = args.reject { |a| a.start_with?("--") }.first || "book.yml"
+        config_paths = args.reject { |a| a.start_with?("--") }
+        config_paths = ["book.yml"] if config_paths.empty?
         port_idx = args.index("--port")
         port = port_idx ? args[port_idx + 1].to_i : 3000
         require_relative "server"
-        Server.new(config_path, port: port).start
+        Server.new(config_paths, port: port).start
       when "write"
-        if args.delete("--init")
-          require_relative "writer"
-          Writer.init_brief(args.first)
-        else
-          brief_path = args.reject { |a| a.start_with?("--") }.first || "brief.yml"
-          no_build = args.include?("--no-build")
-          require_relative "writer"
-          Writer.new(brief_path, no_build: no_build).run
+        require_relative "writer"
+        begin
+          if args.delete("--init")
+            Writer.init_brief(args.first)
+          else
+            brief_path = args.reject { |a| a.start_with?("--") }.first || "brief.yml"
+            no_build = args.include?("--no-build")
+            Writer.new(brief_path, no_build: no_build).run
+          end
+        rescue Writer::WriterError => e
+          $stderr.puts "Error: #{e.message}"
+          exit 1
         end
       when "--help", "-h", nil
         print_usage
@@ -116,15 +121,25 @@ module Ligarb
         ligarb build [CONFIG]   Build the HTML book.
                                 CONFIG defaults to 'book.yml' in the current directory.
 
-        ligarb serve [CONFIG]   Start a local web server with live reload and review UI.
+        ligarb serve [CONFIG...]
+                                Start a local web server with live reload and review UI.
                                 CONFIG defaults to 'book.yml' in the current directory.
+                                Multiple CONFIG paths can be given to serve multiple books.
                                 Options:
                                   --port PORT  Server port (default: 3000)
-                                Features:
+                                Single book mode (1 CONFIG):
                                 - Serves the built HTML book at http://localhost:PORT
+                                Multi-book mode (2+ CONFIGs):
+                                - Top page (/) shows a book index with links
+                                - Each book is served at /<directory-name>/
+                                - "Write a new book" button on the index page to generate
+                                  a new book via AI (posts a brief, runs Writer in background)
+                                - Example: ligarb serve */book.yml
+                                Features:
                                 - Injects a reload button that pulses when build output changes
                                 - Injects a review UI for commenting on book text
                                 - Review comments are saved to .ligarb/reviews/*.json
+                                  (in each book's directory)
                                 - If 'claude' CLI is installed, comments are sent to Claude
                                   for review suggestions, and approved changes are applied
                                   to the source Markdown files and the book is rebuilt
