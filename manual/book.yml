@@ -16,6 +16,7 @@ chapters:
     chapters:
       - chapters/04-markdown.md
       - chapters/05-build.md
-      - chapters/06-ai.md
+      - chapters/06-serve.md
+      - chapters/07-ai.md
   - appendix:
     - chapters/a1-config-reference.md
