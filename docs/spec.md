@@ -248,13 +248,68 @@ JavaScript で `display: none/block` を切り替え。
 ## CLI コマンド
 
 ```
-ligarb init [DIRECTORY]  新しい本プロジェクトの雛形を生成
-ligarb build [CONFIG]    HTML を生成（CONFIG のデフォルトは book.yml）
+ligarb init [DIRECTORY]      新しい本プロジェクトの雛形を生成
+ligarb build [CONFIG]        HTML を生成（CONFIG のデフォルトは book.yml）
+ligarb serve [CONFIG]        ローカルサーバーでプレビュー＆レビュー（デフォルト: ポート 3000）
 ligarb write [BRIEF]         AI（Claude）で本を自動生成（BRIEF のデフォルトは brief.yml）
 ligarb write --init [DIR]    DIR/brief.yml のひな形を生成（省略時はカレント）
-ligarb help              詳細なヘルプを表示
-ligarb version           バージョンを表示
+ligarb help                  詳細なヘルプを表示
+ligarb version               バージョンを表示
 ```
+
+### ligarb serve
+
+ローカル Web サーバーを起動し、ビルド済みの本をプレビューする。テキスト選択→コメント→AI レビュー→承認→ソース修正の一連のフローをブラウザ内で完結できる。
+
+```
+ligarb serve [CONFIG]           ローカルサーバーを起動（CONFIG のデフォルトは book.yml）
+ligarb serve --port 8080        ポート指定（デフォルト: 3000）
+```
+
+#### 起動時の動作
+
+- `ligarb build` を実行してから配信を開始する（常に最新のビルド）
+
+#### ライブリロード
+
+- ビルド出力（`index.html`）の変更を監視し、更新時にリロードボタンを表示
+- Linux では inotify（Fiddle 経由）で即座に検知。その他の OS では 2 秒間隔の mtime ポーリングにフォールバック
+- リロードボタンをクリックすると、パネルやスクロール位置を維持したままコンテンツを差し替え
+
+#### レビュー UI
+
+ブラウザ上で本文にコメントを付け、Claude と議論し、承認した変更をソースに反映する仕組み。
+
+1. **テキスト選択→コメント**: `.chapter` 内のテキストを選択すると「Comment」ボタンが表示。クリックでサイドパネルが開く
+2. **Claude レビュー**: コメントを送信すると Claude（Opus）がソースファイルを読み、改善提案を返す。提案には `<patch>` ブロック（具体的な差分）が含まれる
+3. **パッチ確認**: メッセージ内の「Show patch」ボタンで diff（削除=赤 / 追加=緑）を表示
+4. **承認**: 「Approve」ボタンでパッチを機械的に適用し、自動リビルド
+5. **却下**: 「Dismiss」ボタンでスレッドを閉じる
+
+#### データ保存
+
+- レビュースレッドは `.ligarb/reviews/{uuid}.json` に保存
+- 各スレッドには status（`open` / `applied` / `closed`）、コンテキスト（章、選択テキスト）、メッセージ履歴が含まれる
+
+#### API
+
+サーバーは `/_ligarb/` プレフィックスで内部 API を提供する。
+
+| メソッド | パス | 説明 |
+|---------|------|------|
+| GET | `/_ligarb/status` | `{mtime: <epoch>}` — ビルド出力の更新検知 |
+| GET | `/_ligarb/events` | SSE ストリーム — `build_updated` / `review_updated` イベント |
+| GET | `/_ligarb/assets/:file` | 注入用 JS/CSS の配信 |
+| GET | `/_ligarb/reviews` | スレッド一覧 |
+| GET | `/_ligarb/reviews/:id` | スレッド詳細 |
+| POST | `/_ligarb/reviews` | 新規スレッド作成 → Claude 起動 |
+| POST | `/_ligarb/reviews/:id/messages` | 返信追加 → Claude 起動 |
+| POST | `/_ligarb/reviews/:id/approve` | パッチ適用 → リビルド |
+| DELETE | `/_ligarb/reviews/:id` | スレッドを閉じる |
+
+#### 前提条件
+
+レビュー機能を使うには [Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）が必要。サーバー配信・ライブリロードだけなら不要。
 
 ### ligarb write
 

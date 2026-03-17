@@ -1,4 +1,4 @@
-// ligarb serve — review/comment system
+// ligarb serve — review/comment system (SSE-driven)
 (function() {
   'use strict';
 
@@ -6,7 +6,6 @@
   var panel = null;
   var listPanel = null;
   var currentReviewId = null;
-  var pollTimer = null;
 
   // ── Utility ──
 
@@ -32,6 +31,25 @@
     return d.toLocaleString();
   }
 
+  // ── SSE: listen for review updates ──
+
+  function waitForSSE() {
+    if (window._ligarbEvents) {
+      window._ligarbEvents.addEventListener('review_updated', function(e) {
+        var data = JSON.parse(e.data);
+        // Update open panel if it matches
+        if (currentReviewId && data.id === currentReviewId) {
+          loadReview(currentReviewId);
+        }
+        // Update badge
+        updateBadge();
+      });
+    } else {
+      setTimeout(waitForSSE, 100);
+    }
+  }
+  waitForSSE();
+
   // ── Comment Button on Text Selection ──
 
   var commentBtn = document.createElement('button');
@@ -43,7 +61,6 @@
   var selectionData = null;
 
   document.addEventListener('mouseup', function(e) {
-    // Ignore clicks inside our UI
     if (e.target.closest('#ligarb-panel, #ligarb-list-panel, #ligarb-comment-btn')) return;
 
     var sel = window.getSelection();
@@ -53,7 +70,6 @@
       return;
     }
 
-    // Only for content inside .chapter sections
     var anchor = sel.anchorNode;
     var chapter = anchor ? anchor.parentElement.closest('.chapter') : null;
     if (!chapter) {
@@ -65,34 +81,16 @@
     var chapterSlug = chapter.id.replace('chapter-', '');
     var selectedText = sel.toString().trim();
 
-    // Find nearest heading
+    // Find nearest heading before selection
     var headingId = '';
-    var node = sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode;
-    while (node && node !== chapter) {
-      if (node.previousElementSibling) {
-        var prev = node.previousElementSibling;
-        if (/^H[1-6]$/.test(prev.tagName) && prev.id) {
-          headingId = prev.id;
-          break;
-        }
-      }
-      // Check the node itself
-      if (/^H[1-6]$/.test(node.tagName) && node.id) {
-        headingId = node.id;
+    var headings = chapter.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+    var range = sel.getRangeAt(0);
+    for (var i = headings.length - 1; i >= 0; i--) {
+      var headingRange = document.createRange();
+      headingRange.selectNode(headings[i]);
+      if (range.compareBoundaryPoints(Range.START_TO_START, headingRange) >= 0) {
+        headingId = headings[i].id;
         break;
-      }
-      node = node.parentElement;
-    }
-    if (!headingId) {
-      // Find last heading before selection
-      var headings = chapter.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
-      var range = sel.getRangeAt(0);
-      for (var i = headings.length - 1; i >= 0; i--) {
-        if (range.compareBoundaryPoints(Range.START_TO_START,
-            document.createRange().selectNode ? (function() { var r = document.createRange(); r.selectNode(headings[i]); return r; })() : range) >= 0) {
-          headingId = headings[i].id;
-          break;
-        }
       }
     }
 
@@ -102,18 +100,10 @@
       selected_text: selectedText.substring(0, 500)
     };
 
-    // Position button near the selection
     var rect = sel.getRangeAt(0).getBoundingClientRect();
     commentBtn.style.display = 'block';
     commentBtn.style.top = (window.scrollY + rect.bottom + 5) + 'px';
     commentBtn.style.left = (window.scrollX + rect.left) + 'px';
-  });
-
-  // Hide comment button on scroll or click elsewhere
-  document.addEventListener('mousedown', function(e) {
-    if (e.target === commentBtn) return;
-    if (e.target.closest('#ligarb-panel, #ligarb-list-panel')) return;
-    // Don't hide immediately — mouseup handler will decide
   });
 
   commentBtn.addEventListener('click', function(e) {
@@ -145,7 +135,7 @@
           '<div class="ligarb-actions">' +
             '<button class="ligarb-btn ligarb-btn-send">Send</button>' +
             '<button class="ligarb-btn ligarb-btn-approve">Approve</button>' +
-            '<button class="ligarb-btn ligarb-btn-close-thread">Close</button>' +
+            '<button class="ligarb-btn ligarb-btn-close-thread">Dismiss</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -168,7 +158,6 @@
     if (panel) {
       panel.classList.remove('open');
       currentReviewId = null;
-      stopPolling();
     }
   }
 
@@ -182,15 +171,19 @@
     panel.querySelector('.ligarb-messages').innerHTML = '';
     panel.querySelector('.ligarb-input').value = '';
     panel.querySelector('.ligarb-input').placeholder = 'Write your comment...';
+    panel.querySelector('.ligarb-input').disabled = false;
+    panel.querySelector('.ligarb-btn-send').disabled = false;
     panel.querySelector('.ligarb-btn-approve').style.display = 'none';
     panel.querySelector('.ligarb-btn-close-thread').style.display = 'none';
     panel.querySelector('.ligarb-btn-send').textContent = 'Comment';
 
-    // Override send to create new review
     panel._createContext = context;
 
     panel.classList.add('open');
-    panel.querySelector('.ligarb-input').focus();
+    panel.addEventListener('transitionend', function onEnd() {
+      panel.removeEventListener('transitionend', onEnd);
+      panel.querySelector('.ligarb-input').focus();
+    });
   }
 
   function openReviewPanel(reviewId) {
@@ -207,7 +200,6 @@
 
     panel.classList.add('open');
     loadReview(reviewId);
-    startPolling(reviewId);
   }
 
   function loadReview(id) {
@@ -236,11 +228,20 @@
       msgsEl.appendChild(div);
     });
 
+    // Show processing indicator when waiting for Claude
+    var lastMsg = review.messages && review.messages[review.messages.length - 1];
+    var isApplying = review.status === 'applying';
+    var waitingForClaude = lastMsg && lastMsg.role === 'user' && review.status === 'open';
+
+    if (isApplying) {
+      msgsEl.appendChild(makeThinkingBubble('Applying changes...'));
+    } else if (waitingForClaude) {
+      msgsEl.appendChild(makeThinkingBubble('Claude is thinking...'));
+    }
+
     msgsEl.scrollTop = msgsEl.scrollHeight;
 
-    // Update UI based on status
     var isOpen = review.status === 'open';
-    var isApplying = review.status === 'applying';
     panel.querySelector('.ligarb-input').disabled = !isOpen;
     panel.querySelector('.ligarb-btn-send').disabled = !isOpen;
     panel.querySelector('.ligarb-btn-approve').disabled = !isOpen;
@@ -252,15 +253,51 @@
       panel.querySelector('.ligarb-panel-title').textContent = 'Review (Closed)';
     } else if (isApplying) {
       panel.querySelector('.ligarb-panel-title').textContent = 'Review (Applying...)';
+    } else {
+      panel.querySelector('.ligarb-panel-title').textContent = 'Review';
     }
   }
 
   function formatMessageContent(content) {
     if (!content) return '';
-    // Simple markdown-like formatting
-    return escapeHTML(content)
-      .replace(/\n/g, '<br>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Split on <patch> blocks
+    var parts = content.split(/(<patch>[\s\S]*?<\/patch>)/g);
+    var hasPatch = false;
+    var html = '';
+    var patches = '';
+
+    parts.forEach(function(part) {
+      var m = part.match(/<patch>\s*<<<\n([\s\S]*?)\n===\n([\s\S]*?)\n>>>\s*<\/patch>/);
+      if (m) {
+        hasPatch = true;
+        patches +=
+          '<div class="ligarb-patch">' +
+            '<div class="ligarb-patch-del">' + escapeHTML(m[1]) + '</div>' +
+            '<div class="ligarb-patch-add">' + escapeHTML(m[2]) + '</div>' +
+          '</div>';
+      } else {
+        html += escapeHTML(part)
+          .replace(/\n/g, '<br>')
+          .replace(/`([^`]+)`/g, '<code>$1</code>');
+      }
+    });
+
+    if (hasPatch) {
+      html += '<button class="ligarb-patch-toggle" onclick="this.nextElementSibling.classList.toggle(\'open\'); this.textContent = this.nextElementSibling.classList.contains(\'open\') ? \'Hide patch\' : \'Show patch\'">Show patch</button>';
+      html += '<div class="ligarb-patch-container">' + patches + '</div>';
+    }
+
+    return html;
+  }
+
+  function makeThinkingBubble(text) {
+    var div = document.createElement('div');
+    div.className = 'ligarb-message ligarb-message-assistant ligarb-thinking';
+    div.innerHTML =
+      '<div class="ligarb-message-role">Claude</div>' +
+      '<div class="ligarb-message-content"><span class="ligarb-dots"></span> ' + escapeHTML(text) + '</div>';
+    return div;
   }
 
   function sendMessage() {
@@ -270,7 +307,6 @@
 
     input.value = '';
 
-    // New review creation
     if (panel._createContext) {
       var ctx = panel._createContext;
       panel._createContext = null;
@@ -284,24 +320,18 @@
         panel.querySelector('.ligarb-btn-approve').style.display = '';
         panel.querySelector('.ligarb-btn-close-thread').style.display = '';
         renderReview(review);
-        startPolling(review.id);
         updateBadge();
       });
       return;
     }
 
-    // Reply to existing review
     if (!currentReviewId) return;
 
-    var id = currentReviewId;
-    stopPolling();
-
-    fetchJSON(API + '/reviews/' + id + '/messages', {
+    fetchJSON(API + '/reviews/' + currentReviewId + '/messages', {
       method: 'POST',
       body: { message: message }
     }).then(function(review) {
       renderReview(review);
-      startPolling(id);
     });
   }
 
@@ -309,16 +339,10 @@
     if (!currentReviewId) return;
     if (!confirm('Apply the discussed changes to the source file?')) return;
 
-    var id = currentReviewId;
-    // Stop polling to avoid interference with the approve request
-    stopPolling();
-
-    fetchJSON(API + '/reviews/' + id + '/approve', {
+    fetchJSON(API + '/reviews/' + currentReviewId + '/approve', {
       method: 'POST'
     }).then(function(review) {
       renderReview(review);
-      // Resume polling to watch for completion
-      startPolling(id);
     });
   }
 
@@ -331,26 +355,6 @@
       renderReview(review);
       updateBadge();
     });
-  }
-
-  // ── Polling for review updates ──
-
-  function startPolling(reviewId) {
-    stopPolling();
-    pollTimer = setInterval(function() {
-      if (currentReviewId !== reviewId) {
-        stopPolling();
-        return;
-      }
-      loadReview(reviewId);
-    }, 2000);
-  }
-
-  function stopPolling() {
-    if (pollTimer) {
-      clearInterval(pollTimer);
-      pollTimer = null;
-    }
   }
 
   // ── Review List Panel ──
@@ -431,17 +435,18 @@
 
   function updateBadge() {
     fetchJSON(API + '/reviews').then(function(reviews) {
-      var open = (reviews || []).filter(function(r) { return r.status === 'open'; }).length;
+      var open = (reviews || []).filter(function(r) { return r.status === 'open' || r.status === 'applying'; }).length;
       if (open > 0) {
         badge.textContent = open;
         badge.style.display = 'inline-block';
+        listBtn.classList.add('has-open');
       } else {
         badge.style.display = 'none';
+        listBtn.classList.remove('has-open');
       }
     });
   }
 
-  // Initial badge update
+  // Initial badge
   updateBadge();
-  setInterval(updateBadge, 10000);
 })();

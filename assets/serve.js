@@ -1,22 +1,32 @@
-// ligarb serve — reload button + mtime polling + auto content refresh
+// ligarb serve — SSE-based live reload + reload button
 (function() {
   'use strict';
 
-  var lastMtime = 0;
-  var pollInterval = 2000;
   var refreshing = false;
 
-  // Create reload button
+  // Create reload button (hidden by default, shown when build changes)
   var reloadBtn = document.createElement('button');
   reloadBtn.id = 'ligarb-reload';
   reloadBtn.innerHTML = '&#8635;';
-  reloadBtn.title = 'Reload page';
+  reloadBtn.title = 'New build available — click to reload';
+  reloadBtn.style.display = 'none';
   reloadBtn.addEventListener('click', function() {
     refreshContent();
   });
   document.body.appendChild(reloadBtn);
 
-  // Refresh only the book content (main area), preserving panel state
+  function showReloadButton() {
+    reloadBtn.style.display = 'flex';
+    reloadBtn.classList.add('has-update');
+    reloadBtn.classList.remove('refreshing');
+  }
+
+  function hideReloadButton() {
+    reloadBtn.style.display = 'none';
+    reloadBtn.classList.remove('has-update', 'refreshing');
+  }
+
+  // Refresh book content without full page reload
   function refreshContent() {
     if (refreshing) return;
     refreshing = true;
@@ -31,47 +41,36 @@
         var newMain = doc.getElementById('content');
         var oldMain = document.getElementById('content');
         if (newMain && oldMain) {
+          var scrollY = window.scrollY;
           oldMain.innerHTML = newMain.innerHTML;
-          // Re-show current chapter via the book's exposed function
           var hash = location.hash.replace('#', '');
-          if (hash && window.showChapter) {
-            // If it's a deep link (chapter--heading), show the chapter part
+          if (hash) {
+            // Show the current chapter without scrolling to top
             var slug = hash.split('--')[0];
-            window.showChapter(slug);
+            var chapters = oldMain.querySelectorAll('.chapter');
+            chapters.forEach(function(el) {
+              el.style.display = el.id === 'chapter-' + slug ? 'block' : 'none';
+            });
           }
+          window.scrollTo(0, scrollY);
         }
         refreshing = false;
-        reloadBtn.classList.remove('refreshing');
+        hideReloadButton();
       })
       .catch(function() {
-        // Fallback to full reload if content swap fails
         refreshing = false;
-        reloadBtn.classList.remove('refreshing');
+        hideReloadButton();
         location.reload();
       });
   }
 
-  // Expose for review.js to trigger
-  window._ligarbRefreshContent = refreshContent;
+  // SSE connection
+  var eventSource = new EventSource('/_ligarb/events');
 
-  // Poll for mtime changes
-  function pollStatus() {
-    fetch('/_ligarb/status')
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (lastMtime === 0) {
-          lastMtime = data.mtime;
-          return;
-        }
-        if (data.mtime > lastMtime) {
-          lastMtime = data.mtime;
-          // Auto-refresh content without full page reload
-          refreshContent();
-        }
-      })
-      .catch(function() { /* server may be restarting */ });
-  }
+  eventSource.addEventListener('build_updated', function() {
+    showReloadButton();
+  });
 
-  pollStatus();
-  setInterval(pollStatus, pollInterval);
+  // Expose for review.js
+  window._ligarbEvents = eventSource;
 })();

@@ -17,6 +17,7 @@
 - カスタム CSS 対応
 - GitHub リンク（View on GitHub）
 - レスポンシブ・印刷対応（ページ番号付き）
+- ローカルサーバー（`ligarb serve`）でライブリロード + レビュー UI
 
 ## インストール
 
@@ -81,6 +82,21 @@ ligarb build
 ```
 
 `build/index.html` が生成されます。ブラウザで開いてください。
+
+## ローカルサーバーでプレビュー＆レビュー
+
+```bash
+ligarb serve              # http://localhost:3000 で配信
+ligarb serve --port 8080  # ポート指定
+```
+
+- 起動時に自動ビルド
+- ソースを変更して `ligarb build` するとブラウザに更新ボタンが表示（Linux では inotify で即検知）
+- 本文のテキストを選択すると「Comment」ボタンが出現 → コメントを書くと Claude（Opus）がレビュー
+- 提案された変更には「Show patch」で diff を確認、「Approve」で即座にソースに適用＆リビルド
+- レビュー履歴は `.ligarb/reviews/` に JSON で保存
+
+[Claude Code](https://claude.com/claude-code) の CLI が必要です。
 
 ## AI で本を書く
 

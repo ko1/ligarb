@@ -17,15 +17,15 @@ module Ligarb
       @store = ReviewStore.new(@config.base_dir)
       @claude = ClaudeRunner.new(@config)
       @assets_dir = File.join(File.dirname(__FILE__), "..", "..", "assets")
-      @running_tasks = {}  # id => Thread
-      @mutex = Mutex.new
+      @sse_clients = []
+      @sse_mutex = Mutex.new
     end
 
     def start
-      unless File.exist?(File.join(@build_dir, "index.html"))
-        $stderr.puts "Error: #{@build_dir}/index.html not found. Run 'ligarb build' first."
-        exit 1
-      end
+      config_path = File.join(@config.base_dir, "book.yml")
+      puts "Building..."
+      require_relative "builder"
+      Builder.new(config_path).build
 
       server = WEBrick::HTTPServer.new(
         Port: @port,
@@ -39,8 +39,11 @@ module Ligarb
       # Serve index.html with injection at root
       server.mount_proc("/") { |req, res| handle_static(req, res) }
 
-      trap("INT") { server.shutdown }
-      trap("TERM") { server.shutdown }
+      trap("INT") { Thread.new { close_sse_clients; server.shutdown } }
+      trap("TERM") { Thread.new { close_sse_clients; server.shutdown } }
+
+      # Background thread to watch build output for changes
+      start_build_watcher
 
       puts "Serving #{@config.title} at http://localhost:#{@port}"
       puts "  Build directory: #{@build_dir}"
@@ -51,16 +54,113 @@ module Ligarb
 
     private
 
+    # ── SSE (Server-Sent Events) ──
+
+    def close_sse_clients
+      @sse_mutex.synchronize do
+        @sse_clients.each { |q| q.push(:close) rescue nil }
+        @sse_clients.clear
+      end
+    end
+
+    def sse_broadcast(event, data)
+      json = JSON.generate(data)
+      message = "event: #{event}\ndata: #{json}\n\n"
+      @sse_mutex.synchronize do
+        @sse_clients.reject! do |queue|
+          begin
+            queue.push(message, true) # non-blocking push
+            false
+          rescue ThreadError
+            true # queue full, drop client
+          end
+        end
+      end
+    end
+
+    def handle_sse(_req, res)
+      res["Content-Type"] = "text/event-stream"
+      res["Cache-Control"] = "no-cache"
+      res["Connection"] = "keep-alive"
+      res["X-Accel-Buffering"] = "no"
+      res.chunked = true
+
+      queue = SizedQueue.new(50)
+      @sse_mutex.synchronize { @sse_clients << queue }
+
+      # WEBrick calls body.call(socket) for chunked proc bodies
+      res.body = proc { |socket|
+        begin
+          socket.write("retry: 3000\n\n")
+          loop do
+            msg = queue.pop # blocks until message
+            break if msg == :close
+            socket.write(msg)
+          end
+        rescue Errno::EPIPE, Errno::ECONNRESET, IOError
+          # Client disconnected
+        ensure
+          @sse_mutex.synchronize { @sse_clients.delete(queue) }
+        end
+      }
+    end
+
+    def start_build_watcher
+      html_path = File.join(@build_dir, "index.html")
+
+      if use_inotify?
+        $stderr.puts "[ligarb] Watching #{html_path} with inotify"
+        Thread.new do
+          Inotify.watch_file(html_path) do
+            $stderr.puts "[ligarb] Build updated (inotify)"
+            sse_broadcast("build_updated", { mtime: File.mtime(html_path).to_i })
+          end
+        rescue => e
+          $stderr.puts "[ligarb] inotify watcher error: #{e.message}, falling back to polling"
+          start_mtime_poller(html_path)
+        end
+      else
+        start_mtime_poller(html_path)
+      end
+    end
+
+    def start_mtime_poller(html_path)
+      $stderr.puts "[ligarb] Watching #{html_path} with polling"
+      Thread.new do
+        last_mtime = File.exist?(html_path) ? File.mtime(html_path).to_i : 0
+        loop do
+          sleep 2
+          current = File.exist?(html_path) ? File.mtime(html_path).to_i : 0
+          if current > last_mtime
+            last_mtime = current
+            sse_broadcast("build_updated", { mtime: current })
+          end
+        rescue => e
+          $stderr.puts "[ligarb] mtime watcher error: #{e.message}"
+        end
+      end
+    end
+
+    def use_inotify?
+      return @use_inotify if defined?(@use_inotify)
+      @use_inotify = begin
+        require_relative "inotify"
+        true
+      rescue Fiddle::DLError, LoadError
+        false
+      end
+    end
+
+    # ── Static file serving ──
+
     def handle_static(req, res)
       path = req.path
 
-      # Root or /index.html → inject assets into HTML
       if path == "/" || path == "/index.html"
         serve_injected_html(res)
         return
       end
 
-      # Serve static files from build directory
       file_path = File.join(@build_dir, path)
       file_path = File.realpath(file_path) rescue nil
 
@@ -77,11 +177,9 @@ module Ligarb
       html_path = File.join(@build_dir, "index.html")
       html = File.read(html_path)
 
-      # Inject CSS before </head>
       css_tag = %(<link rel="stylesheet" href="/_ligarb/assets/review.css">)
       html.sub!("</head>", "#{css_tag}\n</head>")
 
-      # Inject JS before </body>
       js_tags = %w[serve.js review.js].map { |f|
         %(<script src="/_ligarb/assets/#{f}"></script>)
       }.join("\n")
@@ -91,10 +189,19 @@ module Ligarb
       res["Content-Type"] = "text/html; charset=utf-8"
     end
 
+    # ── API routing ──
+
     def handle_api(req, res)
-      res["Content-Type"] = "application/json; charset=utf-8"
       method = req.request_method
       path = req.path.sub(%r{^/_ligarb}, "")
+
+      # SSE endpoint — handled separately (doesn't set JSON content-type)
+      if method == "GET" && path == "/events"
+        handle_sse(req, res)
+        return
+      end
+
+      res["Content-Type"] = "application/json; charset=utf-8"
 
       begin
         if method == "GET" && path == "/status"
@@ -122,19 +229,18 @@ module Ligarb
       end
     end
 
-    # GET /_ligarb/status
+    # ── API handlers ──
+
     def api_status(res)
       html_path = File.join(@build_dir, "index.html")
       mtime = File.exist?(html_path) ? File.mtime(html_path).to_i : 0
       res.body = JSON.generate({ mtime: mtime })
     end
 
-    # GET /_ligarb/reviews
     def api_list_reviews(res)
       res.body = JSON.generate(@store.list)
     end
 
-    # GET /_ligarb/reviews/:id
     def api_get_review(id, res)
       review = @store.get(id)
       if review
@@ -144,7 +250,6 @@ module Ligarb
       end
     end
 
-    # POST /_ligarb/reviews
     def api_create_review(req, res)
       body = parse_body(req)
 
@@ -157,19 +262,15 @@ module Ligarb
         return
       end
 
-      # Resolve source file path from chapter slug
       context["source_file"] = resolve_source_file(context["chapter_slug"])
 
       review = @store.create(context: context, message: message)
-
-      # Start Claude review in background
       start_claude_review(review["id"])
 
       res.status = 201
       res.body = JSON.generate(review)
     end
 
-    # POST /_ligarb/reviews/:id/messages
     def api_add_message(id, req, res)
       review = @store.get(id)
       unless review
@@ -187,15 +288,12 @@ module Ligarb
       end
 
       @store.add_message(id, role: "user", content: message)
-
-      # Start Claude review in background
       start_claude_review(id)
 
       review = @store.get(id)
       res.body = JSON.generate(review)
     end
 
-    # POST /_ligarb/reviews/:id/approve
     def api_approve(id, res)
       review = @store.get(id)
       unless review
@@ -203,34 +301,24 @@ module Ligarb
         return
       end
 
-      @store.update_status(id, "applying")
+      $stderr.puts "[ligarb] Approve: applying patches for review #{id}"
+      result = @claude.apply_patches(review)
 
-      # Run Claude to apply changes in background
-      Thread.new do
-        $stderr.puts "[ligarb] Approve: starting Claude apply for review #{id}"
-        begin
-          result = @claude.apply_changes(review)
-          if result["error"]
-            $stderr.puts "[ligarb] Approve: Claude error: #{result["error"]}"
-            @store.add_message(id, role: "assistant", content: "Error applying: #{result["error"]}")
-            @store.update_status(id, "open")
-          else
-            $stderr.puts "[ligarb] Approve: changes applied successfully"
-            @store.add_message(id, role: "assistant", content: "Changes applied and book rebuilt.")
-            @store.update_status(id, "applied")
-          end
-        rescue => e
-          $stderr.puts "[ligarb] Approve: exception: #{e.message}"
-          @store.add_message(id, role: "assistant", content: "Error: #{e.message}")
-          @store.update_status(id, "open")
-        end
+      if result["error"]
+        $stderr.puts "[ligarb] Approve: error: #{result["error"]}"
+        @store.add_message(id, role: "assistant", content: "Error: #{result["error"]}")
+        @store.update_status(id, "open")
+      else
+        $stderr.puts "[ligarb] Approve: #{result["text"]}"
+        @store.add_message(id, role: "assistant", content: result["text"])
+        @store.update_status(id, "applied")
       end
 
+      sse_broadcast("review_updated", { id: id })
       review = @store.get(id)
       res.body = JSON.generate(review)
     end
 
-    # DELETE /_ligarb/reviews/:id
     def api_delete_review(id, res)
       review = @store.get(id)
       unless review
@@ -239,6 +327,8 @@ module Ligarb
       end
 
       @store.update_status(id, "closed")
+      sse_broadcast("review_updated", { id: id })
+
       review = @store.get(id)
       res.body = JSON.generate(review)
     end
@@ -269,6 +359,7 @@ module Ligarb
           unless @claude.installed?
             @store.add_message(review_id, role: "assistant",
               content: "Error: 'claude' command not found. Install Claude Code to enable AI reviews.")
+            sse_broadcast("review_updated", { id: review_id })
             return
           end
 
@@ -285,9 +376,13 @@ module Ligarb
         rescue => e
           $stderr.puts "[ligarb] Review: exception: #{e.message}"
           @store.add_message(review_id, role: "assistant", content: "Error: #{e.message}")
+        ensure
+          sse_broadcast("review_updated", { id: review_id })
         end
       end
     end
+
+    # ── Helpers ──
 
     def resolve_source_file(chapter_slug)
       return nil unless chapter_slug
