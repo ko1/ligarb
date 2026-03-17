@@ -131,14 +131,14 @@ module Ligarb
       html_path = File.join(book.build_dir, "index.html")
 
       if use_inotify?
-        $stderr.puts "[ligarb] Watching #{html_path} with inotify"
+        log "Watching #{html_path} with inotify"
         Thread.new do
           Inotify.watch_file(html_path) do
-            $stderr.puts "[ligarb] Build updated: #{book.slug} (inotify)"
+            log "Build updated: #{book.slug} (inotify)"
             sse_broadcast("build_updated", { mtime: File.mtime(html_path).to_i }, slug: book.slug)
           end
         rescue => e
-          $stderr.puts "[ligarb] inotify watcher error: #{e.message}, falling back to polling"
+          log "inotify watcher error: #{e.message}, falling back to polling"
           start_mtime_poller(book)
         end
       else
@@ -148,7 +148,7 @@ module Ligarb
 
     def start_mtime_poller(book)
       html_path = File.join(book.build_dir, "index.html")
-      $stderr.puts "[ligarb] Watching #{html_path} with polling"
+      log "Watching #{html_path} with polling"
       Thread.new do
         last_mtime = File.exist?(html_path) ? File.mtime(html_path).to_i : 0
         loop do
@@ -159,7 +159,7 @@ module Ligarb
             sse_broadcast("build_updated", { mtime: current }, slug: book.slug)
           end
         rescue => e
-          $stderr.puts "[ligarb] mtime watcher error: #{e.message}"
+          log "mtime watcher error: #{e.message}"
         end
       end
     end
@@ -737,15 +737,15 @@ module Ligarb
         return
       end
 
-      $stderr.puts "[ligarb] Approve: applying patches for review #{id}"
+      log "Approve: applying patches for review #{id}"
       result = book.claude.apply_patches(review)
 
       if result["error"]
-        $stderr.puts "[ligarb] Approve: error: #{result["error"]}"
+        log "Approve: error: #{result["error"]}"
         book.store.add_message(id, role: "assistant", content: "Error: #{result["error"]}")
         book.store.update_status(id, "open")
       else
-        $stderr.puts "[ligarb] Approve: #{result["text"]}"
+        log "Approve: #{result["text"]}"
         book.store.add_message(id, role: "assistant", content: result["text"])
         book.store.update_status(id, "applied")
       end
@@ -787,7 +787,7 @@ module Ligarb
 
     def start_claude_review(book, review_id)
       Thread.new do
-        $stderr.puts "[ligarb] Review: starting Claude review for #{review_id}"
+        log "Review: starting Claude review for #{review_id}"
         begin
           review = book.store.get(review_id)
           return unless review
@@ -803,14 +803,14 @@ module Ligarb
           result = book.claude.run(prompt)
 
           if result["error"]
-            $stderr.puts "[ligarb] Review: Claude error: #{result["error"]}"
+            log "Review: Claude error: #{result["error"]}"
             book.store.add_message(review_id, role: "assistant", content: "Error: #{result["error"]}")
           else
-            $stderr.puts "[ligarb] Review: Claude responded"
+            log "Review: Claude responded"
             book.store.add_message(review_id, role: "assistant", content: result["text"])
           end
         rescue => e
-          $stderr.puts "[ligarb] Review: exception: #{e.message}"
+          log "Review: exception: #{e.message}"
           book.store.add_message(review_id, role: "assistant", content: "Error: #{e.message}")
         ensure
           sse_broadcast("review_updated", { id: review_id }, slug: book.slug)
@@ -872,6 +872,7 @@ module Ligarb
       # Background thread for writing
       Thread.new do
         begin
+          log "Write: starting for '#{directory}' (title: #{title})"
           require_relative "writer"
           writer = Writer.new(brief_path, no_build: true)
           writer.run
@@ -894,13 +895,13 @@ module Ligarb
           start_build_watcher(book)
 
           @write_mutex.synchronize { @write_jobs[directory][:status] = "done" }
-          $stderr.puts "[ligarb] Write: completed for '#{directory}'"
+          log "Write: completed for '#{directory}'"
         rescue => e
           @write_mutex.synchronize do
             @write_jobs[directory][:status] = "error"
             @write_jobs[directory][:error] = e.message
           end
-          $stderr.puts "[ligarb] Write: error for '#{directory}': #{e.message}"
+          log "Write: error for '#{directory}': #{e.message}"
         ensure
           sse_broadcast("write_updated", write_jobs_data, slug: nil)
         end
@@ -940,6 +941,10 @@ module Ligarb
     def not_found(res)
       res.status = 404
       res.body = JSON.generate({ error: "not found" })
+    end
+
+    def log(msg)
+      $stderr.puts "[ligarb #{Time.now.strftime('%H:%M:%S')}] #{msg}"
     end
 
     def escape_html(str)
