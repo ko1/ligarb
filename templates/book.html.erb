@@ -298,14 +298,84 @@
   var searchInput = document.getElementById('toc-search');
   var clearBtn = document.getElementById('search-clear');
 
+  // Build text cache for full-text search (lazy, built on first search)
+  var chapterTextCache = null;
+  function buildTextCache() {
+    if (chapterTextCache) return;
+    chapterTextCache = {};
+    chapters.forEach(function(slug) {
+      var section = document.getElementById('chapter-' + slug);
+      if (section) {
+        chapterTextCache[slug] = section.textContent.toLowerCase();
+      }
+    });
+  }
+
+  function countMatches(text, query) {
+    var count = 0;
+    var idx = text.indexOf(query);
+    while (idx !== -1) {
+      count++;
+      idx = text.indexOf(query, idx + query.length);
+    }
+    return count;
+  }
+
   function updateSearch() {
     var query = searchInput.value.toLowerCase();
-    var items = document.querySelectorAll('.toc-chapter');
-    items.forEach(function(item) {
-      var text = item.textContent.toLowerCase();
-      item.style.display = text.indexOf(query) !== -1 ? '' : 'none';
-    });
     clearBtn.style.display = query ? 'block' : 'none';
+
+    // Remove existing match count badges
+    document.querySelectorAll('.search-match-count').forEach(function(el) { el.remove(); });
+
+    var items = document.querySelectorAll('.toc-chapter');
+    var partItems = document.querySelectorAll('.toc-part, .toc-appendix');
+
+    if (!query || query.length < 2) {
+      // Show all items when query is too short
+      items.forEach(function(item) { item.style.display = ''; });
+      partItems.forEach(function(item) { item.style.display = ''; });
+      highlightContent('');
+      return;
+    }
+
+    buildTextCache();
+
+    // Track which chapters match (content or TOC text)
+    var matchingSlugs = {};
+    items.forEach(function(item) {
+      var slug = item.dataset.chapter;
+      var tocText = item.textContent.toLowerCase();
+      var contentText = chapterTextCache[slug] || '';
+      var tocMatch = tocText.indexOf(query) !== -1;
+      var contentMatch = contentText.indexOf(query) !== -1;
+
+      if (tocMatch || contentMatch) {
+        item.style.display = '';
+        matchingSlugs[slug] = true;
+        // Show match count badge for content matches
+        if (contentMatch) {
+          var count = countMatches(contentText, query);
+          var badge = document.createElement('span');
+          badge.className = 'search-match-count';
+          badge.textContent = count;
+          var link = item.querySelector('a');
+          if (link) link.appendChild(badge);
+        }
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    // Show/hide part and appendix headers based on whether they have visible children
+    partItems.forEach(function(item) {
+      var children = item.querySelectorAll('.toc-chapter');
+      var hasVisible = Array.prototype.some.call(children, function(ch) {
+        return ch.style.display !== 'none';
+      });
+      item.style.display = hasVisible ? '' : 'none';
+    });
+
     highlightContent(searchInput.value);
   }
 
