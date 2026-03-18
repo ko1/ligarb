@@ -269,9 +269,11 @@
 
   function renderReview(review) {
     var ctx = review.context || {};
+    var filePath = review.file_path ? '<details class="ligarb-file-path"><summary>debug</summary><code>' + escapeHTML(review.file_path) + '</code></details>' : '';
     panel.querySelector('.ligarb-context').innerHTML =
       '<div class="ligarb-selected-text">"' + escapeHTML(ctx.selected_text || '') + '"</div>' +
-      '<div class="ligarb-meta">Chapter: ' + escapeHTML(ctx.chapter_slug || '') + '</div>';
+      '<div class="ligarb-meta">Chapter: ' + escapeHTML(ctx.chapter_slug || '') + '</div>' +
+      filePath;
 
     var msgsEl = panel.querySelector('.ligarb-messages');
     msgsEl.innerHTML = '';

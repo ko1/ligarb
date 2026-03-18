@@ -203,6 +203,23 @@
   margin-top: 4px;
 }
 
+.ligarb-file-path {
+  font-size: 10px;
+  color: var(--color-text-muted, #999);
+  margin-top: 2px;
+}
+
+.ligarb-file-path summary {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.ligarb-file-path code {
+  font-size: 10px;
+  word-break: break-all;
+  user-select: all;
+}
+
 /* ── Messages ── */
 
 .ligarb-messages {

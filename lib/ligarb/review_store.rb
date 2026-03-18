@@ -21,7 +21,9 @@ module Ligarb
     def get(id)
       path = file_path(id)
       return nil unless File.exist?(path)
-      read_json(path)
+      review = read_json(path)
+      review["file_path"] = path if review
+      review
     end
 
     def create(context:, message:)
