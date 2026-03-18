@@ -155,6 +155,15 @@ module Ligarb
       lines << "Each chapter: substantive content with multiple ## sections."
       lines << "Use code blocks, admonitions, mermaid diagrams where appropriate."
       lines << "Chapter filenames: 01-topic.md, 02-topic.md, etc."
+      lines << ""
+      lines << "Create references.bib with real bibliography entries in BibTeX format."
+      lines << "In book.yml, set: bibliography: references.bib"
+      lines << "Cite references in chapter text using [text](#cite:key) syntax."
+      lines << "Search the web to find accurate bibliographic information (DOI, pages, volume, etc.)."
+      lines << "Do NOT fabricate references. Only include real, verifiable publications."
+      lines << "Use entry types: @article, @inproceedings, @book, @misc as appropriate."
+      lines << "Use UTF-8 directly for special characters (no LaTeX commands like \\c{c})."
+      lines << "BibTeX keys: authorsurname+year (e.g. knuth1984, cousot1977)."
 
       lines.join("\n")
     end

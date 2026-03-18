@@ -12,7 +12,7 @@ module Ligarb
       @css_path      = File.join(ASSETS_DIR, "style.css")
     end
 
-    def render(config:, chapters:, structure:, assets:, index_entries: [])
+    def render(config:, chapters:, structure:, assets:, index_entries: [], bibliography: [])
       css = File.read(@css_path)
       template = File.read(@template_path)
 
@@ -34,6 +34,7 @@ module Ligarb
       b.local_variable_set(:ai_generated, config.ai_generated)
       b.local_variable_set(:footer, config.effective_footer)
       b.local_variable_set(:index_tree, build_index_tree(index_entries, chapters))
+      b.local_variable_set(:bibliography, bibliography)
 
       ERB.new(template, trim_mode: "-").result(b)
     end

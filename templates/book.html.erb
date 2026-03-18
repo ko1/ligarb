@@ -110,6 +110,11 @@
       </li>
         <%- end -%>
       <%- end -%>
+      <%- unless bibliography.empty? -%>
+      <li class="toc-chapter" data-chapter="__bibliography__">
+        <a href="#__bibliography__" class="toc-h1" onclick="showChapter('__bibliography__')"><%= language == 'ja' ? '参考文献' : 'Bibliography' %></a>
+      </li>
+      <%- end -%>
       <%- unless index_tree.empty? -%>
       <li class="toc-chapter" data-chapter="__index__">
         <a href="#__index__" class="toc-h1" onclick="showChapter('__index__')"><%= language == 'ja' ? '索引' : 'Index' %></a>
@@ -147,6 +152,16 @@
     <%- end -%>
   </section>
   <%- end -%>
+  <%- unless bibliography.empty? -%>
+  <section class="chapter bibliography-chapter" id="chapter-__bibliography__" style="display: none;">
+    <h1><%= language == 'ja' ? '参考文献' : 'Bibliography' %></h1>
+    <ul class="bibliography-list">
+      <%- bibliography.each do |entry| -%>
+      <li id="bib-<%= entry[:key] %>"><%= entry[:formatted_html] %></li>
+      <%- end -%>
+    </ul>
+  </section>
+  <%- end -%>
   <%- unless index_tree.empty? -%>
   <section class="chapter index-chapter" id="chapter-__index__" style="display: none;">
     <h1><%= language == 'ja' ? '索引' : 'Index' %></h1>
@@ -175,7 +190,7 @@
 
 <script>
 (function() {
-  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__index__"' unless index_tree.empty? %>];
+  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
   var currentChapter = null;
 
   function showChapter(slug) {

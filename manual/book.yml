@@ -5,6 +5,7 @@ output_dir: "build"
 # style: "custom.css"
 repository: "https://github.com/ko1/ligarb"
 ai_generated: true
+bibliography: references.bib
 chapters:
   - cover: chapters/cover.md
   - part: chapters/part1.md

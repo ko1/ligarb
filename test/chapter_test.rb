@@ -332,6 +332,36 @@ class ChapterTest < Minitest::Test
     end
   end
 
+  # Citation tests
+
+  def test_cite_basic
+    make_chapter("# T\n\n[Ruby](#cite:matz1995) is great.") do |ch|
+      assert_equal 1, ch.cite_entries.size
+      assert_equal "matz1995", ch.cite_entries[0].key
+      assert_equal "Ruby", ch.cite_entries[0].display_text
+      assert_equal "01-test", ch.cite_entries[0].chapter_slug
+      assert_equal "01-test--cite-0", ch.cite_entries[0].anchor_id
+      refute_includes ch.html, 'href="#cite:'
+      assert_includes ch.html, '<span id="01-test--cite-0" data-cite-key="matz1995">Ruby</span>'
+    end
+  end
+
+  def test_cite_multiple
+    make_chapter("# T\n\n[Ruby](#cite:matz1995) and [Python](#cite:vanrossum1991).") do |ch|
+      assert_equal 2, ch.cite_entries.size
+      assert_equal "matz1995", ch.cite_entries[0].key
+      assert_equal "vanrossum1991", ch.cite_entries[1].key
+      assert_equal "01-test--cite-0", ch.cite_entries[0].anchor_id
+      assert_equal "01-test--cite-1", ch.cite_entries[1].anchor_id
+    end
+  end
+
+  def test_cite_no_entries
+    make_chapter("# T\n\nNo citations here.") do |ch|
+      assert_empty ch.cite_entries
+    end
+  end
+
   def test_cross_reference_external_url_not_rewritten
     Dir.mktmpdir do |dir|
       File.write(File.join(dir, "ch1.md"), "# T\n\n[link](https://example.com/foo.md)")

@@ -379,6 +379,66 @@ module Ligarb
 
         Clicking an index entry navigates to the exact location in the chapter.
 
+        == Bibliography ==
+
+        Cite references in the text using Markdown link syntax with #cite:
+
+            [Ruby](#cite:matz1995)       Cite by key; rendered as Ruby[Matsumoto, 1995]
+
+        Define a bibliography data file in book.yml:
+
+            bibliography: references.yml   # YAML format
+            bibliography: references.bib   # BibTeX format
+
+        The format is auto-detected by file extension (.bib = BibTeX, otherwise YAML).
+
+        YAML format maps keys to reference data:
+
+            matz1995:
+              author: "Yukihiro Matsumoto"
+              title: "The Ruby Programming Language"
+              year: 1995
+              url: "https://www.ruby-lang.org"
+              publisher: "O'Reilly"
+              doi: "10.1234/example"
+
+        BibTeX format (.bib) is also supported:
+
+            @book{matz1995,
+              author = {Yukihiro Matsumoto},
+              title = {The Ruby Programming Language},
+              year = {1995},
+              publisher = {O'Reilly},
+              url = {https://www.ruby-lang.org}
+            }
+
+        BibTeX notes:
+        - Entry types (@book, @article, etc.) are preserved for formatting
+        - Field values can use {braces} or "quotes"
+        - Nested braces are supported one level deep ({The {Ruby} Language})
+        - Lines starting with % are comments
+
+        Supported fields (YAML and BibTeX):
+        author, title, year, url, publisher, journal, booktitle, volume,
+        number, pages, edition, doi, editor, note.
+
+        The bibliography section formats entries by type:
+        - book:          Author. Title. Edition. Publisher, Year.
+        - article:       Author. "Title". Journal, Volume(Number), Pages, Year.
+        - inproceedings: Author. "Title". In Booktitle, Pages, Year.
+        - other/YAML:    Author. Title. Publisher/Journal, Volume, Pages, Year.
+
+        If url is present, the title becomes a link. If doi is present, a DOI link
+        is appended.
+
+        The citation is rendered as a superscript [author, year] link that navigates
+        to the "Bibliography" section at the end of the book. Hovering the link shows
+        the full reference. The bibliography section lists all cited entries sorted by
+        author and year.
+
+        An error is raised if a cite key is not found in the bibliography file.
+        If no bibliography file is configured, cite markers are left as-is.
+
         == Custom CSS ==
 
         Add a 'style' field to book.yml to inject custom CSS:

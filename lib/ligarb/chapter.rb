@@ -7,11 +7,12 @@ module Ligarb
   class Chapter
     class CrossReferenceError < StandardError; end
 
-    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries
+    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries, :cite_entries
     attr_accessor :part_title, :cover, :relative_path
 
     Heading = Struct.new(:level, :text, :id, :display_text, keyword_init: true)
     IndexEntry = Struct.new(:term, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
+    CiteEntry = Struct.new(:key, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
 
     def initialize(path, base_dir)
       @path     = path
@@ -106,6 +107,8 @@ module Ligarb
       @html = scope_footnote_ids(@html)
       @index_entries = []
       @html = extract_index_markers(@html)
+      @cite_entries = []
+      @html = extract_cite_markers(@html)
       @title = @headings.first&.text || @slug
     end
 
@@ -255,6 +258,25 @@ module Ligarb
         end
 
         %(<span id="#{anchor_id}">#{display_text}</span>)
+      end
+    end
+
+    def extract_cite_markers(html)
+      cite_count = 0
+      html.gsub(%r{<a\s+href="#cite:([^"]+)">(.*?)</a>}m) do
+        key = $1
+        display_text = $2
+        anchor_id = "#{@slug}--cite-#{cite_count}"
+        cite_count += 1
+
+        @cite_entries << CiteEntry.new(
+          key: key,
+          display_text: display_text,
+          chapter_slug: @slug,
+          anchor_id: anchor_id
+        )
+
+        %(<span id="#{anchor_id}" data-cite-key="#{key}">#{display_text}</span>)
       end
     end
 

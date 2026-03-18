@@ -624,6 +624,42 @@ mark.search-highlight {
   }
 }
 
+/* === Bibliography === */
+.bibliography-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bibliography-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  line-height: 1.5;
+}
+
+.bibliography-list li a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.bibliography-list li a:hover {
+  text-decoration: underline;
+}
+
+.cite-ref {
+  font-size: 0.8em;
+}
+
+.cite-ref a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cite-ref a:hover {
+  text-decoration: underline;
+}
+
 /* === Index === */
 .index-group {
   margin-bottom: 1.5rem;

@@ -2,7 +2,7 @@
 
 ## 対応する Markdown 記法
 
-ligarb は [GitHub Flavored Markdown](#index:GFM) (GFM) に対応しています。以下の記法が使えます。
+ligarb は [GitHub Flavored Markdown](#index:GFM) ([GFM](#cite:gfm2017)) に対応しています。Markdown は [John Gruber が 2004 年に発表](#cite:gruber2004)した軽量マークアップ言語で、以下の記法が使えます。
 
 ### 見出し
 
@@ -42,7 +42,7 @@ const fetchData = async (url) => {
 };
 ```
 
-> シンタックスハイライトには [highlight.js](https://highlightjs.org/) が使われます。
+> シンタックスハイライトには [highlight.js](#cite:highlightjs2011) が使われます。
 > 言語指定のあるコードブロックが Markdown 内にある場合のみ、
 > ビルド時に自動でダウンロードされます。
 
@@ -79,8 +79,8 @@ sequenceDiagram
 
 ### 数式（KaTeX）
 
-` ```math` で [KaTeX](https://katex.org/) による数式レンダリングが使えます。
-LaTeX 記法で数式を記述します。
+` ```math` で [KaTeX](#cite:katex2014) による数式レンダリングが使えます。
+[LaTeX](#cite:lamport1994) 記法で数式を記述します。
 
 二次方程式の解の公式:
 
@@ -281,6 +281,130 @@ PNG, JPEG, SVG, GIF などの一般的な画像フォーマットが使えます
 
 > 索引マーカーは通常のテキストとして表示され、リンクのスタイルにはなりません。
 > 本の末尾に「索引」セクションが自動的に追加されます。
+
+## 参考文献（Bibliography）
+
+本の中で参考文献を引用し、巻末に参考文献リストを自動生成できます。
+
+### 設定
+
+`book.yml` に参考文献データファイルを指定します。拡張子で形式が自動判定されます:
+
+```yaml
+bibliography: references.yml   # YAML 形式
+bibliography: references.bib   # BibTeX 形式
+```
+
+#### YAML 形式
+
+キーと文献情報のマッピングです:
+
+```yaml
+matz1995:
+  author: "Yukihiro Matsumoto"
+  title: "The Ruby Programming Language"
+  year: 1995
+  url: "https://www.ruby-lang.org"
+  publisher: "O'Reilly"
+```
+
+#### BibTeX 形式（.bib）
+
+標準的な BibTeX 記法で記述できます:
+
+```bibtex
+@book{matz1995,
+  author = {Yukihiro Matsumoto},
+  title = {The Ruby Programming Language},
+  year = {1995},
+  publisher = {O'Reilly},
+  url = {https://www.ruby-lang.org}
+}
+
+@article{knuth1984,
+  author = {Donald Knuth},
+  title = {Literate Programming},
+  year = {1984},
+  journal = {The Computer Journal},
+  volume = {27},
+  number = {2},
+  pages = {97-111}
+}
+```
+
+BibTeX の注意事項:
+
+- `%` で始まる行はコメントとして無視されます
+- フィールド値は `{...}` または `"..."` で囲みます
+- `{The {Ruby} Language}` のようなネスト 1 段階の波括弧に対応しています
+- エントリタイプ（`@book`、`@article` 等）に応じて表示フォーマットが変わります
+
+### 対応フィールド
+
+以下のフィールドが YAML・BibTeX 共通で使えます:
+
+| フィールド | 用途 |
+|-----------|------|
+| `author` | 著者 |
+| `title` | タイトル |
+| `year` | 出版年 |
+| `url` | URL（タイトルがリンクになる） |
+| `publisher` | 出版社 |
+| `journal` | 雑誌名 |
+| `booktitle` | 書籍/会議名 |
+| `volume` | 巻 |
+| `number` | 号 |
+| `pages` | ページ |
+| `edition` | 版 |
+| `doi` | DOI（末尾に DOI リンクを追加） |
+| `editor` | 編集者 |
+| `note` | 備考 |
+
+### エントリタイプ別の表示
+
+BibTeX のエントリタイプに応じて参考文献リストのフォーマットが変わります:
+
+- **book**: Author. *Title*. Edition. Publisher. Year.
+- **article**: Author. "Title". *Journal*, Volume(Number), pp. Pages. Year.
+- **inproceedings**: Author. "Title". In *Booktitle*, pp. Pages. Year.
+- **その他/YAML**: Author. *Title*. Publisher. Journal. Volume. Pages. Year.
+
+### 引用の書き方
+
+リンク先に `#cite:キー` を指定します:
+
+```markdown
+[Ruby](#cite:matz1995) は素晴らしい言語です。
+```
+
+これは「Ruby<sup>[Yukihiro, 1995]</sup> は素晴らしい言語です。」のように表示されます。上付きの `[著者姓, 年]` は参考文献セクションへのリンクになっており、hover すると文献の完全な情報が表示されます。
+
+### 実際の例
+
+このマニュアル自体が参考文献機能を使っています。`manual/references.bib` に BibTeX 形式で文献を定義し、本文中で引用しています。
+
+[Markdown](#cite:gruber2004) は 2004 年に発表された軽量マークアップ言語です。その後 [GitHub が GFM として拡張](#cite:gfm2017)し、テーブルやタスクリストなどの機能が追加されました。数式のレンダリングには [KaTeX](#cite:katex2014) を、シンタックスハイライトには [highlight.js](#cite:highlightjs2011) を使用しています。数式記法は [Lamport の LaTeX](#cite:lamport1994) に基づいており、コードブロックによる文書と実行コードの融合は [Knuth の Literate Programming](#cite:knuth1984) の影響を受けています。ハイパーリンクによる相互参照は [Berners-Lee らの WWW](#cite:berners-lee1992) の基本概念です。
+
+> [!TIP]
+> 上の文をマウスオーバーすると、各引用の詳細情報がツールチップで表示されます。
+> クリックすると巻末の参考文献セクションにジャンプします。
+
+上の例のソースは以下のようになっています:
+
+```markdown
+[Markdown](#cite:gruber2004) は 2004 年に発表された...
+[Knuth の Literate Programming](#cite:knuth1984) の影響を...
+[Berners-Lee らの WWW](#cite:berners-lee1992) の基本概念です。
+```
+
+### 動作の詳細
+
+- 参考文献セクションは索引の前に自動的に追加されます
+- 参考文献は著者名・年でソートされます
+- `url` がある場合、タイトルがリンクになります
+- `doi` がある場合、末尾に DOI リンクが追加されます
+- 存在しないキーを `#cite:` で参照するとビルドエラーになります
+- `bibliography` を設定していない場合、参考文献セクションは生成されません
 
 ## 相互参照（Cross-References）
 

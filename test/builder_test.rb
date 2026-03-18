@@ -141,6 +141,177 @@ class BuilderTest < Minitest::Test
     end
   end
 
+  def test_bibliography_basic
+    refs = {"matz1995" => {"author" => "Yukihiro Matsumoto", "title" => "The Ruby Programming Language", "year" => 1995, "url" => "https://www.ruby-lang.org"}}
+    data = {"title" => "Test", "bibliography" => "refs.yml", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[Ruby](#cite:matz1995) is great.",
+      "refs.yml" => YAML.dump(refs),
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      # Citation in text
+      assert_includes html, 'class="cite-ref"'
+      assert_includes html, 'href="#bib-matz1995"'
+      assert_includes html, "[Yukihiro, 1995]"
+      # Bibliography section
+      assert_includes html, 'id="bib-matz1995"'
+      assert_includes html, "The Ruby Programming Language"
+      assert_includes html, "__bibliography__"
+    end
+  end
+
+  def test_bibliography_no_entries
+    data = {"title" => "Test", "chapters" => ["ch1.md"]}
+    build_book(data, files: {"ch1.md" => "# Ch\n\nNo citations."}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      refute_includes html, "__bibliography__"
+      refute_includes html, "bibliography-chapter"
+    end
+  end
+
+  def test_bibliography_unknown_key
+    refs = {"matz1995" => {"author" => "Matsumoto", "title" => "Ruby", "year" => 1995}}
+    data = {"title" => "Test", "bibliography" => "refs.yml", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[text](#cite:unknown_key)",
+      "refs.yml" => YAML.dump(refs),
+    }
+    assert_raises(SystemExit) do
+      build_book(data, files: files) { |_dir| }
+    end
+  end
+
+  def test_bibliography_url_linked
+    refs = {"book1" => {"author" => "Author", "title" => "Title", "year" => 2020, "url" => "https://example.com"}}
+    data = {"title" => "Test", "bibliography" => "refs.yml", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[text](#cite:book1)",
+      "refs.yml" => YAML.dump(refs),
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, 'href="https://example.com"'
+      assert_includes html, "<em><a"
+    end
+  end
+
+  def test_bibliography_bibtex
+    bib = <<~BIB
+      @book{matz1995,
+        author = {Yukihiro Matsumoto},
+        title = {The Ruby Programming Language},
+        year = {1995},
+        publisher = {O'Reilly},
+        url = {https://www.ruby-lang.org}
+      }
+    BIB
+    data = {"title" => "Test", "bibliography" => "refs.bib", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[Ruby](#cite:matz1995) is great.",
+      "refs.bib" => bib,
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, 'href="#bib-matz1995"'
+      assert_includes html, "[Yukihiro, 1995]"
+      assert_includes html, 'id="bib-matz1995"'
+      assert_includes html, "The Ruby Programming Language"
+      assert_includes html, "O'Reilly"
+    end
+  end
+
+  def test_bibliography_bibtex_article
+    bib = <<~BIB
+      @article{knuth1984,
+        author = {Donald Knuth},
+        title = {Literate Programming},
+        year = {1984},
+        journal = {The Computer Journal},
+        volume = {27},
+        number = {2},
+        pages = {97-111}
+      }
+    BIB
+    data = {"title" => "Test", "bibliography" => "refs.bib", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[LP](#cite:knuth1984) is great.",
+      "refs.bib" => bib,
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, "Literate Programming"
+      assert_includes html, "<em>The Computer Journal</em>"
+      assert_includes html, "27(2)"
+      assert_includes html, "pp. 97-111"
+    end
+  end
+
+  def test_bibliography_extended_fields
+    refs = {
+      "book1" => {
+        "author" => "Author Name",
+        "title" => "Great Book",
+        "year" => 2020,
+        "publisher" => "Acme Press",
+        "edition" => "2nd ed.",
+        "doi" => "10.1234/example",
+        "url" => "https://example.com",
+      }
+    }
+    data = {"title" => "Test", "bibliography" => "refs.yml", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[text](#cite:book1)",
+      "refs.yml" => YAML.dump(refs),
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, "Acme Press"
+      assert_includes html, "2nd ed."
+      assert_includes html, "https://doi.org/10.1234/example"
+    end
+  end
+
+  def test_bibliography_bibtex_comment
+    bib = <<~BIB
+      % This is a comment
+      @book{key1,
+        author = {Author},
+        title = {Title},
+        year = {2020}
+      }
+    BIB
+    data = {"title" => "Test", "bibliography" => "refs.bib", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[text](#cite:key1)",
+      "refs.bib" => bib,
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, 'id="bib-key1"'
+      assert_includes html, "Title"
+    end
+  end
+
+  def test_bibliography_bibtex_nested_braces
+    bib = <<~BIB
+      @book{key1,
+        author = {Author},
+        title = {The {Ruby} Language},
+        year = {2020}
+      }
+    BIB
+    data = {"title" => "Test", "bibliography" => "refs.bib", "chapters" => ["ch1.md"]}
+    files = {
+      "ch1.md" => "# Ch\n\n[text](#cite:key1)",
+      "refs.bib" => bib,
+    }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, "The Ruby Language"
+    end
+  end
+
   def test_cross_reference_missing_target
     data = {"title" => "Test", "chapters" => ["ch1.md"]}
     files = {"ch1.md" => "# Ch\n\n[link](missing.md)"}

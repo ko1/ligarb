@@ -30,9 +30,12 @@ module Ligarb
         }
       }
 
+      bibliography = resolve_citations!(all_chapters)
+
       html = Template.new.render(config: @config, chapters: all_chapters,
                                  structure: structure, assets: assets,
-                                 index_entries: index_entries)
+                                 index_entries: index_entries,
+                                 bibliography: bibliography)
 
       FileUtils.mkdir_p(@config.output_path)
       output_file = File.join(@config.output_path, "index.html")
@@ -143,6 +146,173 @@ module Ligarb
         return nil if parent == dir
         dir = parent
       end
+    end
+
+    def resolve_citations!(all_chapters)
+      bib_path = @config.bibliography_path
+      return [] unless bib_path
+
+      unless File.exist?(bib_path)
+        abort "Error: bibliography file not found: #{bib_path}"
+      end
+
+      bib_data = load_bibliography(bib_path)
+
+      # Validate all cite keys exist
+      cited_keys = {}
+      all_chapters.each do |ch|
+        ch.cite_entries.each do |entry|
+          unless bib_data.key?(entry.key)
+            abort "Error: unknown bibliography key '#{entry.key}' in chapter #{File.basename(ch.instance_variable_get(:@path))}"
+          end
+          cited_keys[entry.key] = true
+        end
+      end
+
+      # Post-process each chapter's HTML to insert [author, year] citations
+      all_chapters.each do |ch|
+        ch.instance_variable_set(:@html, ch.html.gsub(%r{<span id="([^"]+)" data-cite-key="([^"]+)">(.*?)</span>}m) do
+          anchor_id = $1
+          key = $2
+          display_text = $3
+          ref = bib_data[key]
+          cite_label = format_cite_label(ref)
+          title_text = format_bib_hover(ref)
+          %(<span id="#{anchor_id}">#{display_text}<sup class="cite-ref"><a href="#bib-#{key}" title="#{encode_attr(title_text)}" onclick="showChapterAndScroll('__bibliography__', 'bib-#{key}'); return false;">[#{encode_attr(cite_label)}]</a></sup></span>)
+        end)
+      end
+
+      # Build bibliography list sorted by author then year (only cited entries)
+      cited_keys.keys.map do |key|
+        ref = bib_data[key]
+        {
+          key: key,
+          author: ref["author"],
+          title: ref["title"],
+          year: ref["year"],
+          url: ref["url"],
+          formatted_html: format_bib_html(ref),
+        }
+      end.sort_by { |e| [e[:author].to_s, e[:year].to_s] }
+    end
+
+    def load_bibliography(path)
+      if path.end_with?(".bib")
+        parse_bibtex(File.read(path))
+      else
+        YAML.safe_load_file(path)
+      end
+    end
+
+    def parse_bibtex(source)
+      result = {}
+      # Remove comment lines
+      lines = source.each_line.reject { |l| l.match?(/\A\s*%/) }.join
+
+      # Extract @type{key, ...} blocks
+      lines.scan(/@(\w+)\s*\{\s*([^,]+)\s*,(.*?)\n\s*\}/m) do |type, key, body|
+        entry = {"_type" => type.downcase}
+        body.scan(/(\w+)\s*=\s*(?:\{((?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*)\}|"([^"]*)")/) do |field, brace_val, quote_val|
+          value = (brace_val || quote_val).strip
+          # Remove BibTeX case-protection braces (e.g. {LaTeX} -> LaTeX)
+          value = value.gsub(/\{([^{}]*)\}/, '\1')
+          entry[field.downcase] = value
+        end
+        result[key.strip] = entry
+      end
+
+      result
+    end
+
+    def format_bib_html(ref)
+      type = ref["_type"] || "misc"
+      parts = []
+
+      author = ref["author"]
+      parts << encode_html(author) if author
+
+      title = ref["title"]
+      if title
+        title_html = if ref["url"]
+                       %(<em><a href="#{encode_attr(ref["url"])}" target="_blank" rel="noopener">#{encode_html(title)}</a></em>)
+                     elsif type == "article" || type == "inproceedings"
+                       %("#{encode_html(title)}")
+                     else
+                       "<em>#{encode_html(title)}</em>"
+                     end
+        parts << title_html
+      end
+
+      case type
+      when "book"
+        parts << "#{encode_html(ref["edition"])}" if ref["edition"]
+        parts << encode_html(ref["publisher"]) if ref["publisher"]
+      when "article"
+        journal_parts = []
+        journal_parts << "<em>#{encode_html(ref["journal"])}</em>" if ref["journal"]
+        vol_num = []
+        vol_num << ref["volume"] if ref["volume"]
+        vol_num << "(#{ref["number"]})" if ref["number"]
+        journal_parts << vol_num.join("") unless vol_num.empty?
+        journal_parts << "pp. #{ref["pages"]}" if ref["pages"]
+        parts << journal_parts.join(", ") unless journal_parts.empty?
+      when "inproceedings"
+        conf_parts = []
+        conf_parts << "In <em>#{encode_html(ref["booktitle"])}</em>" if ref["booktitle"]
+        conf_parts << "pp. #{ref["pages"]}" if ref["pages"]
+        parts << conf_parts.join(", ") unless conf_parts.empty?
+      else
+        parts << encode_html(ref["publisher"]) if ref["publisher"]
+        parts << "<em>#{encode_html(ref["journal"])}</em>" if ref["journal"]
+        parts << "Vol. #{ref["volume"]}" if ref["volume"]
+        parts << "pp. #{ref["pages"]}" if ref["pages"]
+      end
+
+      parts << ref["year"].to_s if ref["year"]
+      parts << encode_html(ref["editor"]) if ref["editor"]
+      parts << encode_html(ref["note"]) if ref["note"]
+
+      # Strip trailing dots from parts to avoid double periods
+      html = parts.map { |p| p.sub(/\.\z/, "") }.join(". ") + "."
+
+      if ref["doi"] && !ref["url"]
+        doi_url = ref["doi"].start_with?("http") ? ref["doi"] : "https://doi.org/#{ref["doi"]}"
+        html += %( <a href="#{encode_attr(doi_url)}" target="_blank" rel="noopener">DOI</a>)
+      elsif ref["doi"] && ref["url"]
+        doi_url = ref["doi"].start_with?("http") ? ref["doi"] : "https://doi.org/#{ref["doi"]}"
+        html += %( <a href="#{encode_attr(doi_url)}" target="_blank" rel="noopener">DOI</a>)
+      end
+
+      html
+    end
+
+    def format_cite_label(ref)
+      author = ref["author"].to_s.split(/[,\s]/).first || "?"
+      year = ref["year"] ? ref["year"].to_s : "n.d."
+      "#{author}, #{year}"
+    end
+
+    def format_bib_hover(ref)
+      parts = []
+      parts << ref["author"] if ref["author"]
+      parts << ref["title"] if ref["title"]
+      parts << ref["publisher"] if ref["publisher"]
+      parts << ref["journal"] if ref["journal"]
+      parts << "Vol. #{ref["volume"]}" if ref["volume"]
+      parts << "No. #{ref["number"]}" if ref["number"]
+      parts << "pp. #{ref["pages"]}" if ref["pages"]
+      parts << ref["edition"] if ref["edition"]
+      parts << ref["year"].to_s if ref["year"]
+      parts << ref["note"] if ref["note"]
+      parts.join(". ") + "."
+    end
+
+    def encode_attr(text)
+      text.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
+    end
+
+    def encode_html(text)
+      text.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
     end
 
     def copy_images

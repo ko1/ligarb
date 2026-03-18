@@ -14,7 +14,7 @@ module Ligarb
 
     attr_reader :title, :author, :language, :output_dir, :base_dir,
                 :chapter_numbers, :structure, :style, :repository,
-                :ai_generated, :footer
+                :ai_generated, :footer, :bibliography
 
     def initialize(path)
       @base_dir = File.dirname(File.expand_path(path))
@@ -31,6 +31,7 @@ module Ligarb
       @repository      = data.fetch("repository", nil)
       @ai_generated    = data.fetch("ai_generated", false)
       @footer          = data.fetch("footer", nil)
+      @bibliography    = data.fetch("bibliography", nil)
       @structure       = parse_structure(data["chapters"])
     end
 
@@ -40,6 +41,10 @@ module Ligarb
 
     def style_path
       @style ? File.join(@base_dir, @style) : nil
+    end
+
+    def bibliography_path
+      @bibliography ? File.join(@base_dir, @bibliography) : nil
     end
 
     def appendix_label
