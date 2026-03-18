@@ -325,19 +325,21 @@
     }
 
     // Split on <patch> blocks
-    var parts = content.split(/(<patch>[\s\S]*?<\/patch>)/g);
+    var parts = content.split(/(<patch(?:\s+file="[^"]*")?>[\s\S]*?<\/patch>)/g);
     var hasPatch = false;
     var html = '';
     var patches = '';
 
     parts.forEach(function(part) {
-      var m = part.match(/<patch>\s*<<<\n([\s\S]*?)\n===\n([\s\S]*?)\n>>>\s*<\/patch>/);
+      var m = part.match(/<patch(?:\s+file="([^"]*)")?>[\s\S]*?<<<\n([\s\S]*?)\n===\n([\s\S]*?)\n>>>\s*<\/patch>/);
       if (m) {
         hasPatch = true;
+        var fileLabel = m[1] ? '<div class="ligarb-patch-file">' + escapeHTML(m[1]) + '</div>' : '';
         patches +=
           '<div class="ligarb-patch">' +
-            '<div class="ligarb-patch-del">' + escapeHTML(m[1]) + '</div>' +
-            '<div class="ligarb-patch-add">' + escapeHTML(m[2]) + '</div>' +
+            fileLabel +
+            '<div class="ligarb-patch-del">' + escapeHTML(m[2]) + '</div>' +
+            '<div class="ligarb-patch-add">' + escapeHTML(m[3]) + '</div>' +
           '</div>';
       } else {
         html += escapeHTML(part)
