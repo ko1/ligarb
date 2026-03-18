@@ -147,6 +147,13 @@ module Ligarb
         lines << "In book.yml, set: #{settings}"
       end
 
+      sources = parse_brief_sources(brief)
+      if sources.any?
+        lines << ""
+        lines << "Reference sources (read these files for context):"
+        sources.each { |src| lines << "- #{src[:label]}: #{src[:path]}" }
+      end
+
       lines << ""
       lines << "Create all files in: #{abs_output_dir}"
       lines << "In book.yml, always set: ai_generated: true"
@@ -168,9 +175,24 @@ module Ligarb
       lines.join("\n")
     end
 
+    def parse_brief_sources(brief)
+      base_dir = File.dirname(@brief_path)
+      (brief["sources"] || []).map do |entry|
+        case entry
+        when String
+          { path: File.expand_path(entry, base_dir), label: File.basename(entry) }
+        when Hash
+          path = entry["path"] or raise WriterError, "source entry missing 'path'"
+          { path: File.expand_path(path, base_dir), label: entry.fetch("label", File.basename(path)) }
+        else
+          raise WriterError, "invalid source entry: #{entry.inspect}"
+        end
+      end
+    end
+
     def run_claude(prompt)
-      tools = "Write,Bash,WebFetch,WebSearch"
-      allowed = "Write,Bash(mkdir:*),Bash(ls:*),Bash(ligarb:*),WebFetch,WebSearch"
+      tools = "Read,Write,Bash,WebFetch,WebSearch"
+      allowed = "Read,Write,Bash(mkdir:*),Bash(ls:*),Bash(ligarb:*),WebFetch,WebSearch"
       cmd = ["claude", "-p", prompt, "--tools", tools, "--allowedTools", allowed,
              "--output-format", "stream-json", "--verbose"]
       puts "Writing with Claude... (this may take a few minutes)"

@@ -132,6 +132,11 @@
         '<div class="ligarb-messages"></div>' +
         '<div class="ligarb-input-area">' +
           '<textarea class="ligarb-input" placeholder="Type a message..." rows="3"></textarea>' +
+          '<div class="ligarb-file-area">' +
+            '<input type="file" class="ligarb-file-input" multiple style="display:none">' +
+            '<button class="ligarb-file-btn" title="Attach files">&#128206;</button>' +
+            '<span class="ligarb-file-names"></span>' +
+          '</div>' +
           '<div class="ligarb-actions">' +
             '<button class="ligarb-btn ligarb-btn-send">Send</button>' +
             '<button class="ligarb-btn ligarb-btn-approve">Approve</button>' +
@@ -152,6 +157,55 @@
         sendMessage();
       }
     });
+
+    // File attachment
+    var fileBtn = panel.querySelector('.ligarb-file-btn');
+    var fileInput = panel.querySelector('.ligarb-file-input');
+    var fileNames = panel.querySelector('.ligarb-file-names');
+    panel._pendingFiles = [];
+
+    fileBtn.addEventListener('click', function() { fileInput.click(); });
+    fileInput.addEventListener('change', function() {
+      addFiles(fileInput.files);
+      fileInput.value = '';
+    });
+
+    // Drag & drop on textarea
+    var textarea = panel.querySelector('.ligarb-input');
+    textarea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      textarea.classList.add('dragover');
+    });
+    textarea.addEventListener('dragleave', function() {
+      textarea.classList.remove('dragover');
+    });
+    textarea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      textarea.classList.remove('dragover');
+      if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+    });
+
+    function addFiles(fileList) {
+      for (var i = 0; i < fileList.length; i++) panel._pendingFiles.push(fileList[i]);
+      renderPendingFiles();
+    }
+
+    function renderPendingFiles() {
+      fileNames.innerHTML = '';
+      panel._pendingFiles.forEach(function(f, i) {
+        var tag = document.createElement('span');
+        tag.className = 'ligarb-file-tag';
+        tag.innerHTML = escapeHTML(f.name) + ' <a href="#" data-idx="' + i + '">&times;</a>';
+        tag.querySelector('a').addEventListener('click', function(e) {
+          e.preventDefault();
+          panel._pendingFiles.splice(parseInt(this.dataset.idx), 1);
+          renderPendingFiles();
+        });
+        fileNames.appendChild(tag);
+      });
+    }
+
+    panel._renderPendingFiles = renderPendingFiles;
   }
 
   function closePanel() {
@@ -164,6 +218,8 @@
   function openNewCommentPanel(context) {
     createPanel();
     currentReviewId = null;
+    panel._pendingFiles = [];
+    if (panel._renderPendingFiles) panel._renderPendingFiles();
 
     panel.querySelector('.ligarb-panel-title').textContent = 'New Comment';
     panel.querySelector('.ligarb-context').innerHTML =
@@ -190,6 +246,8 @@
     createPanel();
     currentReviewId = reviewId;
     panel._createContext = null;
+    panel._pendingFiles = [];
+    if (panel._renderPendingFiles) panel._renderPendingFiles();
 
     panel.querySelector('.ligarb-panel-title').textContent = 'Review';
     panel.querySelector('.ligarb-messages').innerHTML = '<div class="ligarb-loading">Loading...</div>';
@@ -261,6 +319,11 @@
   function formatMessageContent(content) {
     if (!content) return '';
 
+    // Highlight error messages
+    if (/^Error:\s/.test(content)) {
+      return '<div class="ligarb-error">' + escapeHTML(content) + '</div>';
+    }
+
     // Split on <patch> blocks
     var parts = content.split(/(<patch>[\s\S]*?<\/patch>)/g);
     var hasPatch = false;
@@ -300,38 +363,64 @@
     return div;
   }
 
+  function readFilesAsBase64(files) {
+    if (!files || files.length === 0) return Promise.resolve([]);
+    var promises = files.map(function(f) {
+      return new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function() {
+          var base64 = reader.result.split(',')[1] || '';
+          resolve({ name: f.name, data: base64 });
+        };
+        reader.readAsDataURL(f);
+      });
+    });
+    return Promise.all(promises);
+  }
+
   function sendMessage() {
     var input = panel.querySelector('.ligarb-input');
     var message = input.value.trim();
     if (!message) return;
 
     input.value = '';
+    var pending = panel._pendingFiles || [];
+    panel._pendingFiles = [];
+    if (panel._renderPendingFiles) panel._renderPendingFiles();
 
-    if (panel._createContext) {
-      var ctx = panel._createContext;
-      panel._createContext = null;
-      panel.querySelector('.ligarb-btn-send').textContent = 'Reply';
+    readFilesAsBase64(pending).then(function(filesData) {
+      if (panel._createContext) {
+        var ctx = panel._createContext;
+        panel._createContext = null;
+        panel.querySelector('.ligarb-btn-send').textContent = 'Reply';
 
-      fetchJSON(API + '/reviews', {
+        var body = { context: ctx, message: message };
+        if (filesData.length > 0) body.files = filesData;
+
+        fetchJSON(API + '/reviews', {
+          method: 'POST',
+          body: body
+        }).then(function(review) {
+          currentReviewId = review.id;
+          panel.querySelector('.ligarb-btn-approve').style.display = '';
+          panel.querySelector('.ligarb-btn-close-thread').style.display = '';
+          renderReview(review);
+          updateBadge();
+        });
+        return;
+      }
+
+      if (!currentReviewId) return;
+
+      var body = { message: message };
+      if (filesData.length > 0) body.files = filesData;
+
+      fetchJSON(API + '/reviews/' + currentReviewId + '/messages', {
         method: 'POST',
-        body: { context: ctx, message: message }
+        body: body
       }).then(function(review) {
-        currentReviewId = review.id;
-        panel.querySelector('.ligarb-btn-approve').style.display = '';
-        panel.querySelector('.ligarb-btn-close-thread').style.display = '';
         renderReview(review);
-        updateBadge();
       });
-      return;
-    }
-
-    if (!currentReviewId) return;
-
-    fetchJSON(API + '/reviews/' + currentReviewId + '/messages', {
-      method: 'POST',
-      body: { message: message }
-    }).then(function(review) {
-      renderReview(review);
     });
   }
 
@@ -343,7 +432,9 @@
       method: 'POST'
     }).then(function(review) {
       renderReview(review);
-      closePanel();
+      if (review.status === 'applied') {
+        closePanel();
+      }
       updateBadge();
     });
   }
@@ -351,8 +442,8 @@
   function closeThread() {
     if (!currentReviewId) return;
 
-    fetchJSON(API + '/reviews/' + currentReviewId, {
-      method: 'DELETE'
+    fetchJSON(API + '/reviews/' + currentReviewId + '/close', {
+      method: 'POST'
     }).then(function(review) {
       renderReview(review);
       updateBadge();

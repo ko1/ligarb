@@ -2,6 +2,8 @@
 
 require "webrick"
 require "json"
+require "base64"
+require "securerandom"
 require_relative "config"
 require_relative "review_store"
 require_relative "claude_runner"
@@ -48,7 +50,8 @@ module Ligarb
       server = WEBrick::HTTPServer.new(
         Port: @port,
         Logger: WEBrick::Log.new($stderr, WEBrick::Log::INFO),
-        AccessLog: [[File.open(File::NULL, "w"), WEBrick::AccessLog::COMMON_LOG_FORMAT]]
+        AccessLog: [[File.open(File::NULL, "w"), WEBrick::AccessLog::COMMON_LOG_FORMAT]],
+        RequestBodyMaxSize: 50 * 1024 * 1024
       )
 
       server.mount_proc("/_ligarb/") { |req, res| handle_api(req, res) }
@@ -306,6 +309,15 @@ module Ligarb
           .idx-form-cancel { padding: 8px 16px; background: none; border: 1px solid #d0d0d0; border-radius: 4px; font-size: 14px; cursor: pointer; color: #666; }
           .idx-form-cancel:hover { background: #f6f8fa; }
           .idx-form-error { color: #c62828; font-size: 13px; margin-bottom: 8px; }
+          .idx-dropzone { border: 2px dashed #d0d0d0; border-radius: 6px; padding: 16px; text-align: center; margin-bottom: 12px; transition: border-color 0.15s, background 0.15s; }
+          .idx-dropzone-active { border-color: #2563eb; background: #f0f6ff; }
+          .idx-dropzone-text { font-size: 13px; color: #888; }
+          .idx-dropzone-text a { color: #2563eb; text-decoration: none; cursor: pointer; }
+          .idx-dropzone-text a:hover { text-decoration: underline; }
+          .idx-file-names { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+          .idx-file-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: #eff6ff; border-radius: 4px; font-size: 12px; color: #333; }
+          .idx-file-tag a { color: #999; text-decoration: none; font-size: 14px; }
+          .idx-file-tag a:hover { color: #c62828; }
         </style>
         </head>
         <body>
@@ -403,6 +415,12 @@ module Ligarb
             '<input id="wf-audience" placeholder="初心者">' +
             '<label for="wf-notes">Notes</label>' +
             '<textarea id="wf-notes" placeholder="5章くらいで"></textarea>' +
+            '<label>Reference Files</label>' +
+            '<div class="idx-dropzone" id="wf-dropzone">' +
+              '<input type="file" id="wf-files" multiple style="display:none">' +
+              '<span class="idx-dropzone-text">Drop files here or <a href="#" id="wf-browse">browse</a></span>' +
+              '<div class="idx-file-names" id="wf-file-names"></div>' +
+            '</div>' +
             '<div class="idx-form-actions">' +
             '<button class="idx-form-submit" id="wf-submit">Start Writing</button>' +
             '<button class="idx-form-cancel" id="wf-cancel">Cancel</button>' +
@@ -410,6 +428,33 @@ module Ligarb
 
           document.getElementById('wf-cancel').addEventListener('click', function() {
             tocEl.innerHTML = '<div class="idx-toc-empty">Select a book to view its table of contents</div>';
+          });
+
+          var wfPendingFiles = [];
+          var wfDropzone = document.getElementById('wf-dropzone');
+          var wfFileInput = document.getElementById('wf-files');
+          var wfFileNames = document.getElementById('wf-file-names');
+
+          document.getElementById('wf-browse').addEventListener('click', function(e) {
+            e.preventDefault();
+            wfFileInput.click();
+          });
+
+          wfFileInput.addEventListener('change', function() {
+            addPendingFiles(wfFileInput.files, wfPendingFiles, wfFileNames);
+          });
+
+          wfDropzone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            wfDropzone.classList.add('idx-dropzone-active');
+          });
+          wfDropzone.addEventListener('dragleave', function() {
+            wfDropzone.classList.remove('idx-dropzone-active');
+          });
+          wfDropzone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            wfDropzone.classList.remove('idx-dropzone-active');
+            addPendingFiles(e.dataTransfer.files, wfPendingFiles, wfFileNames);
           });
 
           document.getElementById('wf-submit').addEventListener('click', function() {
@@ -433,16 +478,21 @@ module Ligarb
             btn.disabled = true;
             btn.textContent = 'Starting\u2026';
 
-            fetch('/_ligarb/write', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
+            readFilesAsBase64(wfPendingFiles).then(function(filesData) {
+            var payload = {
                 directory: dir,
                 title: title,
                 language: document.getElementById('wf-lang').value.trim() || 'ja',
                 audience: document.getElementById('wf-audience').value.trim(),
                 notes: document.getElementById('wf-notes').value.trim()
-              })
+            };
+            if (filesData.length > 0) payload.files = filesData;
+
+            return fetch('/_ligarb/write', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
             }).then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
             .then(function(result) {
               if (!result.ok) {
@@ -488,6 +538,43 @@ module Ligarb
           var d = document.createElement('div');
           d.textContent = s || '';
           return d.innerHTML;
+        }
+
+        function addPendingFiles(fileList, pending, namesEl) {
+          for (var i = 0; i < fileList.length; i++) {
+            pending.push(fileList[i]);
+          }
+          renderFileNames(pending, namesEl);
+        }
+
+        function renderFileNames(pending, namesEl) {
+          namesEl.innerHTML = '';
+          pending.forEach(function(f, i) {
+            var span = document.createElement('span');
+            span.className = 'idx-file-tag';
+            span.innerHTML = esc(f.name) + ' <a href="#" data-idx="' + i + '">&times;</a>';
+            span.querySelector('a').addEventListener('click', function(e) {
+              e.preventDefault();
+              pending.splice(parseInt(this.dataset.idx), 1);
+              renderFileNames(pending, namesEl);
+            });
+            namesEl.appendChild(span);
+          });
+        }
+
+        function readFilesAsBase64(files) {
+          if (!files || files.length === 0) return Promise.resolve([]);
+          var promises = files.map(function(f) {
+            return new Promise(function(resolve) {
+              var reader = new FileReader();
+              reader.onload = function() {
+                var base64 = reader.result.split(',')[1] || '';
+                resolve({ name: f.name, data: base64 });
+              };
+              reader.readAsDataURL(f);
+            });
+          });
+          return Promise.all(promises);
         }
 
         // SSE for write updates
@@ -654,7 +741,7 @@ module Ligarb
           api_add_message(book, $1, req, res)
         elsif method == "POST" && api_path =~ %r{^/reviews/([0-9a-f-]+)/approve$}
           api_approve(book, $1, res)
-        elsif method == "DELETE" && api_path =~ %r{^/reviews/([0-9a-f-]+)$}
+        elsif method == "POST" && api_path =~ %r{^/reviews/([0-9a-f-]+)/close$}
           api_delete_review(book, $1, res)
         else
           not_found(res)
@@ -700,6 +787,9 @@ module Ligarb
 
       context["source_file"] = resolve_source_file(book.config, context["chapter_slug"])
 
+      saved = save_uploaded_files(body["files"], book.config.base_dir)
+      context["uploaded_files"] = saved unless saved.empty?
+
       review = book.store.create(context: context, message: message)
       start_claude_review(book, review["id"])
 
@@ -722,6 +812,9 @@ module Ligarb
         res.body = JSON.generate({ error: "message is required" })
         return
       end
+
+      saved = save_uploaded_files(body["files"], book.config.base_dir)
+      book.store.update_context_files(id, saved) unless saved.empty?
 
       book.store.add_message(id, role: "user", content: message)
       start_claude_review(book, id)
@@ -865,6 +958,12 @@ module Ligarb
       brief_data = { "title" => title, "language" => body["language"] || "ja" }
       brief_data["audience"] = body["audience"] if body["audience"] && !body["audience"].to_s.strip.empty?
       brief_data["notes"] = body["notes"] if body["notes"] && !body["notes"].to_s.strip.empty?
+
+      saved = save_uploaded_files(body["files"], target_dir)
+      if saved.any?
+        brief_data["sources"] = saved.map { |f| { "path" => f["path"], "label" => f["label"] } }
+      end
+
       File.write(brief_path, YAML.dump(brief_data))
 
       sse_broadcast("write_updated", write_jobs_data, slug: nil)
@@ -922,6 +1021,28 @@ module Ligarb
     end
 
     # ── Helpers ──
+
+    def save_uploaded_files(files_array, base_dir)
+      return [] unless files_array.is_a?(Array) && !files_array.empty?
+
+      upload_dir = File.join(base_dir, ".ligarb", "uploads")
+      FileUtils.mkdir_p(upload_dir)
+
+      files_array.filter_map do |file|
+        name = file["name"].to_s.strip
+        data = file["data"].to_s
+        next if name.empty? || data.empty?
+
+        # Sanitize filename
+        safe_name = File.basename(name).gsub(/[^a-zA-Z0-9._-]/, "_")
+        short_id = SecureRandom.hex(4)
+        filename = "#{short_id}-#{safe_name}"
+        dest = File.join(upload_dir, filename)
+
+        File.binwrite(dest, Base64.decode64(data))
+        { "path" => File.expand_path(dest), "label" => name }
+      end
+    end
 
     def resolve_source_file(config, chapter_slug)
       return nil unless chapter_slug

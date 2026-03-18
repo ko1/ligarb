@@ -43,13 +43,16 @@ module Ligarb
 
       messages = review["messages"].map { |m| "#{m["role"]}: #{m["content"]}" }.join("\n\n")
 
+      sources_section = sources_prompt_section
+      uploaded_section = uploaded_files_prompt_section(ctx)
+
       <<~PROMPT
         You are reviewing a chapter of a book built with ligarb.
 
         <ligarb-spec>
         #{CLI.spec_text}
         </ligarb-spec>
-
+        #{sources_section}#{uploaded_section}
         Source file: #{source_file}
 
         Full chapter content:
@@ -111,6 +114,29 @@ module Ligarb
       Builder.new(config_path).build
 
       { "text" => "Applied #{applied}/#{patches.size} patch(es) and rebuilt." }
+    end
+
+    def sources_prompt_section
+      return "" if @config.sources.empty?
+
+      lines = ["\nReference sources (read these files for context):"]
+      @config.sources.each do |src|
+        lines << "- #{src.label}: #{src.path}"
+      end
+      lines << ""
+      lines.join("\n")
+    end
+
+    def uploaded_files_prompt_section(ctx)
+      files = ctx["uploaded_files"]
+      return "" unless files.is_a?(Array) && !files.empty?
+
+      lines = ["\nUploaded reference files (read these for context):"]
+      files.each do |f|
+        lines << "- #{f["label"]}: #{f["path"]}"
+      end
+      lines << ""
+      lines.join("\n")
     end
 
     # Parse <patch> blocks from assistant messages

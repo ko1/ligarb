@@ -56,6 +56,16 @@ module Ligarb
       review
     end
 
+    def update_context_files(id, files)
+      review = get(id)
+      return nil unless review
+
+      existing = review.dig("context", "uploaded_files") || []
+      review["context"]["uploaded_files"] = existing + files
+      write_json(id, review)
+      review
+    end
+
     def update_status(id, status)
       review = get(id)
       return nil unless review

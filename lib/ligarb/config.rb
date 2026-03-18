@@ -14,7 +14,7 @@ module Ligarb
 
     attr_reader :title, :author, :language, :output_dir, :base_dir,
                 :chapter_numbers, :structure, :style, :repository,
-                :ai_generated, :footer, :bibliography
+                :ai_generated, :footer, :bibliography, :sources
 
     def initialize(path)
       @base_dir = File.dirname(File.expand_path(path))
@@ -32,6 +32,7 @@ module Ligarb
       @ai_generated    = data.fetch("ai_generated", false)
       @footer          = data.fetch("footer", nil)
       @bibliography    = data.fetch("bibliography", nil)
+      @sources         = parse_sources(data.fetch("sources", []))
       @structure       = parse_structure(data["chapters"])
     end
 
@@ -73,6 +74,24 @@ module Ligarb
     end
 
     private
+
+    Source = Struct.new(:path, :label, keyword_init: true)
+
+    def parse_sources(entries)
+      return [] unless entries.is_a?(Array)
+
+      entries.map do |entry|
+        case entry
+        when String
+          Source.new(path: File.join(@base_dir, entry), label: File.basename(entry))
+        when Hash
+          path = entry["path"] or abort "Error: source entry missing 'path'"
+          Source.new(path: File.join(@base_dir, path), label: entry.fetch("label", File.basename(path)))
+        else
+          abort "Error: invalid source entry: #{entry.inspect}"
+        end
+      end
+    end
 
     def parse_structure(entries)
       entries.map do |entry|
