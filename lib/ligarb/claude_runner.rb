@@ -6,7 +6,7 @@ require_relative "cli"
 
 module Ligarb
   class ClaudeRunner
-    PATCH_RE = %r{<patch>\s*<<<\n(.*?)\n===\n(.*?)\n>>>\s*</patch>}m
+    PATCH_RE = %r{<patch(?:\s+file="([^"]*)")?>\s*<<<\n(.*?)\n===\n(.*?)\n>>>\s*</patch>}m
 
     def initialize(config)
       @config = config
@@ -36,30 +36,27 @@ module Ligarb
 
     # Build prompt for reviewing a comment on selected text.
     # Asks Claude to include <patch> blocks with concrete replacements.
+    # Includes all chapter contents so Claude can produce cross-chapter patches.
     def review_prompt(review)
       ctx = review["context"]
       source_file = ctx["source_file"]
-      source_content = File.exist?(source_file) ? File.read(source_file) : "(file not found)"
 
       messages = review["messages"].map { |m| "#{m["role"]}: #{m["content"]}" }.join("\n\n")
 
       sources_section = sources_prompt_section
       uploaded_section = uploaded_files_prompt_section(ctx)
 
+      all_chapters = all_chapters_section(source_file)
+
       <<~PROMPT
-        You are reviewing a chapter of a book built with ligarb.
+        You are reviewing a book built with ligarb.
 
         <ligarb-spec>
         #{CLI.spec_text}
         </ligarb-spec>
         #{sources_section}#{uploaded_section}
-        Source file: #{source_file}
-
-        Full chapter content:
-        ```markdown
-        #{source_content}
-        ```
-
+        The comment was made on: #{relative_path(source_file)}
+        #{all_chapters}
         The reader selected this text: "#{ctx["selected_text"]}"
         Under heading: #{ctx["heading_id"]}
 
@@ -69,7 +66,7 @@ module Ligarb
         Respond to the reader's comment with a concise explanation, then provide
         concrete patches. Each patch must use this exact format:
 
-        <patch>
+        <patch file="relative/path/to/file.md">
         <<<
         exact text to find in the source (copied verbatim)
         ===
@@ -78,42 +75,69 @@ module Ligarb
         </patch>
 
         Rules:
+        - The file attribute must be the relative path shown in the chapter headings above
         - The text between <<< and === must match the source file EXACTLY (whitespace included)
-        - You may include multiple <patch> blocks if needed
+        - You may include multiple <patch> blocks for one or more files
+        - If the comment applies to multiple chapters, provide patches for ALL relevant chapters
         - Use ligarb Markdown features (admonitions, cross-references, index, etc.) where appropriate
         - If no code change is needed (e.g. answering a question), omit the <patch> blocks
       PROMPT
     end
 
     # Extract patches from the last assistant message and apply them.
-    # No Claude call needed — pure string replacement + rebuild.
+    # Supports cross-chapter patches via the file attribute.
     def apply_patches(review)
       patches = extract_patches(review)
       return { "error" => "No patches found in the conversation" } if patches.empty?
 
-      source_file = review.dig("context", "source_file")
-      return { "error" => "Source file not found" } unless source_file && File.exist?(source_file)
+      default_source = review.dig("context", "source_file")
 
-      content = File.read(source_file)
-      applied = 0
+      # Group patches by target file
+      file_patches = {}
+      patches.each do |rel_path, old_text, new_text|
+        target = if rel_path && !rel_path.empty?
+                   resolve_patch_file(rel_path)
+                 else
+                   default_source
+                 end
+        next unless target
 
-      patches.each do |old_text, new_text|
-        if content.include?(old_text)
-          content = content.sub(old_text, new_text)
-          applied += 1
-        end
+        file_patches[target] ||= []
+        file_patches[target] << [old_text, new_text]
       end
 
-      return { "error" => "No patches matched the source file (0/#{patches.size})" } if applied == 0
+      return { "error" => "No valid target files found for patches" } if file_patches.empty?
 
-      File.write(source_file, content)
+      applied = 0
+      total = patches.size
+
+      file_patches.each do |file, file_patch_list|
+        unless File.exist?(file)
+          next
+        end
+
+        content = File.read(file)
+        changed = false
+
+        file_patch_list.each do |old_text, new_text|
+          if content.include?(old_text)
+            content = content.sub(old_text, new_text)
+            applied += 1
+            changed = true
+          end
+        end
+
+        File.write(file, content) if changed
+      end
+
+      return { "error" => "No patches matched the source files (0/#{total})" } if applied == 0
 
       # Rebuild
       config_path = File.join(@config.base_dir, "book.yml")
       require_relative "builder"
       Builder.new(config_path).build
 
-      { "text" => "Applied #{applied}/#{patches.size} patch(es) and rebuilt." }
+      { "text" => "Applied #{applied}/#{total} patch(es) and rebuilt." }
     end
 
     def sources_prompt_section
@@ -139,7 +163,8 @@ module Ligarb
       lines.join("\n")
     end
 
-    # Parse <patch> blocks from assistant messages
+    # Parse <patch> blocks from assistant messages.
+    # Returns array of [file_path_or_nil, old_text, new_text].
     def extract_patches(review)
       (review["messages"] || [])
         .select { |m| m["role"] == "assistant" }
@@ -149,6 +174,40 @@ module Ligarb
           return patches unless patches.empty?
         end
       []
+    end
+
+    private
+
+    # Build a section showing all chapter contents for cross-chapter context.
+    def all_chapters_section(commented_file)
+      lines = ["\nAll chapters in this book:"]
+      @config.all_file_paths.each do |path|
+        rel = relative_path(path)
+        marker = path == commented_file ? " (commented chapter)" : ""
+        content = File.exist?(path) ? File.read(path) : "(file not found)"
+        lines << "\n### #{rel}#{marker}"
+        lines << "```markdown"
+        lines << content
+        lines << "```"
+      end
+      lines.join("\n")
+    end
+
+    # Convert absolute path to relative path from base_dir.
+    def relative_path(path)
+      return path unless path
+
+      base = @config.base_dir + "/"
+      path.start_with?(base) ? path.delete_prefix(base) : path
+    end
+
+    # Resolve a relative path from a patch to an absolute path.
+    def resolve_patch_file(rel_path)
+      absolute = File.join(@config.base_dir, rel_path)
+      return absolute if File.exist?(absolute)
+
+      # Try matching by basename against all chapter paths
+      @config.all_file_paths.find { |p| p.end_with?("/#{rel_path}") || p == rel_path }
     end
   end
 end
