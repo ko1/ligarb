@@ -143,6 +143,8 @@ module Ligarb
                                 - If 'claude' CLI is installed, comments are sent to Claude
                                   for review suggestions, and approved changes are applied
                                   to the source Markdown files and the book is rebuilt
+                                - Review patches can span multiple chapters and the
+                                  bibliography file (Claude reads book.yml to find all files)
 
         ligarb help             Show this detailed specification.
 
@@ -436,7 +438,8 @@ module Ligarb
         the full reference. The bibliography section lists all cited entries sorted by
         author and year.
 
-        An error is raised if a cite key is not found in the bibliography file.
+        A warning is printed and the citation is rendered as [key?] (highlighted in
+        red) if a cite key is not found in the bibliography file.
         If no bibliography file is configured, cite markers are left as-is.
 
         == Custom CSS ==
