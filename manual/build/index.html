@@ -633,6 +633,42 @@ mark.search-highlight {
   }
 }
 
+/* === Bibliography === */
+.bibliography-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bibliography-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  line-height: 1.5;
+}
+
+.bibliography-list li a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.bibliography-list li a:hover {
+  text-decoration: underline;
+}
+
+.cite-ref {
+  font-size: 0.8em;
+}
+
+.cite-ref a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cite-ref a:hover {
+  text-decoration: underline;
+}
+
 /* === Index === */
 .index-group {
   margin-bottom: 1.5rem;
@@ -914,19 +950,40 @@ mark.search-highlight {
                 <a href="#04-markdown--実際の例" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--実際の例')">4.3.4 実際の例</a>
               </li>
               <li>
-                <a href="#04-markdown--相互参照cross-references" class="toc-h2" onclick="showChapterAndScroll('04-markdown', '04-markdown--相互参照cross-references')">4.4 相互参照（Cross-References）</a>
+                <a href="#04-markdown--参考文献bibliography" class="toc-h2" onclick="showChapterAndScroll('04-markdown', '04-markdown--参考文献bibliography')">4.4 参考文献（Bibliography）</a>
               </li>
               <li>
-                <a href="#04-markdown--基本的な使い方" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--基本的な使い方')">4.4.1 基本的な使い方</a>
+                <a href="#04-markdown--設定" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--設定')">4.4.1 設定</a>
               </li>
               <li>
-                <a href="#04-markdown--リンクテキストの自動挿入" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--リンクテキストの自動挿入')">4.4.2 リンクテキストの自動挿入</a>
+                <a href="#04-markdown--対応フィールド" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--対応フィールド')">4.4.2 対応フィールド</a>
               </li>
               <li>
-                <a href="#04-markdown--パスの解決" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--パスの解決')">4.4.3 パスの解決</a>
+                <a href="#04-markdown--エントリタイプ別の表示" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--エントリタイプ別の表示')">4.4.3 エントリタイプ別の表示</a>
               </li>
               <li>
-                <a href="#04-markdown--エラー検出" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--エラー検出')">4.4.4 エラー検出</a>
+                <a href="#04-markdown--引用の書き方" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--引用の書き方')">4.4.4 引用の書き方</a>
+              </li>
+              <li>
+                <a href="#04-markdown--実際の例" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--実際の例')">4.4.5 実際の例</a>
+              </li>
+              <li>
+                <a href="#04-markdown--動作の詳細" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--動作の詳細')">4.4.6 動作の詳細</a>
+              </li>
+              <li>
+                <a href="#04-markdown--相互参照cross-references" class="toc-h2" onclick="showChapterAndScroll('04-markdown', '04-markdown--相互参照cross-references')">4.5 相互参照（Cross-References）</a>
+              </li>
+              <li>
+                <a href="#04-markdown--基本的な使い方" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--基本的な使い方')">4.5.1 基本的な使い方</a>
+              </li>
+              <li>
+                <a href="#04-markdown--リンクテキストの自動挿入" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--リンクテキストの自動挿入')">4.5.2 リンクテキストの自動挿入</a>
+              </li>
+              <li>
+                <a href="#04-markdown--パスの解決" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--パスの解決')">4.5.3 パスの解決</a>
+              </li>
+              <li>
+                <a href="#04-markdown--エラー検出" class="toc-h3" onclick="showChapterAndScroll('04-markdown', '04-markdown--エラー検出')">4.5.4 エラー検出</a>
               </li>
             </ul>
           </li>
@@ -975,7 +1032,10 @@ mark.search-highlight {
                 <a href="#06-serve--データの保存先" class="toc-h3" onclick="showChapterAndScroll('06-serve', '06-serve--データの保存先')">6.3.4 データの保存先</a>
               </li>
               <li>
-                <a href="#06-serve--内部-api" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--内部-api')">6.4 内部 API</a>
+                <a href="#06-serve--マルチブックモードでの-ai-執筆" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--マルチブックモードでの-ai-執筆')">6.4 マルチブックモードでの AI 執筆</a>
+              </li>
+              <li>
+                <a href="#06-serve--内部-api" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--内部-api')">6.5 内部 API</a>
               </li>
             </ul>
           </li>
@@ -1004,7 +1064,10 @@ mark.search-highlight {
                 <a href="#07-ai--プロンプト例" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--プロンプト例')">7.2.1 プロンプト例</a>
               </li>
               <li>
-                <a href="#07-ai--ポイント" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ポイント')">7.3 ポイント</a>
+                <a href="#07-ai--ブラウザから-ai-執筆する" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ブラウザから-ai-執筆する')">7.3 ブラウザから AI 執筆する</a>
+              </li>
+              <li>
+                <a href="#07-ai--ポイント" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ポイント')">7.4 ポイント</a>
               </li>
             </ul>
           </li>
@@ -1034,6 +1097,9 @@ mark.search-highlight {
             </ul>
           </li>
         </ul>
+      </li>
+      <li class="toc-chapter" data-chapter="__bibliography__">
+        <a href="#__bibliography__" class="toc-h1" onclick="showChapter('__bibliography__')">参考文献</a>
       </li>
       <li class="toc-chapter" data-chapter="__index__">
         <a href="#__index__" class="toc-h1" onclick="showChapter('__index__')">索引</a>
@@ -1328,7 +1394,7 @@ chapters:
 
 <h2 id="04-markdown--対応する-markdown-記法">4.1 対応する Markdown 記法</h2>
 
-<p>ligarb は <span id="04-markdown--idx-0">GitHub Flavored Markdown</span> (GFM) に対応しています。以下の記法が使えます。</p>
+<p>ligarb は <span id="04-markdown--idx-0">GitHub Flavored Markdown</span> (<span id="04-markdown--cite-0">GFM<sup class="cite-ref"><a href="#bib-gfm2017" title="GitHub. GitHub Flavored Markdown Spec. 2017." onclick="showChapterAndScroll('__bibliography__', 'bib-gfm2017'); return false;">[GitHub, 2017]</a></sup></span>) に対応しています。Markdown は <span id="04-markdown--cite-1">John Gruber が 2004 年に発表<sup class="cite-ref"><a href="#bib-gruber2004" title="John Gruber. Markdown. 2004." onclick="showChapterAndScroll('__bibliography__', 'bib-gruber2004'); return false;">[John, 2004]</a></sup></span>した軽量マークアップ言語で、以下の記法が使えます。</p>
 
 <h3 id="04-markdown--見出し">4.1.1 見出し</h3>
 
@@ -1367,7 +1433,7 @@ end
 </code></pre>
 
 <blockquote>
-  <p>シンタックスハイライトには <a href="https://highlightjs.org/">highlight.js</a> が使われます。
+  <p>シンタックスハイライトには <span id="04-markdown--cite-2">highlight.js<sup class="cite-ref"><a href="#bib-highlightjs2011" title="Ivan Sagalaev. highlight.js. 2011." onclick="showChapterAndScroll('__bibliography__', 'bib-highlightjs2011'); return false;">[Ivan, 2011]</a></sup></span> が使われます。
 言語指定のあるコードブロックが Markdown 内にある場合のみ、
 ビルド時に自動でダウンロードされます。</p>
 </blockquote>
@@ -1407,8 +1473,8 @@ sequenceDiagram
 
 <h3 id="04-markdown--数式katex">4.1.4 数式（KaTeX）</h3>
 
-<p>` ```math` で <a href="https://katex.org/">KaTeX</a> による数式レンダリングが使えます。
-LaTeX 記法で数式を記述します。</p>
+<p>` ```math` で <span id="04-markdown--cite-3">KaTeX<sup class="cite-ref"><a href="#bib-katex2014" title="Khan Academy. KaTeX -- The fastest math typesetting library for the web. 2014." onclick="showChapterAndScroll('__bibliography__', 'bib-katex2014'); return false;">[Khan, 2014]</a></sup></span> による数式レンダリングが使えます。
+<span id="04-markdown--cite-4">LaTeX<sup class="cite-ref"><a href="#bib-lamport1994" title="Leslie Lamport. LaTeX: A Document Preparation System. Addison-Wesley. 2nd ed.. 1994." onclick="showChapterAndScroll('__bibliography__', 'bib-lamport1994'); return false;">[Leslie, 1994]</a></sup></span> 記法で数式を記述します。</p>
 
 <p>二次方程式の解の公式:</p>
 
@@ -1630,12 +1696,189 @@ LaTeX 記法で数式を記述します。</p>
 本の末尾に「索引」セクションが自動的に追加されます。</p>
 </blockquote>
 
-<h2 id="04-markdown--相互参照cross-references">4.4 相互参照（Cross-References）</h2>
+<h2 id="04-markdown--参考文献bibliography">4.4 参考文献（Bibliography）</h2>
+
+<p>本の中で参考文献を引用し、巻末に参考文献リストを自動生成できます。</p>
+
+<h3 id="04-markdown--設定">4.4.1 設定</h3>
+
+<p><code>book.yml</code> に参考文献データファイルを指定します。拡張子で形式が自動判定されます:</p>
+
+<pre><code class="language-yaml">bibliography: references.yml   # YAML 形式
+bibliography: references.bib   # BibTeX 形式
+</code></pre>
+
+<h4 id="yaml-形式">YAML 形式</h4>
+
+<p>キーと文献情報のマッピングです:</p>
+
+<pre><code class="language-yaml">matz1995:
+  author: "Yukihiro Matsumoto"
+  title: "The Ruby Programming Language"
+  year: 1995
+  url: "https://www.ruby-lang.org"
+  publisher: "O'Reilly"
+</code></pre>
+
+<h4 id="bibtex-形式bib">BibTeX 形式（.bib）</h4>
+
+<p>標準的な BibTeX 記法で記述できます:</p>
+
+<pre><code class="language-bibtex">@book{matz1995,
+  author = {Yukihiro Matsumoto},
+  title = {The Ruby Programming Language},
+  year = {1995},
+  publisher = {O'Reilly},
+  url = {https://www.ruby-lang.org}
+}
+
+@article{knuth1984,
+  author = {Donald Knuth},
+  title = {Literate Programming},
+  year = {1984},
+  journal = {The Computer Journal},
+  volume = {27},
+  number = {2},
+  pages = {97-111}
+}
+</code></pre>
+
+<p>BibTeX の注意事項:</p>
+
+<ul>
+  <li><code>%</code> で始まる行はコメントとして無視されます</li>
+  <li>フィールド値は <code>{...}</code> または <code>"..."</code> で囲みます</li>
+  <li><code>{The {Ruby} Language}</code> のようなネスト 1 段階の波括弧に対応しています</li>
+  <li>エントリタイプ（<code>@book</code>、<code>@article</code> 等）に応じて表示フォーマットが変わります</li>
+</ul>
+
+<h3 id="04-markdown--対応フィールド">4.4.2 対応フィールド</h3>
+
+<p>以下のフィールドが YAML・BibTeX 共通で使えます:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>フィールド</th>
+      <th>用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>author</code></td>
+      <td>著者</td>
+    </tr>
+    <tr>
+      <td><code>title</code></td>
+      <td>タイトル</td>
+    </tr>
+    <tr>
+      <td><code>year</code></td>
+      <td>出版年</td>
+    </tr>
+    <tr>
+      <td><code>url</code></td>
+      <td>URL（タイトルがリンクになる）</td>
+    </tr>
+    <tr>
+      <td><code>publisher</code></td>
+      <td>出版社</td>
+    </tr>
+    <tr>
+      <td><code>journal</code></td>
+      <td>雑誌名</td>
+    </tr>
+    <tr>
+      <td><code>booktitle</code></td>
+      <td>書籍/会議名</td>
+    </tr>
+    <tr>
+      <td><code>volume</code></td>
+      <td>巻</td>
+    </tr>
+    <tr>
+      <td><code>number</code></td>
+      <td>号</td>
+    </tr>
+    <tr>
+      <td><code>pages</code></td>
+      <td>ページ</td>
+    </tr>
+    <tr>
+      <td><code>edition</code></td>
+      <td>版</td>
+    </tr>
+    <tr>
+      <td><code>doi</code></td>
+      <td>DOI（末尾に DOI リンクを追加）</td>
+    </tr>
+    <tr>
+      <td><code>editor</code></td>
+      <td>編集者</td>
+    </tr>
+    <tr>
+      <td><code>note</code></td>
+      <td>備考</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="04-markdown--エントリタイプ別の表示">4.4.3 エントリタイプ別の表示</h3>
+
+<p>BibTeX のエントリタイプに応じて参考文献リストのフォーマットが変わります:</p>
+
+<ul>
+  <li><strong>book</strong>: Author. <em>Title</em>. Edition. Publisher. Year.</li>
+  <li><strong>article</strong>: Author. “Title”. <em>Journal</em>, Volume(Number), pp. Pages. Year.</li>
+  <li><strong>inproceedings</strong>: Author. “Title”. In <em>Booktitle</em>, pp. Pages. Year.</li>
+  <li><strong>その他/YAML</strong>: Author. <em>Title</em>. Publisher. Journal. Volume. Pages. Year.</li>
+</ul>
+
+<h3 id="04-markdown--引用の書き方">4.4.4 引用の書き方</h3>
+
+<p>リンク先に <code>#cite:キー</code> を指定します:</p>
+
+<pre><code class="language-markdown">[Ruby](#cite:matz1995) は素晴らしい言語です。
+</code></pre>
+
+<p>これは「Ruby<sup>[Yukihiro, 1995]</sup> は素晴らしい言語です。」のように表示されます。上付きの <code>[著者姓, 年]</code> は参考文献セクションへのリンクになっており、hover すると文献の完全な情報が表示されます。</p>
+
+<h3 id="04-markdown--実際の例">4.4.5 実際の例</h3>
+
+<p>このマニュアル自体が参考文献機能を使っています。<code>manual/references.bib</code> に BibTeX 形式で文献を定義し、本文中で引用しています。</p>
+
+<p><span id="04-markdown--cite-5">Markdown<sup class="cite-ref"><a href="#bib-gruber2004" title="John Gruber. Markdown. 2004." onclick="showChapterAndScroll('__bibliography__', 'bib-gruber2004'); return false;">[John, 2004]</a></sup></span> は 2004 年に発表された軽量マークアップ言語です。その後 <span id="04-markdown--cite-6">GitHub が GFM として拡張<sup class="cite-ref"><a href="#bib-gfm2017" title="GitHub. GitHub Flavored Markdown Spec. 2017." onclick="showChapterAndScroll('__bibliography__', 'bib-gfm2017'); return false;">[GitHub, 2017]</a></sup></span>し、テーブルやタスクリストなどの機能が追加されました。数式のレンダリングには <span id="04-markdown--cite-7">KaTeX<sup class="cite-ref"><a href="#bib-katex2014" title="Khan Academy. KaTeX -- The fastest math typesetting library for the web. 2014." onclick="showChapterAndScroll('__bibliography__', 'bib-katex2014'); return false;">[Khan, 2014]</a></sup></span> を、シンタックスハイライトには <span id="04-markdown--cite-8">highlight.js<sup class="cite-ref"><a href="#bib-highlightjs2011" title="Ivan Sagalaev. highlight.js. 2011." onclick="showChapterAndScroll('__bibliography__', 'bib-highlightjs2011'); return false;">[Ivan, 2011]</a></sup></span> を使用しています。数式記法は <span id="04-markdown--cite-9">Lamport の LaTeX<sup class="cite-ref"><a href="#bib-lamport1994" title="Leslie Lamport. LaTeX: A Document Preparation System. Addison-Wesley. 2nd ed.. 1994." onclick="showChapterAndScroll('__bibliography__', 'bib-lamport1994'); return false;">[Leslie, 1994]</a></sup></span> に基づいており、コードブロックによる文書と実行コードの融合は <span id="04-markdown--cite-10">Knuth の Literate Programming<sup class="cite-ref"><a href="#bib-knuth1984" title="Donald E. Knuth. Literate Programming. The Computer Journal. Vol. 27. No. 2. pp. 97-111. 1984." onclick="showChapterAndScroll('__bibliography__', 'bib-knuth1984'); return false;">[Donald, 1984]</a></sup></span> の影響を受けています。ハイパーリンクによる相互参照は <span id="04-markdown--cite-11">Berners-Lee らの WWW<sup class="cite-ref"><a href="#bib-berners-lee1992" title="Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. World-Wide Web: The Information Universe. Electronic Networking: Research, Applications and Policy. Vol. 2. No. 1. pp. 52-58. 1992." onclick="showChapterAndScroll('__bibliography__', 'bib-berners-lee1992'); return false;">[Tim, 1992]</a></sup></span> の基本概念です。</p>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>上の文をマウスオーバーすると、各引用の詳細情報がツールチップで表示されます。
+クリックすると巻末の参考文献セクションにジャンプします。</p>
+</div>
+
+<p>上の例のソースは以下のようになっています:</p>
+
+<pre><code class="language-markdown">[Markdown](#cite:gruber2004) は 2004 年に発表された...
+[Knuth の Literate Programming](#cite:knuth1984) の影響を...
+[Berners-Lee らの WWW](#cite:berners-lee1992) の基本概念です。
+</code></pre>
+
+<h3 id="04-markdown--動作の詳細">4.4.6 動作の詳細</h3>
+
+<ul>
+  <li>参考文献セクションは索引の前に自動的に追加されます</li>
+  <li>参考文献は著者名・年でソートされます</li>
+  <li><code>url</code> がある場合、タイトルがリンクになります</li>
+  <li><code>doi</code> がある場合、末尾に DOI リンクが追加されます</li>
+  <li>存在しないキーを <code>#cite:</code> で参照するとビルドエラーになります</li>
+  <li><code>bibliography</code> を設定していない場合、参考文献セクションは生成されません</li>
+</ul>
+
+<h2 id="04-markdown--相互参照cross-references">4.5 相互参照（Cross-References）</h2>
 
 <p>他の章や見出しへのリンクを、標準の Markdown リンク記法で作成できます。
 ビルド時に <code>.md</code> ファイルへの相対リンクが単一 HTML 内のアンカーに変換されます。</p>
 
-<h3 id="04-markdown--基本的な使い方">4.4.1 基本的な使い方</h3>
+<h3 id="04-markdown--基本的な使い方">4.5.1 基本的な使い方</h3>
 
 <p><span id="04-markdown--idx-10">相互参照</span>は通常の Markdown リンクとして記述します。リンク先に <code>.md</code> ファイルを指定すると、ビルド時に自動的に解決されます:</p>
 
@@ -1647,7 +1890,7 @@ LaTeX 記法で数式を記述します。</p>
 <pre><code class="language-markdown">[chapters フィールド](03-book-yml.md#chapters フィールド)
 </code></pre>
 
-<h3 id="04-markdown--リンクテキストの自動挿入">4.4.2 リンクテキストの自動挿入</h3>
+<h3 id="04-markdown--リンクテキストの自動挿入">4.5.2 リンクテキストの自動挿入</h3>
 
 <p>リンクテキストを空にすると、リンク先の章タイトルや見出しテキスト（番号付き）が自動的に挿入されます:</p>
 
@@ -1657,11 +1900,11 @@ LaTeX 記法で数式を記述します。</p>
 
 <p>上の例では、リンクテキストがそれぞれ「3. book.yml の設定」「3.1 chapters フィールド」のように章番号・セクション番号付きで表示されます。</p>
 
-<h3 id="04-markdown--パスの解決">4.4.3 パスの解決</h3>
+<h3 id="04-markdown--パスの解決">4.5.3 パスの解決</h3>
 
 <p><code>.md</code> のパスは、現在の Markdown ファイルのディレクトリからの相対パスとして解決されます。同じディレクトリにある章ファイルへはファイル名だけで参照できます。</p>
 
-<h3 id="04-markdown--エラー検出">4.4.4 エラー検出</h3>
+<h3 id="04-markdown--エラー検出">4.5.4 エラー検出</h3>
 
 <p>参照先の章ファイルや見出しが存在しない場合、ビルドはエラーで停止します:</p>
 
@@ -1828,7 +2071,31 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
     └── 7d4e5f6a-...json
 </code></pre>
 
-<h2 id="06-serve--内部-api">6.4 内部 API</h2>
+<h2 id="06-serve--マルチブックモードでの-ai-執筆">6.4 マルチブックモードでの AI 執筆</h2>
+
+<p>マルチブックモード（2 つ以上の <code>book.yml</code> を指定して起動）では、トップページに「+ Write a new book」ボタンが表示されます。
+ボタンをクリックするとフォームが開き、以下を入力できます:</p>
+
+<ul>
+  <li><strong>Directory</strong>（必須）: 新しい本を置くディレクトリ名</li>
+  <li><strong>Title</strong>（必須）: 本のタイトル</li>
+  <li><strong>Language</strong>: 言語（デフォルト: <code>ja</code>）</li>
+  <li><strong>Audience</strong>: 対象読者</li>
+  <li><strong>Notes</strong>: 追加の指示・要望</li>
+</ul>
+
+<p>「Start Writing」を押すと、バックグラウンドで <code>brief.yml</code> が生成され、<a href="#07-ai"><code>ligarb write</code></a> と同等の処理が実行されます。
+左ペインには「Writing…」バッジ（オレンジ、パルスアニメーション）付きで本が追加されます。</p>
+
+<p>執筆が完了すると「New!」バッジ（緑）に変わり、クリックで TOC を表示できます。
+エラーが発生した場合は「Error」バッジ（赤）でエラー内容を確認できます。</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>この機能を使うには <a href="https://claude.com/claude-code">Claude Code</a> の CLI（<code>claude</code> コマンド）が必要です。</p>
+</div>
+
+<h2 id="06-serve--内部-api">6.5 内部 API</h2>
 
 <p>サーバーは <code>/_ligarb/</code> プレフィックスで内部 API を提供します。
 フロントエンドの JS がこれらを使用しますが、外部ツールとの連携にも利用できます。</p>
@@ -1845,7 +2112,7 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
     <tr>
       <td>GET</td>
       <td><code>/_ligarb/events</code></td>
-      <td>SSE ストリーム（<code>build_updated</code> / <code>review_updated</code>）</td>
+      <td>SSE ストリーム（<code>build_updated</code> / <code>review_updated</code> / <code>write_updated</code>）</td>
     </tr>
     <tr>
       <td>GET</td>
@@ -1861,6 +2128,16 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
       <td>POST</td>
       <td><code>/_ligarb/reviews/:id/approve</code></td>
       <td>パッチ適用＆リビルド</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td><code>/_ligarb/write</code></td>
+      <td>AI 執筆を開始（マルチブックモードのみ）</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code>/_ligarb/write/status</code></td>
+      <td>全 write ジョブのステータス一覧</td>
     </tr>
   </tbody>
 </table>
@@ -2046,10 +2323,19 @@ book.yml にも登録してください。
 <pre><code>ligarb build でビルドしてください。エラーがあれば修正してください。
 </code></pre>
 
-<h2 id="07-ai--ポイント">7.3 ポイント</h2>
+<h2 id="07-ai--ブラウザから-ai-執筆する">7.3 ブラウザから AI 執筆する</h2>
+
+<p><code>ligarb serve</code> の<a href="#06-serve">マルチブックモード</a>では、トップページの「+ Write a new book」ボタンからブラウザ上で AI 執筆を開始できます。
+フォームにタイトルや対象読者を入力するだけで、<code>brief.yml</code> の作成から <code>ligarb write</code> の実行、ビルドまでバックグラウンドで自動実行されます。</p>
+
+<p>執筆の進行状況はリアルタイムでステータスバッジに反映され、完了した本はそのまま閲覧できます。
+詳細は<a href="#06-serve">プレビューとレビュー</a>の章を参照してください。</p>
+
+<h2 id="07-ai--ポイント">7.4 ポイント</h2>
 
 <ul>
   <li><strong><code>ligarb write</code> を使う</strong>: 企画書を書いて実行するだけで、本の生成からビルドまで自動化できます</li>
+  <li><strong>ブラウザから使う</strong>: マルチブックモードならブラウザ上のフォームから AI 執筆を開始できます</li>
   <li><strong><code>ligarb help</code> を渡す</strong>: 手動で AI を使う場合、仕様を正確に理解させるための最も確実な方法です</li>
   <li><strong>図を指示する</strong>: 「mermaid で図を入れて」「KaTeX で数式を書いて」と明示すると、AI が適切なコードブロックを使います</li>
   <li><strong>段階的に進める</strong>: 一度にすべてを指示するより、章ごとに指示した方が品質が上がります</li>
@@ -2164,6 +2450,18 @@ book.yml にも登録してください。
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('07-ai'); return false;">&larr; 7. AI と一緒に使う</a>
     </nav>
+  </section>
+  <section class="chapter bibliography-chapter" id="chapter-__bibliography__" style="display: none;">
+    <h1>参考文献</h1>
+    <ul class="bibliography-list">
+      <li id="bib-knuth1984">Donald E. Knuth. "Literate Programming". <em>The Computer Journal</em>, 27(2), pp. 97-111. 1984. <a href="https://doi.org/10.1093/comjnl/27.2.97" target="_blank" rel="noopener">DOI</a></li>
+      <li id="bib-gfm2017">GitHub. <em><a href="https://github.github.com/gfm/" target="_blank" rel="noopener">GitHub Flavored Markdown Spec</a></em>. 2017.</li>
+      <li id="bib-highlightjs2011">Ivan Sagalaev. <em><a href="https://highlightjs.org/" target="_blank" rel="noopener">highlight.js</a></em>. 2011.</li>
+      <li id="bib-gruber2004">John Gruber. <em><a href="https://daringfireball.net/projects/markdown/" target="_blank" rel="noopener">Markdown</a></em>. 2004.</li>
+      <li id="bib-katex2014">Khan Academy. <em><a href="https://katex.org/" target="_blank" rel="noopener">KaTeX -- The fastest math typesetting library for the web</a></em>. 2014.</li>
+      <li id="bib-lamport1994">Leslie Lamport. <em>LaTeX: A Document Preparation System</em>. 2nd ed. Addison-Wesley. 1994.</li>
+      <li id="bib-berners-lee1992">Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. "World-Wide Web: The Information Universe". <em>Electronic Networking: Research, Applications and Policy</em>, 2(1), pp. 52-58. 1992.</li>
+    </ul>
   </section>
   <section class="chapter index-chapter" id="chapter-__index__" style="display: none;">
     <h1>索引</h1>
@@ -2390,7 +2688,7 @@ book.yml にも登録してください。
 
 <script>
 (function() {
-  var chapters = ["cover", "part1", "01-introduction", "02-install", "03-book-yml", "part2", "04-markdown", "05-build", "06-serve", "07-ai", "a1-config-reference", "__index__"];
+  var chapters = ["cover", "part1", "01-introduction", "02-install", "03-book-yml", "part2", "04-markdown", "05-build", "06-serve", "07-ai", "a1-config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
   function showChapter(slug) {
