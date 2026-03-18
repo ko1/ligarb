@@ -163,7 +163,8 @@ module Ligarb
       all_chapters.each do |ch|
         ch.cite_entries.each do |entry|
           unless bib_data.key?(entry.key)
-            abort "Error: unknown bibliography key '#{entry.key}' in chapter #{File.basename(ch.instance_variable_get(:@path))}"
+            warn "Warning: unknown bibliography key '#{entry.key}' in chapter #{File.basename(ch.instance_variable_get(:@path))}"
+            next
           end
           cited_keys[entry.key] = true
         end
@@ -176,6 +177,9 @@ module Ligarb
           key = $2
           display_text = $3
           ref = bib_data[key]
+          unless ref
+            next %(<span id="#{anchor_id}">#{display_text}<sup class="cite-ref cite-missing" title="Bibliography entry '#{encode_attr(key)}' not found">[#{encode_attr(key)}?]</sup></span>)
+          end
           cite_label = format_cite_label(ref)
           title_text = format_bib_hover(ref)
           %(<span id="#{anchor_id}">#{display_text}<sup class="cite-ref"><a href="#bib-#{key}" title="#{encode_attr(title_text)}" onclick="showChapterAndScroll('__bibliography__', 'bib-#{key}'); return false;">[#{encode_attr(cite_label)}]</a></sup></span>)

@@ -177,8 +177,9 @@ class BuilderTest < Minitest::Test
       "ch1.md" => "# Ch\n\n[text](#cite:unknown_key)",
       "refs.yml" => YAML.dump(refs),
     }
-    assert_raises(SystemExit) do
-      build_book(data, files: files) { |_dir| }
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, "[unknown_key?]"
     end
   end
 

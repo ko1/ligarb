@@ -678,6 +678,19 @@ mark.search-highlight {
   text-decoration: underline;
 }
 
+.cite-missing {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 0 3px;
+  border-radius: 2px;
+  cursor: help;
+}
+
+[data-theme="dark"] .cite-missing {
+  color: #ef9a9a;
+  background: rgba(211, 47, 47, 0.15);
+}
+
 /* === Index === */
 .index-group {
   margin-bottom: 1.5rem;
