@@ -64,7 +64,9 @@ module Ligarb
         target_path = File.expand_path(href_path, source_dir)
         entry = chapter_map[target_path]
         unless entry
-          raise CrossReferenceError, "cross-reference target not found: #{href_path} (from #{File.basename(@path)})"
+          line_no = @source.each_line.with_index(1) { |line, i| break i if line.include?(href_path) }
+          loc = line_no ? "#{@path}:#{line_no}" : File.basename(@path)
+          raise CrossReferenceError, "cross-reference target not found: #{href_path} (from #{loc})\n  link text: #{link_text.empty? ? "(auto)" : link_text}\n  resolved to: #{target_path}"
         end
 
         if fragment && !fragment.empty?
