@@ -96,8 +96,12 @@ module Ligarb
     private
 
     def check_claude_installed!
-      unless system("claude", "--version", out: File::NULL, err: File::NULL)
+      claude_path = ENV["PATH"].to_s.split(File::PATH_SEPARATOR).find { |dir| File.executable?(File.join(dir, "claude")) }
+      unless claude_path
         raise WriterError, "'claude' command not found. Install Claude Code first."
+      end
+      unless system("claude", "--version", out: File::NULL, err: File::NULL)
+        raise WriterError, "'claude' command was found but failed to run. Check your Claude Code installation."
       end
     end
 

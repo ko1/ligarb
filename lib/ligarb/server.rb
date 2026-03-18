@@ -916,13 +916,17 @@ module Ligarb
         log "Review: starting Claude review for #{review_id}"
         begin
           review = book.store.get(review_id)
-          return unless review
+          next unless review
 
-          unless book.claude.installed?
+          case book.claude.installed?
+          when :not_found
             book.store.add_message(review_id, role: "assistant",
               content: "Error: 'claude' command not found. Install Claude Code to enable AI reviews.")
-            sse_broadcast("review_updated", { id: review_id }, slug: book.slug)
-            return
+            next
+          when :version_failed
+            book.store.add_message(review_id, role: "assistant",
+              content: "Error: 'claude' command was found but failed to run. Check your Claude Code installation.")
+            next
           end
 
           prompt = book.claude.review_prompt(review)

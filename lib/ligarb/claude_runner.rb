@@ -13,7 +13,14 @@ module Ligarb
     end
 
     def installed?
-      system("claude", "--version", out: File::NULL, err: File::NULL)
+      claude_path = which("claude")
+      return :not_found unless claude_path
+
+      if system(claude_path, "--version", out: File::NULL, err: File::NULL)
+        true
+      else
+        :version_failed
+      end
     end
 
     # Run claude -p with the given prompt. Returns the text response.
@@ -182,6 +189,14 @@ module Ligarb
     end
 
     private
+
+    def which(cmd)
+      ENV["PATH"].to_s.split(File::PATH_SEPARATOR).each do |dir|
+        path = File.join(dir, cmd)
+        return path if File.executable?(path)
+      end
+      nil
+    end
 
     # Resolve a relative path from a patch to an absolute path.
     # Prevents path traversal outside base_dir.
