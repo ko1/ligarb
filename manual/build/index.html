@@ -377,6 +377,18 @@ body {
   margin-right: 0.5rem;
 }
 
+.search-match-count {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.05em 0.45em;
+  border-radius: 8px;
+  margin-left: 0.4em;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
 /* Search highlight */
 mark.search-highlight {
   background: #fef08a;
@@ -657,6 +669,12 @@ mark.search-highlight {
 
 .cite-ref {
   font-size: 0.8em;
+}
+
+.bib-label {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-right: 0.3em;
 }
 
 .cite-ref a {
@@ -2454,13 +2472,13 @@ book.yml にも登録してください。
   <section class="chapter bibliography-chapter" id="chapter-__bibliography__" style="display: none;">
     <h1>参考文献</h1>
     <ul class="bibliography-list">
-      <li id="bib-knuth1984">Donald E. Knuth. "Literate Programming". <em>The Computer Journal</em>, 27(2), pp. 97-111. 1984. <a href="https://doi.org/10.1093/comjnl/27.2.97" target="_blank" rel="noopener">DOI</a></li>
-      <li id="bib-gfm2017">GitHub. <em><a href="https://github.github.com/gfm/" target="_blank" rel="noopener">GitHub Flavored Markdown Spec</a></em>. 2017.</li>
-      <li id="bib-highlightjs2011">Ivan Sagalaev. <em><a href="https://highlightjs.org/" target="_blank" rel="noopener">highlight.js</a></em>. 2011.</li>
-      <li id="bib-gruber2004">John Gruber. <em><a href="https://daringfireball.net/projects/markdown/" target="_blank" rel="noopener">Markdown</a></em>. 2004.</li>
-      <li id="bib-katex2014">Khan Academy. <em><a href="https://katex.org/" target="_blank" rel="noopener">KaTeX -- The fastest math typesetting library for the web</a></em>. 2014.</li>
-      <li id="bib-lamport1994">Leslie Lamport. <em>LaTeX: A Document Preparation System</em>. 2nd ed. Addison-Wesley. 1994.</li>
-      <li id="bib-berners-lee1992">Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. "World-Wide Web: The Information Universe". <em>Electronic Networking: Research, Applications and Policy</em>, 2(1), pp. 52-58. 1992.</li>
+      <li id="bib-knuth1984"><span class="bib-label">[Donald, 1984]</span> Donald E. Knuth. "Literate Programming". <em>The Computer Journal</em>, 27(2), pp. 97-111. 1984. <a href="https://doi.org/10.1093/comjnl/27.2.97" target="_blank" rel="noopener">DOI</a></li>
+      <li id="bib-gfm2017"><span class="bib-label">[GitHub, 2017]</span> GitHub. <em><a href="https://github.github.com/gfm/" target="_blank" rel="noopener">GitHub Flavored Markdown Spec</a></em>. 2017.</li>
+      <li id="bib-highlightjs2011"><span class="bib-label">[Ivan, 2011]</span> Ivan Sagalaev. <em><a href="https://highlightjs.org/" target="_blank" rel="noopener">highlight.js</a></em>. 2011.</li>
+      <li id="bib-gruber2004"><span class="bib-label">[John, 2004]</span> John Gruber. <em><a href="https://daringfireball.net/projects/markdown/" target="_blank" rel="noopener">Markdown</a></em>. 2004.</li>
+      <li id="bib-katex2014"><span class="bib-label">[Khan, 2014]</span> Khan Academy. <em><a href="https://katex.org/" target="_blank" rel="noopener">KaTeX -- The fastest math typesetting library for the web</a></em>. 2014.</li>
+      <li id="bib-lamport1994"><span class="bib-label">[Leslie, 1994]</span> Leslie Lamport. <em>LaTeX: A Document Preparation System</em>. 2nd ed. Addison-Wesley. 1994.</li>
+      <li id="bib-berners-lee1992"><span class="bib-label">[Tim, 1992]</span> Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. "World-Wide Web: The Information Universe". <em>Electronic Networking: Research, Applications and Policy</em>, 2(1), pp. 52-58. 1992.</li>
     </ul>
   </section>
   <section class="chapter index-chapter" id="chapter-__index__" style="display: none;">
@@ -2691,7 +2709,9 @@ book.yml にも登録してください。
   var chapters = ["cover", "part1", "01-introduction", "02-install", "03-book-yml", "part2", "04-markdown", "05-build", "06-serve", "07-ai", "a1-config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
-  function showChapter(slug) {
+  var navigating = false; // flag to suppress pushState during popstate/initial load
+
+  function showChapter(slug, hash) {
     chapters.forEach(function(ch) {
       var el = document.getElementById('chapter-' + ch);
       if (el) el.style.display = (ch === slug) ? 'block' : 'none';
@@ -2708,7 +2728,10 @@ book.yml にも登録してください。
     });
 
     currentChapter = slug;
-    history.replaceState(null, '', '#' + slug);
+    var newHash = '#' + (hash || slug);
+    if (!navigating) {
+      history.pushState(null, '', newHash);
+    }
     window.scrollTo(0, 0);
 
     // Re-apply highlight if search is active
@@ -2744,25 +2767,39 @@ book.yml にも登録してください。
   }
 
   function showChapterAndScroll(slug, headingId) {
-    showChapter(slug);
-    history.replaceState(null, '', '#' + headingId);
+    showChapter(slug, headingId);
     setTimeout(function() {
       var target = document.getElementById(headingId);
       if (target) target.scrollIntoView({ behavior: 'smooth' });
     }, 50);
   }
 
-  // Handle initial hash
+  // Navigate to chapter/heading based on current URL hash
   function handleHash() {
+    navigating = true;
     var hash = location.hash.replace('#', '');
     if (!hash) {
       if (chapters.length > 0) showChapter(chapters[0]);
+      navigating = false;
       return;
     }
 
     // Check if hash matches a chapter slug directly
     if (chapters.indexOf(hash) !== -1) {
       showChapter(hash);
+      navigating = false;
+      return;
+    }
+
+    // Check for bibliography entry (bib-KEY)
+    var bibMatch = hash.match(/^bib-(.+)/);
+    if (bibMatch) {
+      showChapter('__bibliography__', hash);
+      setTimeout(function() {
+        var target = document.getElementById(hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+      navigating = false;
       return;
     }
 
@@ -2771,9 +2808,10 @@ book.yml にも登録してください。
     if (fnMatch) {
       var fnChSlug = fnMatch[1];
       if (chapters.indexOf(fnChSlug) !== -1) {
-        if (currentChapter !== fnChSlug) showChapter(fnChSlug);
+        if (currentChapter !== fnChSlug) showChapter(fnChSlug, hash);
         var fnTarget = document.getElementById(hash);
         if (fnTarget) fnTarget.scrollIntoView({ behavior: 'smooth' });
+        navigating = false;
         return;
       }
     }
@@ -2784,26 +2822,98 @@ book.yml にも登録してください。
       var chSlug = parts[0];
       if (chapters.indexOf(chSlug) !== -1) {
         showChapterAndScroll(chSlug, hash);
+        navigating = false;
         return;
       }
     }
 
     // Fallback
     if (chapters.length > 0) showChapter(chapters[0]);
+    navigating = false;
   }
 
   // TOC search + content highlight
   var searchInput = document.getElementById('toc-search');
   var clearBtn = document.getElementById('search-clear');
 
+  // Build text cache for full-text search (lazy, built on first search)
+  var chapterTextCache = null;
+  function buildTextCache() {
+    if (chapterTextCache) return;
+    chapterTextCache = {};
+    chapters.forEach(function(slug) {
+      var section = document.getElementById('chapter-' + slug);
+      if (section) {
+        chapterTextCache[slug] = section.textContent.toLowerCase();
+      }
+    });
+  }
+
+  function countMatches(text, query) {
+    var count = 0;
+    var idx = text.indexOf(query);
+    while (idx !== -1) {
+      count++;
+      idx = text.indexOf(query, idx + query.length);
+    }
+    return count;
+  }
+
   function updateSearch() {
     var query = searchInput.value.toLowerCase();
-    var items = document.querySelectorAll('.toc-chapter');
-    items.forEach(function(item) {
-      var text = item.textContent.toLowerCase();
-      item.style.display = text.indexOf(query) !== -1 ? '' : 'none';
-    });
     clearBtn.style.display = query ? 'block' : 'none';
+
+    // Remove existing match count badges
+    document.querySelectorAll('.search-match-count').forEach(function(el) { el.remove(); });
+
+    var items = document.querySelectorAll('.toc-chapter');
+    var partItems = document.querySelectorAll('.toc-part, .toc-appendix');
+
+    if (!query || query.length < 2) {
+      // Show all items when query is too short
+      items.forEach(function(item) { item.style.display = ''; });
+      partItems.forEach(function(item) { item.style.display = ''; });
+      highlightContent('');
+      return;
+    }
+
+    buildTextCache();
+
+    // Track which chapters match (content or TOC text)
+    var matchingSlugs = {};
+    items.forEach(function(item) {
+      var slug = item.dataset.chapter;
+      var tocText = item.textContent.toLowerCase();
+      var contentText = chapterTextCache[slug] || '';
+      var tocMatch = tocText.indexOf(query) !== -1;
+      var contentMatch = contentText.indexOf(query) !== -1;
+
+      if (tocMatch || contentMatch) {
+        item.style.display = '';
+        matchingSlugs[slug] = true;
+        // Show match count badge for content matches
+        if (contentMatch) {
+          var count = countMatches(contentText, query);
+          var badge = document.createElement('span');
+          badge.className = 'search-match-count';
+          badge.textContent = count;
+          var link = item.querySelector('a');
+          if (link) link.appendChild(badge);
+        }
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    // Show/hide part and appendix headers based on whether they have visible children
+    partItems.forEach(function(item) {
+      var children = item.querySelectorAll('.toc-chapter');
+      var hasVisible = Array.prototype.some.call(children, function(ch) {
+        return ch.style.display !== 'none';
+      });
+      item.style.display = hasVisible ? '' : 'none';
+    });
+
     highlightContent(searchInput.value);
   }
 
@@ -2923,9 +3033,12 @@ book.yml にも登録してください。
   window.showChapterAndScroll = showChapterAndScroll;
   window.renderSpecialBlocks = function() { if (currentChapter) renderSpecialBlocks(currentChapter); };
 
-  // Initialize
+  // Initialize (replace initial entry so first back goes to previous page, not same page)
+  navigating = true;
   handleHash();
-  window.addEventListener('hashchange', handleHash);
+  history.replaceState(null, '', location.hash || '#' + (chapters[0] || ''));
+  navigating = false;
+  window.addEventListener('popstate', handleHash);
 })();
 </script>
 <script src="js/highlight.min.js"></script>

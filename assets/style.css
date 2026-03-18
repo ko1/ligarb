@@ -662,6 +662,12 @@ mark.search-highlight {
   font-size: 0.8em;
 }
 
+.bib-label {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-right: 0.3em;
+}
+
 .cite-ref a {
   color: var(--color-accent);
   text-decoration: none;

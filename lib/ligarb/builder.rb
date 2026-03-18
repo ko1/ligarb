@@ -191,6 +191,7 @@ module Ligarb
           title: ref["title"],
           year: ref["year"],
           url: ref["url"],
+          label: format_cite_label(ref),
           formatted_html: format_bib_html(ref),
         }
       end.sort_by { |e| [e[:author].to_s, e[:year].to_s] }

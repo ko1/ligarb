@@ -157,7 +157,7 @@
     <h1><%= language == 'ja' ? '参考文献' : 'Bibliography' %></h1>
     <ul class="bibliography-list">
       <%- bibliography.each do |entry| -%>
-      <li id="bib-<%= entry[:key] %>"><%= entry[:formatted_html] %></li>
+      <li id="bib-<%= entry[:key] %>"><span class="bib-label">[<%= entry[:label] %>]</span> <%= entry[:formatted_html] %></li>
       <%- end -%>
     </ul>
   </section>
@@ -193,7 +193,9 @@
   var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
   var currentChapter = null;
 
-  function showChapter(slug) {
+  var navigating = false; // flag to suppress pushState during popstate/initial load
+
+  function showChapter(slug, hash) {
     chapters.forEach(function(ch) {
       var el = document.getElementById('chapter-' + ch);
       if (el) el.style.display = (ch === slug) ? 'block' : 'none';
@@ -210,7 +212,10 @@
     });
 
     currentChapter = slug;
-    history.replaceState(null, '', '#' + slug);
+    var newHash = '#' + (hash || slug);
+    if (!navigating) {
+      history.pushState(null, '', newHash);
+    }
     window.scrollTo(0, 0);
 
     // Re-apply highlight if search is active
@@ -246,36 +251,53 @@
   }
 
   function showChapterAndScroll(slug, headingId) {
-    showChapter(slug);
-    history.replaceState(null, '', '#' + headingId);
+    showChapter(slug, headingId);
     setTimeout(function() {
       var target = document.getElementById(headingId);
       if (target) target.scrollIntoView({ behavior: 'smooth' });
     }, 50);
   }
 
-  // Handle initial hash
+  // Navigate to chapter/heading based on current URL hash
   function handleHash() {
+    navigating = true;
     var hash = location.hash.replace('#', '');
     if (!hash) {
       if (chapters.length > 0) showChapter(chapters[0]);
+      navigating = false;
       return;
     }
 
     // Check if hash matches a chapter slug directly
     if (chapters.indexOf(hash) !== -1) {
       showChapter(hash);
+      navigating = false;
       return;
     }
+
+    <%- unless bibliography.empty? -%>
+    // Check for bibliography entry (bib-KEY)
+    var bibMatch = hash.match(/^bib-(.+)/);
+    if (bibMatch) {
+      showChapter('__bibliography__', hash);
+      setTimeout(function() {
+        var target = document.getElementById(hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+      navigating = false;
+      return;
+    }
+    <%- end -%>
 
     // Check for footnote links (fn: or fnref:)
     var fnMatch = hash.match(/^(?:fn|fnref):(.+?)--/);
     if (fnMatch) {
       var fnChSlug = fnMatch[1];
       if (chapters.indexOf(fnChSlug) !== -1) {
-        if (currentChapter !== fnChSlug) showChapter(fnChSlug);
+        if (currentChapter !== fnChSlug) showChapter(fnChSlug, hash);
         var fnTarget = document.getElementById(hash);
         if (fnTarget) fnTarget.scrollIntoView({ behavior: 'smooth' });
+        navigating = false;
         return;
       }
     }
@@ -286,12 +308,14 @@
       var chSlug = parts[0];
       if (chapters.indexOf(chSlug) !== -1) {
         showChapterAndScroll(chSlug, hash);
+        navigating = false;
         return;
       }
     }
 
     // Fallback
     if (chapters.length > 0) showChapter(chapters[0]);
+    navigating = false;
   }
 
   // TOC search + content highlight
@@ -495,9 +519,12 @@
   window.showChapterAndScroll = showChapterAndScroll;
   window.renderSpecialBlocks = function() { if (currentChapter) renderSpecialBlocks(currentChapter); };
 
-  // Initialize
+  // Initialize (replace initial entry so first back goes to previous page, not same page)
+  navigating = true;
   handleHash();
-  window.addEventListener('hashchange', handleHash);
+  history.replaceState(null, '', location.hash || '#' + (chapters[0] || ''));
+  navigating = false;
+  window.addEventListener('popstate', handleHash);
 })();
 </script>
 <%- if assets.need?(:highlight) -%>
