@@ -2,6 +2,9 @@
 
 ## ligarb serve — ローカルサーバー
 
+> [!WARNING]
+> `ligarb serve` はローカル開発専用です。本番環境やインターネットへの公開には使わないでください。
+
 [`ligarb serve`](#index:ligarb serve) コマンドで、ビルド済みの本をローカル Web サーバーで配信できます。
 起動時に自動でビルドが実行されるため、事前に `ligarb build` を実行する必要はありません。
 

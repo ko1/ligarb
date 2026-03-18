@@ -85,6 +85,8 @@ ligarb build
 
 ## ローカルサーバーでプレビュー＆レビュー
 
+> **注意:** `ligarb serve` はローカル開発専用です。本番環境やインターネットへの公開には使わないでください。
+
 ```bash
 ligarb serve              # http://localhost:3000 で配信
 ligarb serve --port 8080  # ポート指定
@@ -99,6 +101,8 @@ ligarb serve --port 8080  # ポート指定
 [Claude Code](https://claude.com/claude-code) の CLI が必要です。
 
 ## AI で本を書く
+
+> **注意:** AI が生成したコンテンツには誤りが含まれる可能性があります。公開前に必ず内容を確認・校正してください。また、AI 生成物の著作権についてはお住まいの地域の法律を確認してください。
 
 `ligarb write` コマンドで、AI（Claude）に本を丸ごと書かせることができます。
 
