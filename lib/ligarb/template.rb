@@ -41,6 +41,11 @@ module Ligarb
 
     private
 
+    # HTML-escape helper for ERB templates (available via binding)
+    def h(s)
+      ERB::Util.html_escape(s.to_s)
+    end
+
     # Build a sorted tree structure for the index.
     # Returns: { "A" => [ { term: "Algorithm", refs: [...] },
     #                      { term: "Array", refs: [...], children: [ { term: "sort", refs: [...] } ] } ],

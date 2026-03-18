@@ -22,6 +22,7 @@ module Ligarb
         config_paths = ["book.yml"] if config_paths.empty?
         port_idx = args.index("--port")
         port = port_idx ? args[port_idx + 1].to_i : 3000
+        abort "Error: port must be 1-65535" unless (1..65535).include?(port)
         multi = args.include?("--multi")
         require_relative "server"
         Server.new(config_paths, port: port, multi: multi).start
@@ -30,6 +31,7 @@ module Ligarb
         abort "Error: no */book.yml found in current directory" if config_paths.empty?
         port_idx = args.index("--port")
         port = port_idx ? args[port_idx + 1].to_i : 3000
+        abort "Error: port must be 1-65535" unless (1..65535).include?(port)
         require_relative "server"
         Server.new(config_paths, port: port, multi: true).start
       when "write"

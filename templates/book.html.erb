@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="<%= language %>">
+<html lang="<%= h(language) %>">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= title %></title>
+<title><%= h(title) %></title>
 <%- if ai_generated -%>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="robots" content="noai, noimageai">
@@ -30,14 +30,14 @@
     <div class="sidebar-header-top">
       <%- cover_chapter = chapters.find(&:cover?) -%>
       <%- if cover_chapter -%>
-      <h1 class="book-title"><a href="#<%= cover_chapter.slug %>" onclick="showChapter('<%= cover_chapter.slug %>'); return false;"><%= title %></a></h1>
+      <h1 class="book-title"><a href="#<%= cover_chapter.slug %>" onclick="showChapter('<%= cover_chapter.slug %>'); return false;"><%= h(title) %></a></h1>
       <%- else -%>
-      <h1 class="book-title"><%= title %></h1>
+      <h1 class="book-title"><%= h(title) %></h1>
       <%- end -%>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
     </div>
     <%- unless author.empty? -%>
-    <p class="book-author"><%= author %></p>
+    <p class="book-author"><%= h(author) %></p>
     <%- end -%>
     <%- if ai_generated -%>
     <span class="ai-badge"><%= language == 'ja' ? 'AI 生成' : 'AI Generated' %></span>
@@ -54,13 +54,13 @@
         <%- when :cover -%>
         <%- when :chapter -%>
       <li class="toc-chapter" data-chapter="<%= node.chapter.slug %>">
-        <a href="#<%= node.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= node.chapter.slug %>')"><%= node.chapter.display_title %></a>
+        <a href="#<%= node.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= node.chapter.slug %>')"><%= h(node.chapter.display_title) %></a>
         <%- sub_headings = node.chapter.headings.select { |h| h.level >= 2 } -%>
         <%- unless sub_headings.empty? -%>
         <ul>
           <%- sub_headings.each do |heading| -%>
           <li>
-            <a href="#<%= node.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+            <a href="#<%= node.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
           </li>
           <%- end -%>
         </ul>
@@ -68,17 +68,17 @@
       </li>
         <%- when :part -%>
       <li class="toc-part">
-        <a href="#<%= node.chapter.slug %>" class="toc-part-title" onclick="showChapter('<%= node.chapter.slug %>')"><%= node.chapter.title %></a>
+        <a href="#<%= node.chapter.slug %>" class="toc-part-title" onclick="showChapter('<%= node.chapter.slug %>')"><%= h(node.chapter.title) %></a>
         <ul>
           <%- (node.children || []).each do |child| -%>
           <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
-            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= child.chapter.display_title %></a>
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
             <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
             <%- unless sub_headings.empty? -%>
             <ul>
               <%- sub_headings.each do |heading| -%>
               <li>
-                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
               </li>
               <%- end -%>
             </ul>
@@ -89,17 +89,17 @@
       </li>
         <%- when :appendix_group -%>
       <li class="toc-appendix">
-        <span class="toc-appendix-title"><%= appendix_label %></span>
+        <span class="toc-appendix-title"><%= h(appendix_label) %></span>
         <ul>
           <%- (node.children || []).each do |child| -%>
           <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
-            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= child.chapter.display_title %></a>
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
             <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
             <%- unless sub_headings.empty? -%>
             <ul>
               <%- sub_headings.each do |heading| -%>
               <li>
-                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= heading.display_text %></a>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
               </li>
               <%- end -%>
             </ul>
@@ -132,21 +132,21 @@
     <%= chapter.html %>
     <%- if repository && !chapter.part_title? && !chapter.cover? -%>
     <div class="edit-link">
-      <a href="<%= repository.chomp('/') %>/blob/HEAD/<%= chapter.relative_path %>" target="_blank" rel="noopener">View on GitHub</a>
+      <a href="<%= h(repository.chomp('/')) %>/blob/HEAD/<%= h(chapter.relative_path) %>" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <%- end -%>
     <%- if footer && !chapter.part_title? && !chapter.cover? -%>
-    <div class="chapter-footer"><%= footer %></div>
+    <div class="chapter-footer"><%= h(footer) %></div>
     <%- end -%>
     <%- unless chapter.cover? -%>
     <nav class="chapter-nav">
       <%- if idx > 0 -%>
-      <a href="#" class="nav-prev" onclick="showChapter('<%= chapters[idx-1].slug %>'); return false;">&larr; <%= chapters[idx-1].display_title %></a>
+      <a href="#" class="nav-prev" onclick="showChapter('<%= chapters[idx-1].slug %>'); return false;">&larr; <%= h(chapters[idx-1].display_title) %></a>
       <%- else -%>
       <span></span>
       <%- end -%>
       <%- if idx < chapters.size - 1 -%>
-      <a href="#" class="nav-next" onclick="showChapter('<%= chapters[idx+1].slug %>'); return false;"><%= chapters[idx+1].display_title %> &rarr;</a>
+      <a href="#" class="nav-next" onclick="showChapter('<%= chapters[idx+1].slug %>'); return false;"><%= h(chapters[idx+1].display_title) %> &rarr;</a>
       <%- end -%>
     </nav>
     <%- end -%>
@@ -157,7 +157,7 @@
     <h1><%= language == 'ja' ? '参考文献' : 'Bibliography' %></h1>
     <ul class="bibliography-list">
       <%- bibliography.each do |entry| -%>
-      <li id="bib-<%= entry[:key] %>"><span class="bib-label">[<%= entry[:label] %>]</span> <%= entry[:formatted_html] %></li>
+      <li id="bib-<%= h(entry[:key]) %>"><span class="bib-label">[<%= h(entry[:label]) %>]</span> <%= entry[:formatted_html] %></li>
       <%- end -%>
     </ul>
   </section>
@@ -170,12 +170,12 @@
       <h2 class="index-letter"><%= letter %></h2>
       <dl class="index-entries">
         <%- index_tree[letter].each do |item| -%>
-        <dt><%= item[:term] %></dt>
+        <dt><%= h(item[:term]) %></dt>
         <%- item[:refs].each do |ref| -%>
         <dd><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
         <%- end -%>
         <%- item[:children].each do |child| -%>
-        <dt class="index-sub"><%= child[:term] %></dt>
+        <dt class="index-sub"><%= h(child[:term]) %></dt>
         <%- child[:refs].each do |ref| -%>
         <dd class="index-sub"><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
         <%- end -%>

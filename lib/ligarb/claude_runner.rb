@@ -184,8 +184,17 @@ module Ligarb
     private
 
     # Resolve a relative path from a patch to an absolute path.
+    # Prevents path traversal outside base_dir.
     def resolve_patch_file(rel_path)
-      absolute = File.join(@config.base_dir, rel_path)
+      absolute = File.expand_path(rel_path, @config.base_dir)
+      base_dir = File.expand_path(@config.base_dir)
+
+      # Reject paths that escape base_dir (e.g. "../../etc/passwd")
+      unless absolute.start_with?(base_dir + "/")
+        $stderr.puts "Warning: patch path '#{rel_path}' resolves outside project directory, skipping"
+        return nil
+      end
+
       return absolute if File.exist?(absolute)
 
       # Try matching by basename against all chapter paths

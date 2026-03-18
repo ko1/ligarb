@@ -238,7 +238,7 @@ module Ligarb
 
       api_base = @multi ? "/_ligarb/#{book.slug}" : "/_ligarb"
       page_base = @multi ? "/#{book.slug}/" : "/"
-      config_tag = %(<script>window._ligarbAPI='#{api_base}';window._ligarbBase='#{page_base}';</script>)
+      config_tag = %(<script>window._ligarbAPI='#{escape_js_string(api_base)}';window._ligarbBase='#{escape_js_string(page_base)}';</script>)
 
       js_tags = [config_tag] + %w[serve.js review.js].map { |f|
         %(<script src="/_ligarb/assets/#{f}"></script>)
@@ -611,8 +611,9 @@ module Ligarb
         </html>
       HTML
 
-      html = html.sub("__BOOKS_JSON__", books_json)
-      html = html.sub("__WRITE_JOBS_JSON__", write_jobs_json)
+      # Escape </ to prevent script injection inside <script> tag
+      html = html.sub("__BOOKS_JSON__", books_json.gsub("</", '<\/'))
+      html = html.sub("__WRITE_JOBS_JSON__", write_jobs_json.gsub("</", '<\/'))
       res.body = html
       res["Content-Type"] = "text/html; charset=utf-8"
     end
@@ -673,7 +674,32 @@ module Ligarb
 
     # ── API routing ──
 
+    def csrf_safe?(req)
+      return true if req.request_method == "GET"
+
+      origin = req["Origin"]
+      if origin && !origin.empty?
+        return origin == "http://localhost:#{@port}" ||
+               origin == "http://127.0.0.1:#{@port}"
+      end
+
+      referer = req["Referer"]
+      if referer && !referer.empty?
+        uri = URI.parse(referer) rescue nil
+        return uri && %w[localhost 127.0.0.1].include?(uri.host) && uri.port == @port
+      end
+
+      false
+    end
+
     def handle_api(req, res)
+      unless csrf_safe?(req)
+        res.status = 403
+        res["Content-Type"] = "application/json; charset=utf-8"
+        res.body = JSON.generate({ error: "CSRF check failed: request must originate from localhost" })
+        return
+      end
+
       method = req.request_method
       path = req.path.sub(%r{^/_ligarb}, "")
 
@@ -1027,6 +1053,8 @@ module Ligarb
 
     # ── Helpers ──
 
+    MAX_UPLOAD_FILE_SIZE = 10 * 1024 * 1024 # 10MB per file
+
     def save_uploaded_files(files_array, base_dir)
       return [] unless files_array.is_a?(Array) && !files_array.empty?
 
@@ -1038,13 +1066,19 @@ module Ligarb
         data = file["data"].to_s
         next if name.empty? || data.empty?
 
+        decoded = Base64.decode64(data)
+        if decoded.bytesize > MAX_UPLOAD_FILE_SIZE
+          log "Upload rejected: #{name} exceeds #{MAX_UPLOAD_FILE_SIZE} bytes"
+          next
+        end
+
         # Sanitize filename
         safe_name = File.basename(name).gsub(/[^a-zA-Z0-9._-]/, "_")
         short_id = SecureRandom.hex(4)
         filename = "#{short_id}-#{safe_name}"
         dest = File.join(upload_dir, filename)
 
-        File.binwrite(dest, Base64.decode64(data))
+        File.binwrite(dest, decoded)
         { "path" => File.expand_path(dest), "label" => name }
       end
     end
@@ -1075,6 +1109,11 @@ module Ligarb
 
     def escape_html(str)
       str.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").gsub('"', "&quot;")
+    end
+
+    def escape_js_string(str)
+      str.to_s.gsub('\\', '\\\\\\\\').gsub("'", "\\\\'").gsub('"', '\\\\"')
+         .gsub("\n", "\\n").gsub("\r", "\\r").gsub("</", '<\\/')
     end
 
     def mime_type(path)

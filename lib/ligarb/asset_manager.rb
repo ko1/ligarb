@@ -60,6 +60,8 @@ module Ligarb
 
     private
 
+    MAX_ASSET_SIZE = 5 * 1024 * 1024 # 5MB
+
     def download(url, dest)
       FileUtils.mkdir_p(File.dirname(dest))
       $stderr.print "Downloading #{File.basename(dest)}... "
@@ -68,6 +70,9 @@ module Ligarb
       response = fetch_with_redirects(uri)
 
       if response.is_a?(Net::HTTPSuccess)
+        if response.body.bytesize > MAX_ASSET_SIZE
+          abort "Error: downloaded file too large: #{File.basename(dest)} (#{response.body.bytesize} bytes, limit #{MAX_ASSET_SIZE})"
+        end
         File.write(dest, response.body)
         $stderr.puts "done"
       else
@@ -77,11 +82,14 @@ module Ligarb
 
     def fetch_with_redirects(uri, limit = 5)
       raise "Too many redirects" if limit == 0
+      raise "Only HTTPS URLs are supported for asset downloads" unless uri.scheme == "https"
 
       response = Net::HTTP.get_response(uri)
       case response
       when Net::HTTPRedirection
-        fetch_with_redirects(URI(response["location"]), limit - 1)
+        new_uri = URI(response["location"])
+        raise "Redirect to non-HTTPS URL: #{new_uri}" unless new_uri.scheme == "https"
+        fetch_with_redirects(new_uri, limit - 1)
       else
         response
       end

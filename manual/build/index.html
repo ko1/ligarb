@@ -456,6 +456,7 @@ mark.search-highlight {
   --color-accent-light: #1c3a5c;
   --color-code-bg: #0f172a;
   --color-code-border: #2d3748;
+  --color-highlight: rgba(255, 243, 205, 0.15);
 }
 
 [data-theme="dark"] .admonition-note {
@@ -667,6 +668,17 @@ mark.search-highlight {
   text-decoration: underline;
 }
 
+.ligarb-highlight {
+  border-radius: 4px;
+  padding: 4px 6px;
+  animation: ligarb-highlight-fade 3s ease-out forwards;
+}
+
+@keyframes ligarb-highlight-fade {
+  0% { background: var(--color-highlight, #fff3cd); }
+  100% { background: transparent; }
+}
+
 .cite-ref {
   font-size: 0.8em;
 }
@@ -685,6 +697,19 @@ mark.search-highlight {
 
 .cite-ref a:hover {
   text-decoration: underline;
+}
+
+.cite-missing {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 0 3px;
+  border-radius: 2px;
+  cursor: help;
+}
+
+[data-theme="dark"] .cite-missing {
+  color: #ef9a9a;
+  background: rgba(211, 47, 47, 0.15);
 }
 
 /* === Index === */
@@ -1887,7 +1912,7 @@ bibliography: references.bib   # BibTeX 形式
   <li>参考文献は著者名・年でソートされます</li>
   <li><code>url</code> がある場合、タイトルがリンクになります</li>
   <li><code>doi</code> がある場合、末尾に DOI リンクが追加されます</li>
-  <li>存在しないキーを <code>#cite:</code> で参照するとビルドエラーになります</li>
+  <li>存在しないキーを <code>#cite:</code> で参照すると警告が出力され、<code>[key?]</code> と赤色で表示されます（ビルドは中断しません）</li>
   <li><code>bibliography</code> を設定していない場合、参考文献セクションは生成されません</li>
 </ul>
 
@@ -2058,7 +2083,7 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
 <ol>
   <li><strong>テキスト選択</strong>: 本文中のテキストをドラッグで選択すると「Comment」ボタンが表示されます</li>
   <li><strong>コメント入力</strong>: ボタンをクリックするとサイドパネルが開き、コメントを入力できます</li>
-  <li><strong>Claude レビュー</strong>: コメントを送信すると Claude（Opus）がソースファイルを読み、改善提案を返します</li>
+  <li><strong>Claude レビュー</strong>: コメントを送信すると Claude（Opus）が <code>book.yml</code> を読み、必要に応じて全章や参考文献ファイルを参照して改善提案を返します。複数の章にまたがるパッチも生成できます</li>
   <li><strong>パッチ確認</strong>: メッセージ内の「Show patch」ボタンで、提案された変更の diff（赤=削除、緑=追加）を確認できます</li>
   <li><strong>議論</strong>: 提案に対して返信し、さらに議論を続けることもできます</li>
 </ol>
@@ -2770,8 +2795,17 @@ book.yml にも登録してください。
     showChapter(slug, headingId);
     setTimeout(function() {
       var target = document.getElementById(headingId);
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        highlightElement(target);
+      }
     }, 50);
+  }
+
+  function highlightElement(el) {
+    var prev = document.querySelector('.ligarb-highlight');
+    if (prev) prev.classList.remove('ligarb-highlight');
+    el.classList.add('ligarb-highlight');
   }
 
   // Navigate to chapter/heading based on current URL hash
