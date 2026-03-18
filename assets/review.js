@@ -507,6 +507,7 @@
       }
 
       body.innerHTML = '';
+      reviews.reverse();
       reviews.forEach(function(r) {
         var item = document.createElement('div');
         item.className = 'ligarb-list-item ligarb-list-' + r.status;
