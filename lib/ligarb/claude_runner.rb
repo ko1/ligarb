@@ -135,7 +135,11 @@ module Ligarb
       # Rebuild
       config_path = File.join(@config.base_dir, "book.yml")
       require_relative "builder"
-      Builder.new(config_path).build
+      begin
+        Builder.new(config_path).build
+      rescue SystemExit => e
+        return { "error" => "Applied #{applied}/#{total} patch(es) but rebuild failed: #{e.message}" }
+      end
 
       { "text" => "Applied #{applied}/#{total} patch(es) and rebuilt." }
     end
