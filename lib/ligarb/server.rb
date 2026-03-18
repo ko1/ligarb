@@ -49,6 +49,7 @@ module Ligarb
 
       server = WEBrick::HTTPServer.new(
         Port: @port,
+        BindAddress: "127.0.0.1",
         Logger: WEBrick::Log.new($stderr, WEBrick::Log::INFO),
         AccessLog: [[File.open(File::NULL, "w"), WEBrick::AccessLog::COMMON_LOG_FORMAT]],
         RequestBodyMaxSize: 50 * 1024 * 1024
@@ -220,7 +221,8 @@ module Ligarb
       file_path = File.join(build_dir, path)
       file_path = File.realpath(file_path) rescue nil
 
-      if file_path && file_path.start_with?(File.realpath(build_dir)) && File.file?(file_path)
+      real_build_dir = File.realpath(build_dir)
+      if file_path && (file_path.start_with?(real_build_dir + "/") || file_path == real_build_dir) && File.file?(file_path)
         res.body = File.binread(file_path)
         res["Content-Type"] = mime_type(file_path)
       else
