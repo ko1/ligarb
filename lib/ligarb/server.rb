@@ -14,7 +14,7 @@ module Ligarb
 
     BookEntry = Struct.new(:slug, :config, :config_path, :build_dir, :store, :claude, keyword_init: true)
 
-    def initialize(config_paths, port: 3000)
+    def initialize(config_paths, port: 3000, multi: false)
       @port = port
       @assets_dir = File.join(File.dirname(__FILE__), "..", "..", "assets")
       @sse_clients = [] # [[slug, queue], ...]
@@ -37,7 +37,7 @@ module Ligarb
         )
       end
 
-      @multi = @books.size > 1
+      @multi = multi || @books.size > 1
     end
 
     def start
@@ -251,10 +251,13 @@ module Ligarb
 
     def serve_index_page(res)
       books_data = @books.values.sort_by { |b| b.config.title }.map { |book|
+        html_path = File.join(book.build_dir, "index.html")
+        mtime = File.exist?(html_path) ? File.mtime(html_path).strftime("%Y-%m-%d %H:%M") : nil
         {
           slug: book.slug,
           title: book.config.title,
           author: book.config.author.to_s,
+          updated_at: mtime,
           toc: build_toc(book)
         }
       }
@@ -267,7 +270,7 @@ module Ligarb
         <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>ligarb</title>
+        <title>ligarb librarium</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { font-family: system-ui, -apple-system, sans-serif; color: #333; height: 100vh; display: flex; flex-direction: column; }
@@ -280,6 +283,7 @@ module Ligarb
           .idx-book.active { background: #eff6ff; border-left: 3px solid #2563eb; padding-left: 13px; }
           .idx-book-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
           .idx-book-author { font-size: 13px; color: #666; margin-top: 2px; }
+          .idx-book-updated { font-size: 12px; color: #999; margin-top: 2px; }
           .idx-badge { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; white-space: nowrap; }
           .idx-badge-writing { background: #fff3e0; color: #e65100; animation: idx-pulse 1.5s ease-in-out infinite; }
           .idx-badge-done { background: #e8f5e9; color: #2e7d32; }
@@ -321,7 +325,7 @@ module Ligarb
         </style>
         </head>
         <body>
-        <div class="idx-header">Books</div>
+        <div class="idx-header">Machinascripta</div>
         <div class="idx-container">
           <div class="idx-books">
             <div class="idx-books-list" id="idx-books"></div>
@@ -363,7 +367,8 @@ module Ligarb
           var job = writeJobs.find(function(j) { return j.slug === book.slug && j.status === 'done'; });
           if (job) badge = ' <span class="idx-badge idx-badge-done">New!</span>';
           el.innerHTML = '<div class="idx-book-title">' + esc(book.title) + badge + '</div>' +
-            (book.author ? '<div class="idx-book-author">' + esc(book.author) + '</div>' : '');
+            (book.author ? '<div class="idx-book-author">' + esc(book.author) + '</div>' : '') +
+            (book.updated_at ? '<div class="idx-book-updated">' + esc(book.updated_at) + '</div>' : '');
           el.addEventListener('click', function() {
             if (activeEl) activeEl.classList.remove('active');
             el.classList.add('active');

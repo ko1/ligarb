@@ -22,8 +22,16 @@ module Ligarb
         config_paths = ["book.yml"] if config_paths.empty?
         port_idx = args.index("--port")
         port = port_idx ? args[port_idx + 1].to_i : 3000
+        multi = args.include?("--multi")
         require_relative "server"
-        Server.new(config_paths, port: port).start
+        Server.new(config_paths, port: port, multi: multi).start
+      when "librarium"
+        config_paths = Dir.glob("*/book.yml").sort
+        abort "Error: no */book.yml found in current directory" if config_paths.empty?
+        port_idx = args.index("--port")
+        port = port_idx ? args[port_idx + 1].to_i : 3000
+        require_relative "server"
+        Server.new(config_paths, port: port, multi: true).start
       when "write"
         require_relative "writer"
         begin
@@ -59,6 +67,7 @@ module Ligarb
           ligarb init [DIRECTORY]  Create a new book project
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
           ligarb serve [CONFIG]   Serve the book with live reload and review UI
+          ligarb librarium       Serve all */book.yml as a multi-book library
           ligarb write [BRIEF]         Generate a book with AI from brief.yml
           ligarb write --init [DIR]    Create DIR/brief.yml template
           ligarb help              Show detailed specification (for AI integration)
@@ -127,9 +136,10 @@ module Ligarb
                                 Multiple CONFIG paths can be given to serve multiple books.
                                 Options:
                                   --port PORT  Server port (default: 3000)
-                                Single book mode (1 CONFIG):
+                                  --multi      Force multi-book mode (even with 1 CONFIG)
+                                Single book mode (1 CONFIG, without --multi):
                                 - Serves the built HTML book at http://localhost:PORT
-                                Multi-book mode (2+ CONFIGs):
+                                Multi-book mode (2+ CONFIGs, or --multi):
                                 - Top page (/) shows a book index with links
                                 - Each book is served at /<directory-name>/
                                 - "Write a new book" button on the index page to generate
@@ -145,6 +155,12 @@ module Ligarb
                                   to the source Markdown files and the book is rebuilt
                                 - Review patches can span multiple chapters and the
                                   bibliography file (Claude reads book.yml to find all files)
+
+        ligarb librarium        Start a multi-book library server.
+                                Automatically discovers */book.yml in the current directory.
+                                Equivalent to: ligarb serve --multi */book.yml
+                                Options:
+                                  --port PORT  Server port (default: 3000)
 
         ligarb help             Show this detailed specification.
 

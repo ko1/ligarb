@@ -53,6 +53,27 @@
             });
           }
           window.scrollTo(0, scrollY);
+
+          // Re-initialize syntax highlighting and special blocks
+          if (typeof hljs !== 'undefined') hljs.highlightAll();
+          if (typeof mermaid !== 'undefined') {
+            var unrendered = oldMain.querySelectorAll('.mermaid:not([data-processed])');
+            if (unrendered.length > 0) mermaid.run({nodes: unrendered});
+          }
+          if (typeof katex !== 'undefined') {
+            oldMain.querySelectorAll('.math-block[data-math]').forEach(function(el) {
+              if (el.childNodes.length === 0) {
+                try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
+                catch(e) { el.textContent = el.getAttribute('data-math'); }
+              }
+            });
+            oldMain.querySelectorAll('.math-inline[data-math]').forEach(function(el) {
+              if (el.childNodes.length === 0) {
+                try { katex.render(el.getAttribute('data-math'), el, {displayMode: false, throwOnError: false}); }
+                catch(e) { el.textContent = el.getAttribute('data-math'); }
+              }
+            });
+          }
         }
         refreshing = false;
         hideReloadButton();
