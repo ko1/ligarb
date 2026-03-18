@@ -6,7 +6,7 @@ require_relative "cli"
 
 module Ligarb
   class ClaudeRunner
-    PATCH_RE = %r{<patch(?:\s+file="([^"]*)")?>\s*<<<\n(.*?)\n===\n(.*?)\n>>>\s*</patch>}m
+    PATCH_RE = %r{<patch(?:\s+file="([^"]*)")?>\s*<<<[ \t]*\r?\n(.*?)\r?\n===[ \t]*\r?\n(.*?)\r?\n>>>[ \t]*\s*</patch>}m
 
     def initialize(config)
       @config = config
@@ -90,7 +90,10 @@ module Ligarb
     # Supports cross-chapter patches via the file attribute.
     def apply_patches(review)
       patches = extract_patches(review)
-      return { "error" => "No patches found in the conversation" } if patches.empty?
+      if patches.empty?
+        hint = has_unmatched_patches?(review) ? " (patch tags found but format didn't match)" : ""
+        return { "error" => "No patches found in the conversation#{hint}" }
+      end
 
       default_source = review.dig("context", "source_file")
 
@@ -169,6 +172,13 @@ module Ligarb
           return patches unless patches.empty?
         end
       []
+    end
+
+    # Check if assistant messages contain <patch> tags that didn't match PATCH_RE.
+    def has_unmatched_patches?(review)
+      (review["messages"] || [])
+        .select { |m| m["role"] == "assistant" }
+        .any? { |m| m["content"].include?("<patch") && m["content"].include?("</patch>") }
     end
 
     private

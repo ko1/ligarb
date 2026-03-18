@@ -331,7 +331,7 @@
     var patches = '';
 
     parts.forEach(function(part) {
-      var m = part.match(/<patch(?:\s+file="([^"]*)")?>[\s\S]*?<<<\n([\s\S]*?)\n===\n([\s\S]*?)\n>>>\s*<\/patch>/);
+      var m = part.match(/<patch(?:\s+file="([^"]*)")?>\s*<<<[ \t]*\r?\n([\s\S]*?)\r?\n===[ \t]*\r?\n([\s\S]*?)\r?\n>>>[ \t]*\s*<\/patch>/);
       if (m) {
         hasPatch = true;
         var fileLabel = m[1] ? '<div class="ligarb-patch-file">' + escapeHTML(m[1]) + '</div>' : '';
