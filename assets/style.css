@@ -447,6 +447,7 @@ mark.search-highlight {
   --color-accent-light: #1c3a5c;
   --color-code-bg: #0f172a;
   --color-code-border: #2d3748;
+  --color-highlight: rgba(255, 243, 205, 0.15);
 }
 
 [data-theme="dark"] .admonition-note {
@@ -656,6 +657,17 @@ mark.search-highlight {
 
 .bibliography-list li a:hover {
   text-decoration: underline;
+}
+
+.ligarb-highlight {
+  border-radius: 4px;
+  padding: 4px 6px;
+  animation: ligarb-highlight-fade 3s ease-out forwards;
+}
+
+@keyframes ligarb-highlight-fade {
+  0% { background: var(--color-highlight, #fff3cd); }
+  100% { background: transparent; }
 }
 
 .cite-ref {

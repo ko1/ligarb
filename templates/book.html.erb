@@ -254,8 +254,17 @@
     showChapter(slug, headingId);
     setTimeout(function() {
       var target = document.getElementById(headingId);
-      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        highlightElement(target);
+      }
     }, 50);
+  }
+
+  function highlightElement(el) {
+    var prev = document.querySelector('.ligarb-highlight');
+    if (prev) prev.classList.remove('ligarb-highlight');
+    el.classList.add('ligarb-highlight');
   }
 
   // Navigate to chapter/heading based on current URL hash
