@@ -18,8 +18,8 @@ module Ligarb
 
     # Run claude -p with the given prompt. Returns the text response.
     def run(prompt)
-      cmd = ["claude", "-p", prompt, "--model", "opus", "--output-format", "json"]
-      stdout, stderr, status = Open3.capture3(*cmd)
+      cmd = ["claude", "-p", "-", "--model", "opus", "--output-format", "json"]
+      stdout, stderr, status = Open3.capture3(*cmd, stdin_data: prompt)
 
       unless status.success?
         return { "error" => "Claude process failed: #{stderr.strip}" }
