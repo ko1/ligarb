@@ -47,6 +47,7 @@ module Ligarb
       uploaded_section = uploaded_files_prompt_section(ctx)
 
       all_chapters = all_chapters_section(source_file)
+      bib_section = bibliography_section
 
       <<~PROMPT
         You are reviewing a book built with ligarb.
@@ -56,7 +57,7 @@ module Ligarb
         </ligarb-spec>
         #{sources_section}#{uploaded_section}
         The comment was made on: #{relative_path(source_file)}
-        #{all_chapters}
+        #{all_chapters}#{bib_section}
         The reader selected this text: "#{ctx["selected_text"]}"
         Under heading: #{ctx["heading_id"]}
 
@@ -75,10 +76,11 @@ module Ligarb
         </patch>
 
         Rules:
-        - The file attribute must be the relative path shown in the chapter headings above
+        - The file attribute must be the relative path shown in the chapter/bibliography headings above
         - The text between <<< and === must match the source file EXACTLY (whitespace included)
         - You may include multiple <patch> blocks for one or more files
         - If the comment applies to multiple chapters, provide patches for ALL relevant chapters
+        - When adding citations ([@key]), also add the corresponding entry to the bibliography file
         - Use ligarb Markdown features (admonitions, cross-references, index, etc.) where appropriate
         - If no code change is needed (e.g. answering a question), omit the <patch> blocks
       PROMPT
@@ -195,6 +197,24 @@ module Ligarb
         lines << "```"
       end
       lines.join("\n")
+    end
+
+    # Build a section showing the bibliography file contents.
+    def bibliography_section
+      bib_path = @config.bibliography_path
+      return "" unless bib_path && File.exist?(bib_path)
+
+      rel = relative_path(bib_path)
+      content = File.read(bib_path)
+      <<~SECTION
+
+        Bibliography file:
+
+        ### #{rel}
+        ```
+        #{content}
+        ```
+      SECTION
     end
 
     # Convert absolute path to relative path from base_dir.
