@@ -36,18 +36,15 @@ module Ligarb
 
     # Build prompt for reviewing a comment on selected text.
     # Asks Claude to include <patch> blocks with concrete replacements.
-    # Includes all chapter contents so Claude can produce cross-chapter patches.
+    # Points Claude to book.yml so it can read chapters and bibliography as needed.
     def review_prompt(review)
       ctx = review["context"]
       source_file = ctx["source_file"]
+      config_path = File.join(@config.base_dir, "book.yml")
 
       messages = review["messages"].map { |m| "#{m["role"]}: #{m["content"]}" }.join("\n\n")
 
-      sources_section = sources_prompt_section
       uploaded_section = uploaded_files_prompt_section(ctx)
-
-      all_chapters = all_chapters_section(source_file)
-      bib_section = bibliography_section
 
       <<~PROMPT
         You are reviewing a book built with ligarb.
@@ -55,9 +52,12 @@ module Ligarb
         <ligarb-spec>
         #{CLI.spec_text}
         </ligarb-spec>
-        #{sources_section}#{uploaded_section}
-        The comment was made on: #{relative_path(source_file)}
-        #{all_chapters}#{bib_section}
+        #{uploaded_section}
+        Book configuration: #{config_path}
+        Read this file first to understand the book structure (chapters, bibliography, sources, etc.).
+        Then read the chapter files and other files as needed to respond to the comment.
+
+        The comment was made on: #{source_file}
         The reader selected this text: "#{ctx["selected_text"]}"
         Under heading: #{ctx["heading_id"]}
 
@@ -76,10 +76,10 @@ module Ligarb
         </patch>
 
         Rules:
-        - The file attribute must be the relative path shown in the chapter/bibliography headings above
+        - The file attribute must be the path relative to the directory containing book.yml
         - The text between <<< and === must match the source file EXACTLY (whitespace included)
         - You may include multiple <patch> blocks for one or more files
-        - If the comment applies to multiple chapters, provide patches for ALL relevant chapters
+        - If the comment applies to multiple chapters, read all relevant chapters and provide patches for each
         - When adding citations ([@key]), also add the corresponding entry to the bibliography file
         - Use ligarb Markdown features (admonitions, cross-references, index, etc.) where appropriate
         - If no code change is needed (e.g. answering a question), omit the <patch> blocks
@@ -146,17 +146,6 @@ module Ligarb
       { "text" => "Applied #{applied}/#{total} patch(es) and rebuilt." }
     end
 
-    def sources_prompt_section
-      return "" if @config.sources.empty?
-
-      lines = ["\nReference sources (read these files for context):"]
-      @config.sources.each do |src|
-        lines << "- #{src.label}: #{src.path}"
-      end
-      lines << ""
-      lines.join("\n")
-    end
-
     def uploaded_files_prompt_section(ctx)
       files = ctx["uploaded_files"]
       return "" unless files.is_a?(Array) && !files.empty?
@@ -183,47 +172,6 @@ module Ligarb
     end
 
     private
-
-    # Build a section showing all chapter contents for cross-chapter context.
-    def all_chapters_section(commented_file)
-      lines = ["\nAll chapters in this book:"]
-      @config.all_file_paths.each do |path|
-        rel = relative_path(path)
-        marker = path == commented_file ? " (commented chapter)" : ""
-        content = File.exist?(path) ? File.read(path) : "(file not found)"
-        lines << "\n### #{rel}#{marker}"
-        lines << "```markdown"
-        lines << content
-        lines << "```"
-      end
-      lines.join("\n")
-    end
-
-    # Build a section showing the bibliography file contents.
-    def bibliography_section
-      bib_path = @config.bibliography_path
-      return "" unless bib_path && File.exist?(bib_path)
-
-      rel = relative_path(bib_path)
-      content = File.read(bib_path)
-      <<~SECTION
-
-        Bibliography file:
-
-        ### #{rel}
-        ```
-        #{content}
-        ```
-      SECTION
-    end
-
-    # Convert absolute path to relative path from base_dir.
-    def relative_path(path)
-      return path unless path
-
-      base = @config.base_dir + "/"
-      path.start_with?(base) ? path.delete_prefix(base) : path
-    end
 
     # Resolve a relative path from a patch to an absolute path.
     def resolve_patch_file(rel_path)
