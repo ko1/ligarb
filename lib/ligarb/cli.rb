@@ -310,9 +310,11 @@ module Ligarb
         and build/css/.
 
         ```ruby, ```python, etc.   Syntax highlighting (highlight.js, BSD-3-Clause)
-        ```mermaid                  Diagrams: flowcharts, sequence, class, etc.
+        ```mermaid                  Diagrams: flowcharts, sequence, bar/line/pie charts,
+                                    gantt, mindmap, etc.
                                     (mermaid, MIT)
         ```math                     LaTeX math equations (KaTeX, MIT)
+        ```functionplot             Function graphs (function-plot + d3, MIT)
 
         These are rendered visually in the output HTML — use them freely.
 
@@ -333,6 +335,64 @@ module Ligarb
                 Server-->>Client: Response
             ```
 
+        Mermaid example (bar chart):
+
+            ```mermaid
+            xychart
+                title "Monthly Sales"
+                x-axis ["Jan", "Feb", "Mar", "Apr", "May"]
+                y-axis "Revenue" 0 --> 500
+                bar [120, 230, 180, 350, 410]
+                line [120, 230, 180, 350, 410]
+            ```
+
+        Mermaid example (line chart, line only):
+
+            ```mermaid
+            xychart
+                title "Temperature"
+                x-axis ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+                y-axis "°C" -5 --> 30
+                line [2, 4, 10, 16, 22, 26]
+            ```
+
+        Mermaid example (pie chart):
+
+            ```mermaid
+            pie title Browser Share
+                "Chrome" : 65
+                "Safari" : 19
+                "Firefox" : 4
+                "Other" : 12
+            ```
+
+        Mermaid example (gantt chart):
+
+            ```mermaid
+            gantt
+                title Project Plan
+                dateFormat YYYY-MM-DD
+                section Design
+                    Requirements :a1, 2025-01-01, 14d
+                    Architecture :a2, after a1, 10d
+                section Dev
+                    Implementation :b1, after a2, 21d
+                    Testing        :b2, after b1, 14d
+            ```
+
+        Mermaid example (mindmap):
+
+            ```mermaid
+            mindmap
+                root((Project))
+                    Frontend
+                        React
+                        CSS
+                    Backend
+                        API
+                        Database
+            ```
+
         Math example (KaTeX, LaTeX syntax):
 
             ```math
@@ -349,6 +409,28 @@ module Ligarb
         - $ preceded by a space is not matched
         - Content inside <code> and <pre> is not affected
         - The content is rendered with KaTeX (displayMode: false)
+
+        Function plot example:
+
+            ```functionplot
+            y = sin(x)
+            y = x^2 - 1
+            range: [-2pi, 2pi]
+            yrange: [-3, 3]
+            ```
+
+        Function plot syntax:
+        - y = <expr>                   Standard function (e.g. y = sin(x))
+        - r = <expr>                   Polar function (e.g. r = cos(2*theta))
+        - parametric: <x>, <y>         Parametric curve (e.g. parametric: cos(t), sin(t))
+        - Bare expression              Treated as y = <expr>
+        Options (one per line):
+        - range / xrange: [min, max]   X-axis range (supports pi, e.g. [-2pi, 2pi])
+        - yrange: [min, max]           Y-axis range
+        - width: <pixels>              Plot width (default: 600)
+        - height: <pixels>             Plot height (default: 400)
+        - title: <text>                Plot title
+        - grid: true                   Show grid lines
 
         == Images ==
 

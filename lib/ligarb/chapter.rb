@@ -166,14 +166,18 @@ module Ligarb
     end
 
     def convert_special_code_blocks(html)
-      html.gsub(%r{<pre><code class="language-(mermaid|math)">(.*?)</code></pre>}m) do
+      html.gsub(%r{<pre><code class="language-(mermaid|math|functionplot)">(.*?)</code></pre>}m) do
         lang = $1
         raw = decode_entities($2)
         case lang
         when "mermaid"
-          %(<div class="mermaid">\n#{raw}</div>)
+          escaped = raw.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
+          %(<div class="mermaid">\n#{raw}</div>) +
+            %(<details class="mermaid-source"><summary>mermaid source</summary><pre>#{escaped}</pre></details>)
         when "math"
           %(<div class="math-block" data-math="#{encode_attr(raw)}"></div>)
+        when "functionplot"
+          %(<div class="functionplot" data-plot="#{encode_attr(raw)}"></div>)
         end
       end
     end

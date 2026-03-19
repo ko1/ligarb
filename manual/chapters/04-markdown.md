@@ -75,6 +75,70 @@ sequenceDiagram
     S-->>U: レスポンス
 ```
 
+棒グラフ（`xychart`）:
+
+```mermaid
+xychart
+    title "月別売上"
+    x-axis ["1月", "2月", "3月", "4月", "5月", "6月"]
+    y-axis "売上 (万円)" 0 --> 500
+    bar [120, 230, 180, 350, 410, 300]
+    line [120, 230, 180, 350, 410, 300]
+```
+
+折れ線グラフ（`xychart`、`line` のみ）:
+
+```mermaid
+xychart
+    title "気温の推移"
+    x-axis ["1月", "2月", "3月", "4月", "5月", "6月"]
+    y-axis "気温 (℃)" -5 --> 30
+    line [2, 4, 10, 16, 22, 26]
+```
+
+円グラフ:
+
+```mermaid
+pie title ブラウザシェア
+    "Chrome" : 65
+    "Safari" : 19
+    "Firefox" : 4
+    "Edge" : 4
+    "その他" : 8
+```
+
+ガントチャート:
+
+```mermaid
+gantt
+    title プロジェクト計画
+    dateFormat YYYY-MM-DD
+    section 設計
+        要件定義      :a1, 2025-01-01, 14d
+        基本設計      :a2, after a1, 10d
+    section 開発
+        実装          :b1, after a2, 21d
+        テスト        :b2, after b1, 14d
+```
+
+マインドマップ:
+
+```mermaid
+mindmap
+    root((ligarb))
+        Markdown
+            GFM
+            コードブロック
+            数式
+        ビルド
+            HTML生成
+            アセット管理
+        機能
+            目次
+            索引
+            参考文献
+```
+
 > Mermaid の詳しい記法は [公式ドキュメント](https://mermaid.js.org/intro/) を参照してください。
 
 ### 数式（KaTeX）
@@ -99,6 +163,47 @@ x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
 ```math
 A = \begin{pmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{pmatrix}
 ```
+
+### 関数グラフ（functionplot）
+
+` ```functionplot` で関数のグラフを描画できます。
+
+```functionplot
+y = sin(x)
+y = x^2 - 1
+range: [-2pi, 2pi]
+yrange: [-3, 3]
+```
+
+1行に1つの関数を書きます。`y = <式>` の形式が基本です:
+
+```functionplot
+y = cos(x) * exp(-x/5)
+range: [0, 20]
+title: 減衰振動
+grid: true
+```
+
+極座標やパラメトリック曲線にも対応しています:
+
+```functionplot
+r = cos(2*theta)
+```
+
+```functionplot
+parametric: cos(t), sin(t)
+range: [-2pi, 2pi]
+width: 400
+height: 400
+```
+
+オプションは `key: value` の形式で指定します:
+
+- `range` / `xrange` — X軸の範囲（例: `[-2pi, 2pi]`）
+- `yrange` — Y軸の範囲
+- `width` / `height` — サイズ（ピクセル、デフォルト: 600×400）
+- `title` — グラフのタイトル
+- `grid: true` — グリッド線の表示
 
 > これらの外部ライブラリは、該当するコードブロックが Markdown 内に存在する場合のみ
 > ビルド時に自動的にダウンロードされ、`build/js/` と `build/css/` に配置されます。

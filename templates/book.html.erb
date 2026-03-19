@@ -248,6 +248,74 @@
         }
       });
     }
+    if (typeof functionPlot !== 'undefined') {
+      section.querySelectorAll('.functionplot[data-plot]').forEach(function(el) {
+        if (el.childNodes.length > 0) return;
+        try {
+          var spec = el.getAttribute('data-plot');
+          var opts = parseFunctionPlotSpec(spec);
+          opts.target = el;
+          functionPlot(opts);
+        } catch(e) {
+          el.textContent = 'Error rendering plot: ' + e.message;
+          el.style.color = 'red';
+        }
+      });
+    }
+  }
+
+  // Parse functionplot spec: lines of "y = expr" and "key: value" options
+  function parseFunctionPlotSpec(spec) {
+    var lines = spec.split('\n');
+    var fns = [];
+    var opts = {width: 600, height: 400};
+    lines.forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      // Option lines: key: value
+      var optMatch = line.match(/^(xrange|yrange|range|width|height|title|grid)\s*:\s*(.+)$/i);
+      if (optMatch) {
+        var key = optMatch[1].toLowerCase();
+        var val = optMatch[2].trim();
+        if (key === 'range' || key === 'xrange') {
+          opts.xAxis = {domain: parseRange(val)};
+        } else if (key === 'yrange') {
+          opts.yAxis = {domain: parseRange(val)};
+        } else if (key === 'width') {
+          opts.width = parseInt(val, 10);
+        } else if (key === 'height') {
+          opts.height = parseInt(val, 10);
+        } else if (key === 'title') {
+          opts.title = val;
+        } else if (key === 'grid') {
+          opts.grid = val === 'true';
+        }
+        return;
+      }
+      // Function lines: y = expr, r = expr (polar), x = expr (implicit), or bare expr
+      var fnMatch = line.match(/^y\s*=\s*(.+)$/);
+      if (fnMatch) { fns.push({fn: fnMatch[1].trim()}); return; }
+      var polarMatch = line.match(/^r\s*=\s*(.+)$/);
+      if (polarMatch) { fns.push({r: polarMatch[1].trim(), fnType: 'polar', graphType: 'polyline'}); return; }
+      var paramMatch = line.match(/^parametric\s*:\s*(.+?)\s*,\s*(.+)$/);
+      if (paramMatch) { fns.push({x: paramMatch[1].trim(), y: paramMatch[2].trim(), fnType: 'parametric', graphType: 'polyline'}); return; }
+      // Bare expression treated as y = expr
+      fns.push({fn: line});
+    });
+    opts.data = fns;
+    return opts;
+  }
+
+  function parseRange(str) {
+    var m = str.match(/\[?\s*(-?[\d.eE+piPI*\/]+)\s*,\s*(-?[\d.eE+piPI*\/]+)\s*\]?/);
+    if (!m) return [-10, 10];
+    return [evalRangeNum(m[1]), evalRangeNum(m[2])];
+  }
+
+  function evalRangeNum(s) {
+    s = s.replace(/pi/gi, String(Math.PI));
+    try { return Function('"use strict"; return (' + s + ')')(); }
+    catch(e) { return parseFloat(s) || 0; }
   }
 
   function showChapterAndScroll(slug, headingId) {
@@ -549,6 +617,11 @@ renderSpecialBlocks();
 <%- end -%>
 <%- if assets.need?(:katex) -%>
 <script src="js/katex.min.js"></script>
+<script>renderSpecialBlocks();</script>
+<%- end -%>
+<%- if assets.need?(:functionplot) -%>
+<script src="js/d3.min.js"></script>
+<script src="js/function-plot.min.js"></script>
 <script>renderSpecialBlocks();</script>
 <%- end -%>
 </body>

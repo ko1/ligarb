@@ -72,7 +72,9 @@ class ChapterTest < Minitest::Test
   def test_mermaid_conversion
     make_chapter("```mermaid\ngraph TD\n  A-->B\n```") do |ch|
       assert_includes ch.html, '<div class="mermaid">'
-      refute_includes ch.html, '<pre>'
+      assert_includes ch.html, '<details class="mermaid-source">'
+      assert_includes ch.html, 'graph TD'
+      refute_includes ch.html, '<pre><code class="language-mermaid">'
     end
   end
 

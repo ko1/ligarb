@@ -827,3 +827,27 @@ mark.search-highlight {
     }
   }
 }
+
+/* === Mermaid source toggle === */
+details.mermaid-source {
+  margin-top: 0.3em;
+  font-size: 0.8em;
+}
+details.mermaid-source summary {
+  cursor: pointer;
+  color: #888;
+  user-select: none;
+}
+details.mermaid-source pre {
+  margin-top: 0.3em;
+  padding: 0.5em;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+.dark-mode details.mermaid-source pre {
+  background: #2a2a2a;
+  border-color: #444;
+}

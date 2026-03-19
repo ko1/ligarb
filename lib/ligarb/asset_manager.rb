@@ -9,7 +9,7 @@ module Ligarb
   class AssetManager
     ASSETS = {
       highlight: {
-        fence_pattern: /language-(?!mermaid|math)(\w+)/,
+        fence_pattern: /language-(?!mermaid|math|functionplot)(\w+)/,
         files: {
           "js/highlight.min.js" => "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js",
           "css/highlight.css" => "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github.min.css",
@@ -26,6 +26,13 @@ module Ligarb
         files: {
           "js/katex.min.js" => "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js",
           "css/katex.min.css" => "https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css",
+        },
+      },
+      functionplot: {
+        fence_pattern: /class="functionplot"/,
+        files: {
+          "js/d3.min.js" => "https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js",
+          "js/function-plot.min.js" => "https://cdn.jsdelivr.net/npm/function-plot@1/dist/function-plot.js",
         },
       },
     }.freeze
