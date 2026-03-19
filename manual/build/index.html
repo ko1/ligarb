@@ -895,6 +895,12 @@ details.mermaid-source pre {
                 <a href="#01-introduction--特徴" class="toc-h2" onclick="showChapterAndScroll('01-introduction', '01-introduction--特徴')">1.2 特徴</a>
               </li>
               <li>
+                <a href="#01-introduction--生成物" class="toc-h3" onclick="showChapterAndScroll('01-introduction', '01-introduction--生成物')">1.2.1 生成物</a>
+              </li>
+              <li>
+                <a href="#01-introduction--執筆支援" class="toc-h3" onclick="showChapterAndScroll('01-introduction', '01-introduction--執筆支援')">1.2.2 執筆支援</a>
+              </li>
+              <li>
                 <a href="#01-introduction--このマニュアルについて" class="toc-h2" onclick="showChapterAndScroll('01-introduction', '01-introduction--このマニュアルについて')">1.3 このマニュアルについて</a>
               </li>
             </ul>
@@ -1131,10 +1137,13 @@ details.mermaid-source pre {
                 <a href="#07-ai--briefyml-の書き方" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--briefyml-の書き方')">7.1.2 brief.yml の書き方</a>
               </li>
               <li>
-                <a href="#07-ai--ai-生成コンテンツの表示" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--ai-生成コンテンツの表示')">7.1.3 AI 生成コンテンツの表示</a>
+                <a href="#07-ai--参照ファイルsources" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--参照ファイルsources')">7.1.3 参照ファイル（sources）</a>
               </li>
               <li>
-                <a href="#07-ai--前提条件" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--前提条件')">7.1.4 前提条件</a>
+                <a href="#07-ai--ai-生成コンテンツの表示" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--ai-生成コンテンツの表示')">7.1.4 AI 生成コンテンツの表示</a>
+              </li>
+              <li>
+                <a href="#07-ai--前提条件" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--前提条件')">7.1.5 前提条件</a>
               </li>
               <li>
                 <a href="#07-ai--手動で-ai-を使う" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--手動で-ai-を使う')">7.2 手動で AI を使う</a>
@@ -1216,6 +1225,8 @@ details.mermaid-source pre {
 
 <h2 id="01-introduction--特徴">1.2 特徴</h2>
 
+<h3 id="01-introduction--生成物">1.2.1 生成物</h3>
+
 <ul>
   <li><strong>単一 HTML 出力</strong>: すべての章を1つの <code>index.html</code> にまとめます</li>
   <li><strong>検索可能な<span id="01-introduction--idx-2">目次</span></strong>: 左サイドバーに目次を表示し、キーワードで絞り込めます</li>
@@ -1228,6 +1239,14 @@ details.mermaid-source pre {
   <li><strong><span id="01-introduction--idx-8">GitHub 編集リンク</span></strong>: 各章に「Edit on GitHub」リンクを表示できます</li>
   <li><strong>レスポンシブデザイン</strong>: PC でもスマートフォンでも快適に読めます</li>
   <li><strong>印刷対応</strong>: 印刷時はすべての章を展開して出力します</li>
+</ul>
+
+<h3 id="01-introduction--執筆支援">1.2.2 執筆支援</h3>
+
+<ul>
+  <li><strong><a href="#07-ai">AI による自動執筆</a></strong>: 企画書（<code>brief.yml</code>）を書いて <code>ligarb write</code> を実行するだけで、本の生成からビルドまで自動化できます</li>
+  <li><strong><a href="#06-serve">コメント・レビュー機能</a></strong>: <code>ligarb serve</code> で本文中のテキストを選択してコメントすると、Claude が改善提案やパッチを返します。承認するとソースファイルに自動反映されます</li>
+  <li><strong><a href="#07-ai">手動 AI 連携</a></strong>: <code>ligarb help</code> の出力を AI に渡すことで、仕様を正確に理解した上で章の追加や編集を指示できます</li>
 </ul>
 
 <h2 id="01-introduction--このマニュアルについて">1.3 このマニュアルについて</h2>
@@ -2487,6 +2506,11 @@ notes: |
       <td>追加の指示・要望（自由記述）</td>
     </tr>
     <tr>
+      <td><code>sources</code></td>
+      <td>いいえ</td>
+      <td>AI が参照するファイル一覧（下記参照）</td>
+    </tr>
+    <tr>
       <td><code>author</code></td>
       <td>いいえ</td>
       <td>著者名（book.yml に反映）</td>
@@ -2516,7 +2540,20 @@ notes: |
 
 <p><code>notes</code> に何でも書けるので、章数の希望、スタイルの指示、含めたい内容、除外したい内容などを自由に記述できます。</p>
 
-<h3 id="07-ai--ai-生成コンテンツの表示">7.1.3 AI 生成コンテンツの表示</h3>
+<h3 id="07-ai--参照ファイルsources">7.1.3 参照ファイル（sources）</h3>
+
+<p><code>sources</code> を指定すると、AI がそのファイルを読んだ上で本を執筆します。既存の資料やメモをもとに本を書かせたいときに便利です:</p>
+
+<pre><code class="language-yaml">title: "社内システム解説"
+sources:
+  - architecture.md
+  - path: notes/meeting-2025-03.md
+    label: "3月会議メモ"
+</code></pre>
+
+<p>文字列で指定するとファイル名がそのままラベルになります。<code>path</code> と <code>label</code> を個別に指定することもできます。パスは <code>brief.yml</code> からの相対パスです。</p>
+
+<h3 id="07-ai--ai-生成コンテンツの表示">7.1.4 AI 生成コンテンツの表示</h3>
 
 <p><code>ligarb write</code> で生成した本には、<code>book.yml</code> に <code>ai_generated: true</code> が自動で設定されます。これにより:</p>
 
@@ -2534,7 +2571,7 @@ footer: "AI生成コンテンツです。内容を鵜呑みにしないでくだ
 
 <p><code>footer</code> は <code>ai_generated</code> とは独立して使うこともできます（著作権表示など）。</p>
 
-<h3 id="07-ai--前提条件">7.1.4 前提条件</h3>
+<h3 id="07-ai--前提条件">7.1.5 前提条件</h3>
 
 <p><a href="https://claude.com/claude-code">Claude Code</a> の CLI（<code>claude</code> コマンド）がインストールされている必要があります。</p>
 

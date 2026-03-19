@@ -658,6 +658,8 @@ module Ligarb
         language:        (optional) Language. Default: "ja".
         audience:        (optional) Target audience (used in the prompt).
         notes:           (optional) Additional instructions for Claude (free text).
+        sources:         (optional) Reference files for AI context. Array of strings
+                         or {path:, label:} objects. Paths relative to brief.yml.
         author:          (optional) Passed through to book.yml.
         output_dir:      (optional) Passed through to book.yml.
         chapter_numbers: (optional) Passed through to book.yml.

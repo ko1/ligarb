@@ -733,6 +733,7 @@ AI（Claude CLI）を使って、企画書（`brief.yml`）から本を自動生
 | `language` | いいえ | brief + book.yml | 言語（デフォルト: `"ja"`） |
 | `audience` | いいえ | brief のみ | 対象読者（プロンプトに使用） |
 | `notes` | いいえ | brief のみ | 追加の指示・要望（自由記述） |
+| `sources` | いいえ | brief のみ | AI が参照するファイル一覧。文字列または `{path:, label:}` の配列。パスは brief.yml からの相対パス |
 | `author` | いいえ | book.yml に反映 | 著者名 |
 | `output_dir` | いいえ | book.yml に反映 | 出力ディレクトリ |
 | `chapter_numbers` | いいえ | book.yml に反映 | 章番号の表示 |
