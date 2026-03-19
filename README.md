@@ -1,5 +1,9 @@
 # ligarb
 
+<p align="center">
+  <img src="manual/images/logo.svg" alt="ligarb" width="400">
+</p>
+
 複数の Markdown ファイルから単一ページの HTML 本を生成する CLI ツール。
 
 **[マニュアル（実際の出力例）](https://ko1.github.io/ligarb/manual/build/index.html)**
