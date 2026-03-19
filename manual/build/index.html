@@ -1102,10 +1102,7 @@ details.mermaid-source pre {
                 <a href="#06-serve--データの保存先" class="toc-h3" onclick="showChapterAndScroll('06-serve', '06-serve--データの保存先')">6.3.4 データの保存先</a>
               </li>
               <li>
-                <a href="#06-serve--マルチブックモードでの-ai-執筆" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--マルチブックモードでの-ai-執筆')">6.4 マルチブックモードでの AI 執筆</a>
-              </li>
-              <li>
-                <a href="#06-serve--内部-api" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--内部-api')">6.5 内部 API</a>
+                <a href="#06-serve--内部-api" class="toc-h2" onclick="showChapterAndScroll('06-serve', '06-serve--内部-api')">6.4 内部 API</a>
               </li>
             </ul>
           </li>
@@ -1134,13 +1131,10 @@ details.mermaid-source pre {
                 <a href="#07-ai--プロンプト例" class="toc-h3" onclick="showChapterAndScroll('07-ai', '07-ai--プロンプト例')">7.2.1 プロンプト例</a>
               </li>
               <li>
-                <a href="#07-ai--ブラウザから-ai-執筆する" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ブラウザから-ai-執筆する')">7.3 ブラウザから AI 執筆する</a>
+                <a href="#07-ai--注意事項" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--注意事項')">7.3 注意事項</a>
               </li>
               <li>
-                <a href="#07-ai--注意事項" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--注意事項')">7.4 注意事項</a>
-              </li>
-              <li>
-                <a href="#07-ai--ポイント" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ポイント')">7.5 ポイント</a>
+                <a href="#07-ai--ポイント" class="toc-h2" onclick="showChapterAndScroll('07-ai', '07-ai--ポイント')">7.4 ポイント</a>
               </li>
             </ul>
           </li>
@@ -2305,31 +2299,7 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
     └── 7d4e5f6a-...json
 </code></pre>
 
-<h2 id="06-serve--マルチブックモードでの-ai-執筆">6.4 マルチブックモードでの AI 執筆</h2>
-
-<p>マルチブックモード（2 つ以上の <code>book.yml</code> を指定して起動）では、トップページに「+ Write a new book」ボタンが表示されます。
-ボタンをクリックするとフォームが開き、以下を入力できます:</p>
-
-<ul>
-  <li><strong>Directory</strong>（必須）: 新しい本を置くディレクトリ名</li>
-  <li><strong>Title</strong>（必須）: 本のタイトル</li>
-  <li><strong>Language</strong>: 言語（デフォルト: <code>ja</code>）</li>
-  <li><strong>Audience</strong>: 対象読者</li>
-  <li><strong>Notes</strong>: 追加の指示・要望</li>
-</ul>
-
-<p>「Start Writing」を押すと、バックグラウンドで <code>brief.yml</code> が生成され、<a href="#07-ai"><code>ligarb write</code></a> と同等の処理が実行されます。
-左ペインには「Writing…」バッジ（オレンジ、パルスアニメーション）付きで本が追加されます。</p>
-
-<p>執筆が完了すると「New!」バッジ（緑）に変わり、クリックで TOC を表示できます。
-エラーが発生した場合は「Error」バッジ（赤）でエラー内容を確認できます。</p>
-
-<div class="admonition admonition-note">
-<p class="admonition-title">Note</p>
-<p>この機能を使うには <a href="https://claude.com/claude-code">Claude Code</a> の CLI（<code>claude</code> コマンド）が必要です。</p>
-</div>
-
-<h2 id="06-serve--内部-api">6.5 内部 API</h2>
+<h2 id="06-serve--内部-api">6.4 内部 API</h2>
 
 <p>サーバーは <code>/_ligarb/</code> プレフィックスで内部 API を提供します。
 フロントエンドの JS がこれらを使用しますが、外部ツールとの連携にも利用できます。</p>
@@ -2362,16 +2332,6 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
       <td>POST</td>
       <td><code>/_ligarb/reviews/:id/approve</code></td>
       <td>パッチ適用＆リビルド</td>
-    </tr>
-    <tr>
-      <td>POST</td>
-      <td><code>/_ligarb/write</code></td>
-      <td>AI 執筆を開始（マルチブックモードのみ）</td>
-    </tr>
-    <tr>
-      <td>GET</td>
-      <td><code>/_ligarb/write/status</code></td>
-      <td>全 write ジョブのステータス一覧</td>
     </tr>
   </tbody>
 </table>
@@ -2557,15 +2517,7 @@ book.yml にも登録してください。
 <pre><code>ligarb build でビルドしてください。エラーがあれば修正してください。
 </code></pre>
 
-<h2 id="07-ai--ブラウザから-ai-執筆する">7.3 ブラウザから AI 執筆する</h2>
-
-<p><code>ligarb serve</code> の<a href="#06-serve">マルチブックモード</a>では、トップページの「+ Write a new book」ボタンからブラウザ上で AI 執筆を開始できます。
-フォームにタイトルや対象読者を入力するだけで、<code>brief.yml</code> の作成から <code>ligarb write</code> の実行、ビルドまでバックグラウンドで自動実行されます。</p>
-
-<p>執筆の進行状況はリアルタイムでステータスバッジに反映され、完了した本はそのまま閲覧できます。
-詳細は<a href="#06-serve">プレビューとレビュー</a>の章を参照してください。</p>
-
-<h2 id="07-ai--注意事項">7.4 注意事項</h2>
+<h2 id="07-ai--注意事項">7.3 注意事項</h2>
 
 <div class="admonition admonition-warning">
 <p class="admonition-title">Warning</p>
@@ -2573,11 +2525,10 @@ book.yml にも登録してください。
 また、AI 生成物の著作権についてはお住まいの地域の法律を確認してください。</p>
 </div>
 
-<h2 id="07-ai--ポイント">7.5 ポイント</h2>
+<h2 id="07-ai--ポイント">7.4 ポイント</h2>
 
 <ul>
   <li><strong><code>ligarb write</code> を使う</strong>: 企画書を書いて実行するだけで、本の生成からビルドまで自動化できます</li>
-  <li><strong>ブラウザから使う</strong>: マルチブックモードならブラウザ上のフォームから AI 執筆を開始できます</li>
   <li><strong><code>ligarb help</code> を渡す</strong>: 手動で AI を使う場合、仕様を正確に理解させるための最も確実な方法です</li>
   <li><strong>図を指示する</strong>: 「mermaid で図を入れて」「KaTeX で数式を書いて」と明示すると、AI が適切なコードブロックを使います</li>
   <li><strong>段階的に進める</strong>: 一度にすべてを指示するより、章ごとに指示した方が品質が上がります</li>
