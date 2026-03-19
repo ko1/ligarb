@@ -1088,6 +1088,9 @@ details.mermaid-source pre {
               <li>
                 <a href="#05-build--動作確認のポイント" class="toc-h2" onclick="showChapterAndScroll('05-build', '05-build--動作確認のポイント')">5.4 動作確認のポイント</a>
               </li>
+              <li>
+                <a href="#05-build--配布する" class="toc-h2" onclick="showChapterAndScroll('05-build', '05-build--配布する')">5.5 配布する</a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -1426,7 +1429,7 @@ chapters:
 
 <h3 id="03-book-yml--表紙カバーページ">3.3.1 表紙（カバーページ）</h3>
 
-<p>本の冒頭に<span id="03-book-yml--idx-14">表紙</span>ページを追加できます。表紙は目次には表示されず、センタリングされたタイトルページとして表示されます:</p>
+<p>本の冒頭に<span id="03-book-yml--idx-14">表紙</span>ページを追加できます。表紙は目次には表示されず、本を開いたときに最初に表示されるページになります:</p>
 
 <pre><code class="language-yaml">chapters:
   - cover: cover.md
@@ -2302,6 +2305,16 @@ xdg-open build/index.html
   <li><strong>パーマリンク</strong>: URL の <code>#</code> に章のスラッグが付き、リロードしても同じ章が表示されるか</li>
   <li><strong>画像</strong>: Markdown で参照した画像が正しく表示されるか</li>
 </ul>
+
+<h2 id="05-build--配布する">5.5 配布する</h2>
+
+<p>できあがった本を他の人に届けるのはとても簡単です。<code>build/</code> ディレクトリの中身をそのまま渡すだけで構いません。</p>
+
+<p>ligarb が生成する本は単一の HTML ファイルとアセットだけで完結しています。コードのシンタックスハイライトや Mermaid の図表、数式の描画に使われる JavaScript・CSS も <code>build/</code> の中に含まれているため、受け取った人はインターネット接続がなくても <code>index.html</code> をブラウザで開くだけですべての内容を閲覧できます。</p>
+
+<p>Web で公開したい場合も、<code>build/</code> ディレクトリをそのまま GitHub Pages などの静的ホスティングに配置すれば、そのまま本として機能します。</p>
+
+<p>なお、<code>book.yml</code> で <code>ai_generated: true</code> を設定して作成した本には、AI によって生成されたことを示すバッジや免責表示が自動的に付与されます。AI が生成した文章には事実と異なる内容が含まれる可能性があるため、配布前に内容を確認し、必要に応じて修正を行ってください。</p>
 
     <div class="edit-link">
       <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/05-build.md" target="_blank" rel="noopener">View on GitHub</a>

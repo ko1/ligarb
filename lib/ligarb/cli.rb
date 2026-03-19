@@ -195,7 +195,7 @@ module Ligarb
                          Overrides the default ai_generated disclaimer if both are set.
                          Useful for copyright notices, disclaimers, or other per-chapter text.
         chapters:        (required) Book structure. An array that can contain:
-                         - A cover: a centered title/landing page
+                         - A cover: the landing page shown when the book is opened
                          - A string: a chapter Markdown file path (relative to book.yml)
                          - A part: groups chapters under a titled section
                          - An appendix: groups chapters with alphabetic numbering (A, B, C, ...)
@@ -204,7 +204,7 @@ module Ligarb
 
         1. Cover (object with 'cover' key):
                chapters:
-                 - cover: cover.md          # Markdown file: displayed as centered title page
+                 - cover: cover.md          # Markdown file: landing page shown when the book is opened
                                             # Not shown in the TOC sidebar.
 
         2. Plain chapter (string):
