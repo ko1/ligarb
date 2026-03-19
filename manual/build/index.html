@@ -883,7 +883,7 @@ details.mermaid-source pre {
   <nav class="toc" id="toc">
     <ul>
       <li class="toc-part">
-        <a href="#part1" class="toc-part-title" onclick="showChapter('part1')">基本編</a>
+        <a href="#part1" class="toc-part-title" onclick="showChapter('part1')">基礎編</a>
         <ul>
           <li class="toc-chapter" data-chapter="01-introduction">
             <a href="#01-introduction" class="toc-h1" onclick="showChapter('01-introduction')">1. はじめに</a>
@@ -915,7 +915,10 @@ details.mermaid-source pre {
                 <a href="#02-install--インストール" class="toc-h2" onclick="showChapterAndScroll('02-install', '02-install--インストール')">2.2 インストール</a>
               </li>
               <li>
-                <a href="#02-install--プロジェクトの作成" class="toc-h2" onclick="showChapterAndScroll('02-install', '02-install--プロジェクトの作成')">2.3 プロジェクトの作成</a>
+                <a href="#02-install--ヘルプの確認" class="toc-h2" onclick="showChapterAndScroll('02-install', '02-install--ヘルプの確認')">2.3 ヘルプの確認</a>
+              </li>
+              <li>
+                <a href="#02-install--プロジェクトの作成" class="toc-h2" onclick="showChapterAndScroll('02-install', '02-install--プロジェクトの作成')">2.4 プロジェクトの作成</a>
               </li>
             </ul>
           </li>
@@ -966,11 +969,6 @@ details.mermaid-source pre {
               </li>
             </ul>
           </li>
-        </ul>
-      </li>
-      <li class="toc-part">
-        <a href="#part2" class="toc-part-title" onclick="showChapter('part2')">活用編</a>
-        <ul>
           <li class="toc-chapter" data-chapter="04-markdown">
             <a href="#04-markdown" class="toc-h1" onclick="showChapter('04-markdown')">4. Markdown の書き方と画像の配置</a>
             <ul>
@@ -1090,11 +1088,13 @@ details.mermaid-source pre {
               <li>
                 <a href="#05-build--動作確認のポイント" class="toc-h2" onclick="showChapterAndScroll('05-build', '05-build--動作確認のポイント')">5.4 動作確認のポイント</a>
               </li>
-              <li>
-                <a href="#05-build--ヘルプ" class="toc-h2" onclick="showChapterAndScroll('05-build', '05-build--ヘルプ')">5.5 ヘルプ</a>
-              </li>
             </ul>
           </li>
+        </ul>
+      </li>
+      <li class="toc-part">
+        <a href="#part2" class="toc-part-title" onclick="showChapter('part2')">発展編</a>
+        <ul>
           <li class="toc-chapter" data-chapter="06-serve">
             <a href="#06-serve" class="toc-h1" onclick="showChapter('06-serve')">6. プレビューとレビュー</a>
             <ul>
@@ -1206,9 +1206,9 @@ details.mermaid-source pre {
 
   </section>
   <section class="chapter" id="chapter-part1" style="display: none;">
-    <h1 id="part1--基本編">基本編</h1>
+    <h1 id="part1--基礎編">基礎編</h1>
 
-<p>ligarb のインストールから最初の本をビルドするまでの基本を学びます。</p>
+<p>この Part ではインストールからプロジェクトの設定、Markdown での執筆方法、そしてビルドして確認するまで、ligarb で本を作るための基本をひと通り学びます。</p>
 
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('cover'); return false;">&larr; ligarb マニュアル</a>
@@ -1259,7 +1259,7 @@ details.mermaid-source pre {
     </div>
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('part1'); return false;">&larr; 基本編</a>
+      <a href="#" class="nav-prev" onclick="showChapter('part1'); return false;">&larr; 基礎編</a>
       <a href="#" class="nav-next" onclick="showChapter('02-install'); return false;">2. インストールと準備 &rarr;</a>
     </nav>
   </section>
@@ -1284,7 +1284,16 @@ cd ligarb
 bundle install
 </code></pre>
 
-<h2 id="02-install--プロジェクトの作成">2.3 プロジェクトの作成</h2>
+<h2 id="02-install--ヘルプの確認">2.3 ヘルプの確認</h2>
+
+<p>インストールできたら、まず <span id="02-install--idx-2"><code>ligarb help</code></span> コマンドで使い方を確認してみましょう:</p>
+
+<pre><code class="language-bash">ligarb help
+</code></pre>
+
+<p>ligarb のすべてのコマンドと設定項目が表示されます。困ったときはまずこのコマンドを参照してください。</p>
+
+<h2 id="02-install--プロジェクトの作成">2.4 プロジェクトの作成</h2>
 
 <p>本のプロジェクトを作成します。以下のディレクトリ構造を用意してください:</p>
 
@@ -1297,7 +1306,7 @@ bundle install
     └── screenshot.png
 </code></pre>
 
-<p><span id="02-install--idx-2"><code>book.yml</code></span> が設定ファイル、<code>chapters/</code> 以下に各章の Markdown ファイルを配置します。</p>
+<p><span id="02-install--idx-3"><code>book.yml</code></span> が設定ファイル、<code>chapters/</code> 以下に各章の Markdown ファイルを配置します。</p>
 
     <div class="edit-link">
       <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/02-install.md" target="_blank" rel="noopener">View on GitHub</a>
@@ -1539,16 +1548,6 @@ chapters:
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('02-install'); return false;">&larr; 2. インストールと準備</a>
-      <a href="#" class="nav-next" onclick="showChapter('part2'); return false;">活用編 &rarr;</a>
-    </nav>
-  </section>
-  <section class="chapter" id="chapter-part2" style="display: none;">
-    <h1 id="part2--活用編">活用編</h1>
-
-<p>Markdown の記法や AI との連携など、ligarb をより活用するためのテクニックを紹介します。</p>
-
-    <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('03-book-yml'); return false;">&larr; 3. book.yml の書き方</a>
       <a href="#" class="nav-next" onclick="showChapter('04-markdown'); return false;">4. Markdown の書き方と画像の配置 &rarr;</a>
     </nav>
   </section>
@@ -2252,7 +2251,7 @@ GitHub でソースを閲覧する際にもリンクが有効です。</p>
     </div>
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('part2'); return false;">&larr; 活用編</a>
+      <a href="#" class="nav-prev" onclick="showChapter('03-book-yml'); return false;">&larr; 3. book.yml の書き方</a>
       <a href="#" class="nav-next" onclick="showChapter('05-build'); return false;">5. ビルドと確認 &rarr;</a>
     </nav>
   </section>
@@ -2304,22 +2303,22 @@ xdg-open build/index.html
   <li><strong>画像</strong>: Markdown で参照した画像が正しく表示されるか</li>
 </ul>
 
-<h2 id="05-build--ヘルプ">5.5 ヘルプ</h2>
-
-<p>ligarb の詳しい使い方は <span id="05-build--idx-2"><code>ligarb help</code></span> コマンドで確認できます:</p>
-
-<pre><code class="language-bash">ligarb help
-</code></pre>
-
-<p>AI に「<code>ligarb help</code> を見て本を作って」と指示すれば、
-AI が仕様を読み取って <code>book.yml</code> と Markdown ファイルを自動生成できます。</p>
-
     <div class="edit-link">
       <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/05-build.md" target="_blank" rel="noopener">View on GitHub</a>
     </div>
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('04-markdown'); return false;">&larr; 4. Markdown の書き方と画像の配置</a>
+      <a href="#" class="nav-next" onclick="showChapter('part2'); return false;">発展編 &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-part2" style="display: none;">
+    <h1 id="part2--発展編">発展編</h1>
+
+<p>この Part ではローカルサーバーでのプレビューやレビュー機能、AI を活用した執筆支援など、ligarb をより便利に使いこなすための機能を紹介します。</p>
+
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('05-build'); return false;">&larr; 5. ビルドと確認</a>
       <a href="#" class="nav-next" onclick="showChapter('06-serve'); return false;">6. プレビューとレビュー &rarr;</a>
     </nav>
   </section>
@@ -2437,7 +2436,7 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
     </div>
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('05-build'); return false;">&larr; 5. ビルドと確認</a>
+      <a href="#" class="nav-prev" onclick="showChapter('part2'); return false;">&larr; 発展編</a>
       <a href="#" class="nav-next" onclick="showChapter('07-ai'); return false;">7. AI と一緒に使う &rarr;</a>
     </nav>
   </section>
@@ -2786,7 +2785,7 @@ book.yml にも登録してください。
         <dt>Bundler</dt>
         <dd><a href="#02-install--idx-1" onclick="showChapterAndScroll('02-install', '02-install--idx-1'); return false;">2. インストールと準備</a></dd>
         <dt>book.yml</dt>
-        <dd><a href="#02-install--idx-2" onclick="showChapterAndScroll('02-install', '02-install--idx-2'); return false;">2. インストールと準備</a></dd>
+        <dd><a href="#02-install--idx-3" onclick="showChapterAndScroll('02-install', '02-install--idx-3'); return false;">2. インストールと準備</a></dd>
         <dd><a href="#03-book-yml--idx-0" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-0'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">ai_generated</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-9" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-9'); return false;">3. book.yml の書き方</a></dd>
@@ -2868,7 +2867,7 @@ book.yml にも登録してください。
         <dt>ligarb build</dt>
         <dd><a href="#05-build--idx-0" onclick="showChapterAndScroll('05-build', '05-build--idx-0'); return false;">5. ビルドと確認</a></dd>
         <dt>ligarb help</dt>
-        <dd><a href="#05-build--idx-2" onclick="showChapterAndScroll('05-build', '05-build--idx-2'); return false;">5. ビルドと確認</a></dd>
+        <dd><a href="#02-install--idx-2" onclick="showChapterAndScroll('02-install', '02-install--idx-2'); return false;">2. インストールと準備</a></dd>
         <dt>ligarb serve</dt>
         <dd><a href="#06-serve--idx-0" onclick="showChapterAndScroll('06-serve', '06-serve--idx-0'); return false;">6. プレビューとレビュー</a></dd>
       </dl>
@@ -3003,7 +3002,7 @@ book.yml にも登録してください。
 
 <script>
 (function() {
-  var chapters = ["cover", "part1", "01-introduction", "02-install", "03-book-yml", "part2", "04-markdown", "05-build", "06-serve", "07-ai", "a1-config-reference", "__bibliography__", "__index__"];
+  var chapters = ["cover", "part1", "01-introduction", "02-install", "03-book-yml", "04-markdown", "05-build", "part2", "06-serve", "07-ai", "a1-config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
   var navigating = false; // flag to suppress pushState during popstate/initial load

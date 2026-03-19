@@ -13,10 +13,10 @@ chapters:
       - chapters/01-introduction.md
       - chapters/02-install.md
       - chapters/03-book-yml.md
-  - part: chapters/part2.md
-    chapters:
       - chapters/04-markdown.md
       - chapters/05-build.md
+  - part: chapters/part2.md
+    chapters:
       - chapters/06-serve.md
       - chapters/07-ai.md
   - appendix:
