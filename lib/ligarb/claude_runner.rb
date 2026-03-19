@@ -95,6 +95,8 @@ module Ligarb
 
     # Extract patches from the last assistant message and apply them.
     # Supports cross-chapter patches via the file attribute.
+    # Uses transactional approach: all patches applied in memory first,
+    # then written to disk. On build failure, changes are rolled back.
     def apply_patches(review)
       patches = extract_patches(review)
       if patches.empty?
@@ -120,37 +122,62 @@ module Ligarb
 
       return { "error" => "No valid target files found for patches" } if file_patches.empty?
 
+      use_git = git_available?
+      target_files = file_patches.keys
+
+      # Check for uncommitted changes when git is available
+      if use_git
+        dirty = git_dirty_files(target_files)
+        unless dirty.empty?
+          return { "error" => "Cannot apply patches: uncommitted changes in #{dirty.join(", ")}" }
+        end
+      end
+
+      # Phase 1: Apply all patches in memory
       applied = 0
       total = patches.size
+      results = {} # file => new_content
+      backups = {} # file => original_content
 
       file_patches.each do |file, file_patch_list|
-        unless File.exist?(file)
-          next
-        end
+        next unless File.exist?(file)
 
         content = File.read(file)
-        changed = false
+        backups[file] = content
 
         file_patch_list.each do |old_text, new_text|
           if content.include?(old_text)
             content = content.sub(old_text, new_text)
             applied += 1
-            changed = true
           end
         end
 
-        File.write(file, content) if changed
+        results[file] = content if content != backups[file]
       end
 
       return { "error" => "No patches matched the source files (0/#{total})" } if applied == 0
 
-      # Rebuild
+      # Phase 2: Write all files at once
+      results.each { |file, content| File.write(file, content) }
+
+      # Phase 3: Rebuild
       config_path = File.join(@config.base_dir, "book.yml")
       require_relative "builder"
       begin
         Builder.new(config_path).build
       rescue SystemExit => e
-        return { "error" => "Applied #{applied}/#{total} patch(es) but rebuild failed: #{e.message}" }
+        # Rollback on build failure
+        if use_git
+          git_rollback_files(results.keys)
+        else
+          backups.each { |file, content| File.write(file, content) if results.key?(file) }
+        end
+        return { "error" => "Applied #{applied}/#{total} patch(es) but rebuild failed (rolled back): #{e.message}" }
+      end
+
+      # Phase 4: Commit on success
+      if use_git
+        git_commit_patches(results.keys, review)
       end
 
       { "text" => "Applied #{applied}/#{total} patch(es) and rebuilt." }
@@ -188,7 +215,74 @@ module Ligarb
         .any? { |m| m["content"].include?("<patch") && m["content"].include?("</patch>") }
     end
 
+    # Check if git is available in the project directory.
+    def git_available?
+      system("git", "rev-parse", "--git-dir",
+             chdir: @config.base_dir, out: File::NULL, err: File::NULL)
+    end
+
     private
+
+    # Return list of target files that have uncommitted changes.
+    def git_dirty_files(files)
+      files.select do |file|
+        rel = relative_to_base(file)
+        next false unless rel
+        out, = Open3.capture2("git", "status", "--porcelain", "--", rel, chdir: @config.base_dir)
+        !out.strip.empty?
+      end
+    end
+
+    # Commit patched files with a message including review context.
+    def git_commit_patches(files, review)
+      rel_files = files.filter_map { |f| relative_to_base(f) }
+      return if rel_files.empty?
+
+      system("git", "add", "--", *rel_files, chdir: @config.base_dir)
+
+      message = build_commit_message(review, rel_files)
+      system("git", "commit", "-m", message, chdir: @config.base_dir,
+             out: File::NULL, err: File::NULL)
+    end
+
+    # Rollback files using git checkout.
+    def git_rollback_files(files)
+      rel_files = files.filter_map { |f| relative_to_base(f) }
+      return if rel_files.empty?
+
+      system("git", "checkout", "--", *rel_files, chdir: @config.base_dir,
+             out: File::NULL, err: File::NULL)
+    end
+
+    def build_commit_message(review, rel_files)
+      messages = review["messages"] || []
+      user_msg = messages.find { |m| m["role"] == "user" }&.dig("content").to_s
+      assistant_msg = messages.select { |m| m["role"] == "assistant" }.last&.dig("content").to_s
+
+      source = review.dig("context", "source_file") || "unknown"
+      source_rel = relative_to_base(source) || source
+
+      lines = ["[ligarb] Review: #{source_rel}"]
+      lines << ""
+      lines << "User: #{truncate_message(user_msg)}" unless user_msg.empty?
+      lines << "Claude: #{truncate_message(assistant_msg)}" unless assistant_msg.empty?
+      lines << ""
+      lines << "Files: #{rel_files.join(", ")}"
+      lines.join("\n")
+    end
+
+    def truncate_message(text, max_lines: 3, max_chars: 200)
+      truncated = text.lines.first(max_lines).join.strip
+      truncated = truncated[0, max_chars] + "..." if truncated.length > max_chars
+      truncated
+    end
+
+    def relative_to_base(file)
+      abs = File.expand_path(file)
+      base = File.expand_path(@config.base_dir)
+      return nil unless abs.start_with?(base + "/")
+      abs[(base.length + 1)..]
+    end
 
     def which(cmd)
       ENV["PATH"].to_s.split(File::PATH_SEPARATOR).each do |dir|
