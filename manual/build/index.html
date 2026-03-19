@@ -946,6 +946,18 @@ details.mermaid-source pre {
               <li>
                 <a href="#03-book-yml--github-編集リンク" class="toc-h2" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--github-編集リンク')">3.5 GitHub 編集リンク</a>
               </li>
+              <li>
+                <a href="#03-book-yml--ai-生成マーク" class="toc-h2" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--ai-生成マーク')">3.6 AI 生成マーク</a>
+              </li>
+              <li>
+                <a href="#03-book-yml--フッター" class="toc-h2" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--フッター')">3.7 フッター</a>
+              </li>
+              <li>
+                <a href="#03-book-yml--参考文献" class="toc-h2" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--参考文献')">3.8 参考文献</a>
+              </li>
+              <li>
+                <a href="#03-book-yml--参照ファイルsources" class="toc-h2" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--参照ファイルsources')">3.9 参照ファイル（sources）</a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -1348,7 +1360,31 @@ chapters:
       <td>GitHub リポジトリ URL（編集リンク用）</td>
     </tr>
     <tr>
-      <td><span id="03-book-yml--idx-9">chapters</span></td>
+      <td><span id="03-book-yml--idx-9">ai_generated</span></td>
+      <td>いいえ</td>
+      <td>false</td>
+      <td>AI 生成コンテンツとしてマーク（バッジ・免責表示・noindex メタタグ）</td>
+    </tr>
+    <tr>
+      <td><span id="03-book-yml--idx-10">footer</span></td>
+      <td>いいえ</td>
+      <td>—</td>
+      <td>各章の末尾に表示するテキスト（<code>ai_generated</code> のデフォルト免責を上書き可）</td>
+    </tr>
+    <tr>
+      <td><span id="03-book-yml--idx-11">bibliography</span></td>
+      <td>いいえ</td>
+      <td>—</td>
+      <td>参考文献データファイルのパス（<code>.yml</code> または <code>.bib</code>）</td>
+    </tr>
+    <tr>
+      <td><span id="03-book-yml--idx-12">sources</span></td>
+      <td>いいえ</td>
+      <td>—</td>
+      <td>AI 執筆時の参照ファイル一覧</td>
+    </tr>
+    <tr>
+      <td><span id="03-book-yml--idx-13">chapters</span></td>
       <td>はい</td>
       <td>—</td>
       <td>章・パート・付録の構成（下記参照）</td>
@@ -1362,7 +1398,7 @@ chapters:
 
 <h3 id="03-book-yml--表紙カバーページ">3.3.1 表紙（カバーページ）</h3>
 
-<p>本の冒頭に<span id="03-book-yml--idx-10">表紙</span>ページを追加できます。表紙は目次には表示されず、センタリングされたタイトルページとして表示されます:</p>
+<p>本の冒頭に<span id="03-book-yml--idx-14">表紙</span>ページを追加できます。表紙は目次には表示されず、センタリングされたタイトルページとして表示されます:</p>
 
 <pre><code class="language-yaml">chapters:
   - cover: cover.md
@@ -1381,7 +1417,7 @@ chapters:
 
 <h3 id="03-book-yml--パート部で分ける">3.3.3 パート（部）で分ける</h3>
 
-<p>章が多い本では、<span id="03-book-yml--idx-11">パート</span>でグループ化できます:</p>
+<p>章が多い本では、<span id="03-book-yml--idx-15">パート</span>でグループ化できます:</p>
 
 <pre><code class="language-yaml">chapters:
   - part: part1.md
@@ -1399,7 +1435,7 @@ chapters:
 
 <h3 id="03-book-yml--付録を追加する">3.3.4 付録を追加する</h3>
 
-<p>巻末に<span id="03-book-yml--idx-12">付録</span>を追加できます。付録の章にはアルファベット（A, B, C, …）で番号が付きます:</p>
+<p>巻末に<span id="03-book-yml--idx-16">付録</span>を追加できます。付録の章にはアルファベット（A, B, C, …）で番号が付きます:</p>
 
 <pre><code class="language-yaml">chapters:
   - part: part1.md
@@ -1413,11 +1449,11 @@ chapters:
 <h3 id="03-book-yml--ファイル名の規約">3.3.5 ファイル名の規約</h3>
 
 <p>ファイル名に決まりはありませんが、<code>番号-スラッグ.md</code> の形式にすると管理しやすくなります。
-ファイル名の <code>番号-スラッグ</code> 部分がそのまま章の識別子（<span id="03-book-yml--idx-13">slug</span>）として URL の <code>#</code> に使われます。</p>
+ファイル名の <code>番号-スラッグ</code> 部分がそのまま章の識別子（<span id="03-book-yml--idx-17">slug</span>）として URL の <code>#</code> に使われます。</p>
 
 <h2 id="03-book-yml--カスタム-css">3.4 カスタム CSS</h2>
 
-<p><code>style</code> フィールドで <span id="03-book-yml--idx-14">CSS</span> ファイルを指定すると、デフォルトスタイルの後に読み込まれます:</p>
+<p><code>style</code> フィールドで <span id="03-book-yml--idx-18">CSS</span> ファイルを指定すると、デフォルトスタイルの後に読み込まれます:</p>
 
 <pre><code class="language-yaml">style: "custom.css"
 </code></pre>
@@ -1432,10 +1468,51 @@ chapters:
 
 <h2 id="03-book-yml--github-編集リンク">3.5 GitHub 編集リンク</h2>
 
-<p><code>repository</code> フィールドを指定すると、各章の末尾に「View on GitHub」リンクが表示されます（<span id="03-book-yml--idx-15">GitHub 編集リンク</span>）:</p>
+<p><code>repository</code> フィールドを指定すると、各章の末尾に「View on GitHub」リンクが表示されます（<span id="03-book-yml--idx-19">GitHub 編集リンク</span>）:</p>
 
 <pre><code class="language-yaml">repository: "https://github.com/user/my-book"
 </code></pre>
+
+<h2 id="03-book-yml--ai-生成マーク">3.6 AI 生成マーク</h2>
+
+<p><code>ai_generated</code> を <code>true</code> にすると、以下の効果があります:</p>
+
+<ul>
+  <li>サイドバーに「AI Generated」バッジを表示</li>
+  <li>各章の末尾に免責事項のフッターを自動追加</li>
+  <li><code>noindex</code> / <code>noai</code> メタタグを追加（検索エンジンのインデックスと AI 学習を抑制）</li>
+</ul>
+
+<pre><code class="language-yaml">ai_generated: true
+</code></pre>
+
+<h2 id="03-book-yml--フッター">3.7 フッター</h2>
+
+<p><code>footer</code> フィールドで各章の末尾に表示するテキストを指定できます。<code>ai_generated: true</code> のデフォルト免責文を上書きすることもできます:</p>
+
+<pre><code class="language-yaml">footer: "© 2025 著者名. All rights reserved."
+</code></pre>
+
+<h2 id="03-book-yml--参考文献">3.8 参考文献</h2>
+
+<p><code>bibliography</code> フィールドで参考文献データファイルを指定します。YAML（<code>.yml</code>）と BibTeX（<code>.bib</code>）の両形式に対応しています:</p>
+
+<pre><code class="language-yaml">bibliography: references.bib
+</code></pre>
+
+<p>詳しい使い方は <a href="#04-markdown--参考文献bibliography">Markdown の書き方</a> を参照してください。</p>
+
+<h2 id="03-book-yml--参照ファイルsources">3.9 参照ファイル（sources）</h2>
+
+<p><code>sources</code> フィールドは、<a href="#07-ai">AI 執筆</a>（<code>ligarb write</code>）時に AI が参照するファイルを指定します。指定されたファイルの内容が AI へのコンテキストとして渡されます:</p>
+
+<pre><code class="language-yaml">sources:
+  - notes.md
+  - path: data/research.pdf
+    label: "調査レポート"
+</code></pre>
+
+<p>文字列で指定するとファイル名がそのままラベルになります。<code>path</code> と <code>label</code> を個別に指定することもできます。</p>
 
     <div class="edit-link">
       <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/03-book-yml.md" target="_blank" rel="noopener">View on GitHub</a>
@@ -2674,15 +2751,21 @@ book.yml にも登録してください。
         <dt>book.yml</dt>
         <dd><a href="#02-install--idx-2" onclick="showChapterAndScroll('02-install', '02-install--idx-2'); return false;">2. インストールと準備</a></dd>
         <dd><a href="#03-book-yml--idx-0" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-0'); return false;">3. book.yml の書き方</a></dd>
+        <dt class="index-sub">ai_generated</dt>
+        <dd class="index-sub"><a href="#03-book-yml--idx-9" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-9'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">author</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-3" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-3'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#a1-config-reference--idx-1" onclick="showChapterAndScroll('a1-config-reference', 'a1-config-reference--idx-1'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">bibliography</dt>
+        <dd class="index-sub"><a href="#03-book-yml--idx-11" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-11'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">chapter_numbers</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-6" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-6'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#a1-config-reference--idx-4" onclick="showChapterAndScroll('a1-config-reference', 'a1-config-reference--idx-4'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">chapters</dt>
-        <dd class="index-sub"><a href="#03-book-yml--idx-9" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-9'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#03-book-yml--idx-13" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-13'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#a1-config-reference--idx-5" onclick="showChapterAndScroll('a1-config-reference', 'a1-config-reference--idx-5'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">footer</dt>
+        <dd class="index-sub"><a href="#03-book-yml--idx-10" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-10'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">language</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-4" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-4'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#a1-config-reference--idx-2" onclick="showChapterAndScroll('a1-config-reference', 'a1-config-reference--idx-2'); return false;">A. 設定リファレンス</a></dd>
@@ -2691,6 +2774,8 @@ book.yml にも登録してください。
         <dd class="index-sub"><a href="#a1-config-reference--idx-3" onclick="showChapterAndScroll('a1-config-reference', 'a1-config-reference--idx-3'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">repository</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-8" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-8'); return false;">3. book.yml の書き方</a></dd>
+        <dt class="index-sub">sources</dt>
+        <dd class="index-sub"><a href="#03-book-yml--idx-12" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-12'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">style</dt>
         <dd class="index-sub"><a href="#03-book-yml--idx-7" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-7'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">title</dt>
@@ -2702,7 +2787,7 @@ book.yml にも登録してください。
       <h2 class="index-letter">C</h2>
       <dl class="index-entries">
         <dt>cover</dt>
-        <dd><a href="#03-book-yml--idx-10" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-10'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-14" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-14'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -2712,7 +2797,7 @@ book.yml にも登録してください。
         <dd><a href="#04-markdown--idx-0" onclick="showChapterAndScroll('04-markdown', '04-markdown--idx-0'); return false;">4. Markdown の書き方と画像の配置</a></dd>
         <dt>GitHub 編集リンク</dt>
         <dd><a href="#01-introduction--idx-8" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-8'); return false;">1. はじめに</a></dd>
-        <dd><a href="#03-book-yml--idx-15" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-15'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-19" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-19'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -2772,7 +2857,7 @@ book.yml にも登録してください。
       <h2 class="index-letter">S</h2>
       <dl class="index-entries">
         <dt>slug</dt>
-        <dd><a href="#03-book-yml--idx-13" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-13'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-17" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-17'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -2787,7 +2872,7 @@ book.yml にも登録してください。
       <dl class="index-entries">
         <dt>カスタム CSS</dt>
         <dd><a href="#01-introduction--idx-7" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-7'); return false;">1. はじめに</a></dd>
-        <dd><a href="#03-book-yml--idx-14" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-14'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-18" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-18'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -2816,7 +2901,7 @@ book.yml にも登録してください。
       <dl class="index-entries">
         <dt>パート</dt>
         <dd><a href="#01-introduction--idx-4" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-4'); return false;">1. はじめに</a></dd>
-        <dd><a href="#03-book-yml--idx-11" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-11'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-15" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-15'); return false;">3. book.yml の書き方</a></dd>
         <dt>パーマリンク</dt>
         <dd><a href="#01-introduction--idx-3" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-3'); return false;">1. はじめに</a></dd>
       </dl>
@@ -2826,7 +2911,7 @@ book.yml にも登録してください。
       <dl class="index-entries">
         <dt>付録</dt>
         <dd><a href="#01-introduction--idx-5" onclick="showChapterAndScroll('01-introduction', '01-introduction--idx-5'); return false;">1. はじめに</a></dd>
-        <dd><a href="#03-book-yml--idx-12" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-12'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#03-book-yml--idx-16" onclick="showChapterAndScroll('03-book-yml', '03-book-yml--idx-16'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
