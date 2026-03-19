@@ -3014,15 +3014,25 @@ book.yml にも登録してください。
       if (el) el.style.display = (ch === slug) ? 'block' : 'none';
     });
 
-    // Update active state in TOC
+    // Update active state in TOC and scroll sidebar to show active item
     var tocItems = document.querySelectorAll('.toc-chapter');
+    var activeItem = null;
     tocItems.forEach(function(item) {
       if (item.dataset.chapter === slug) {
         item.classList.add('active');
+        activeItem = item;
       } else {
         item.classList.remove('active');
       }
     });
+    if (activeItem) {
+      var tocNav = document.getElementById('toc');
+      var itemRect = activeItem.getBoundingClientRect();
+      var tocRect = tocNav.getBoundingClientRect();
+      if (itemRect.top < tocRect.top || itemRect.bottom > tocRect.bottom) {
+        activeItem.scrollIntoView({ block: 'center' });
+      }
+    }
 
     currentChapter = slug;
     var newHash = '#' + (hash || slug);
