@@ -191,7 +191,8 @@ module Ligarb
       end
 
       # Convert $...$ to inline math (exclude $$, and $ followed/preceded by space)
-      result = protected.gsub(/(?<!\$)\$(?!\$)(?!\s)(.+?)(?<!\s)(?<!\$)\$(?!\$)/m) do
+      # Inline math must be on a single line (no /m flag) to avoid $200 etc. matching across lines
+      result = protected.gsub(/(?<!\$)\$(?!\$)(?!\s)(.+?)(?<!\s)(?<!\$)\$(?!\$)/) do
         raw = decode_entities($1)
         %(<span class="math-inline" data-math="#{encode_attr(raw)}"></span>)
       end
