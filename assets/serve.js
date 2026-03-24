@@ -58,7 +58,19 @@
           if (typeof hljs !== 'undefined') hljs.highlightAll();
           if (typeof mermaid !== 'undefined') {
             var unrendered = oldMain.querySelectorAll('.mermaid:not([data-processed])');
-            if (unrendered.length > 0) mermaid.run({nodes: unrendered});
+            if (unrendered.length > 0) {
+              var sources = {};
+              unrendered.forEach(function(el) { sources[el.id || el.textContent.slice(0, 50)] = el.textContent; });
+              mermaid.run({nodes: unrendered, suppressErrors: true}).catch(function() {}).finally(function() {
+                unrendered.forEach(function(el) {
+                  if (!el.querySelector('svg')) {
+                    var src = sources[el.id || el.textContent.slice(0, 50)] || el.textContent;
+                    el.innerHTML = '<pre style="color:#c00;border:1px solid #c00;padding:0.5em;white-space:pre-wrap">mermaid エラー:\n' +
+                      src.replace(/</g, '&lt;') + '</pre>';
+                  }
+                });
+              });
+            }
           }
           if (typeof katex !== 'undefined') {
             oldMain.querySelectorAll('.math-block[data-math]').forEach(function(el) {
