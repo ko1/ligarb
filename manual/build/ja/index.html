@@ -1199,7 +1199,8 @@ details.mermaid-source pre {
             <li class="toc-full-h3"><a href="#introduction--honkit旧-gitbook" onclick="showChapterAndScroll('introduction', 'introduction--honkit旧-gitbook'); return false;">1.3.2 Honkit（旧 GitBook）</a></li>
             <li class="toc-full-h3"><a href="#introduction--sphinx" onclick="showChapterAndScroll('introduction', 'introduction--sphinx'); return false;">1.3.3 Sphinx</a></li>
             <li class="toc-full-h3"><a href="#introduction--pandoc" onclick="showChapterAndScroll('introduction', 'introduction--pandoc'); return false;">1.3.4 Pandoc</a></li>
-            <li class="toc-full-h3"><a href="#introduction--ligarb-の立ち位置" onclick="showChapterAndScroll('introduction', 'introduction--ligarb-の立ち位置'); return false;">1.3.5 ligarb の立ち位置</a></li>
+            <li class="toc-full-h3"><a href="#introduction--vitepress" onclick="showChapterAndScroll('introduction', 'introduction--vitepress'); return false;">1.3.5 VitePress</a></li>
+            <li class="toc-full-h3"><a href="#introduction--ligarb-の立ち位置" onclick="showChapterAndScroll('introduction', 'introduction--ligarb-の立ち位置'); return false;">1.3.6 ligarb の立ち位置</a></li>
             <li class="toc-full-h2"><a href="#introduction--このマニュアルについて" onclick="showChapterAndScroll('introduction', 'introduction--このマニュアルについて'); return false;">1.4 このマニュアルについて</a></li>
 </ul>
         </div>
@@ -1404,7 +1405,11 @@ details.mermaid-source pre {
 
 <p>あらゆるフォーマット間の変換に対応する汎用ツールです。複数の Markdown から単一 HTML を生成することも可能ですが、目次のサイドバーや章の切り替え表示、検索機能などは自分で用意する必要があります。ligarb はこれらを最初から組み込んでいます。</p>
 
-<h3 id="introduction--ligarb-の立ち位置">1.3.5 ligarb の立ち位置</h3>
+<h3 id="introduction--vitepress">1.3.5 VitePress</h3>
+
+<p>Vue ベースの静的サイトジェネレータで、ドキュメントサイトの構築に広く使われています。dev server による即時プレビュー、Vue コンポーネントの埋め込み、SEO に有利なマルチページ出力など、公開ドキュメントサイト向けの機能が充実しています。一方 ligarb は単一 HTML 出力に特化しており、ホスティング不要でファイルを渡すだけで読めます。SEO が必要な公開ドキュメントサイトには VitePress が、社内マニュアルや配布用の本には ligarb が適しています。</p>
+
+<h3 id="introduction--ligarb-の立ち位置">1.3.6 ligarb の立ち位置</h3>
 
 <p>ligarb は「手軽に本を作って、そのまま配れる」ことに焦点を当てたツールです。単一 HTML への出力、サイドバー目次や検索の組み込み、AI との連携といった機能を、最小限の設定で利用できます。出力形式やテーマを細かくカスタマイズしたい場合は Sphinx や mdBook が適していますが、手元の Markdown をさっと本の形にまとめたいときに ligarb は力を発揮します。</p>
 
@@ -3397,7 +3402,7 @@ book.yml にも登録してください。
 
 <script>
 (function() {
-  var chapters = ["__toc__", "cover", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
+  var chapters = ["cover", "__toc__", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
   var navigating = false; // flag to suppress pushState during popstate/initial load

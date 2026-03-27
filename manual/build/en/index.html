@@ -1199,7 +1199,8 @@ details.mermaid-source pre {
             <li class="toc-full-h3"><a href="#introduction--honkit-formerly-gitbook" onclick="showChapterAndScroll('introduction', 'introduction--honkit-formerly-gitbook'); return false;">1.3.2 Honkit (formerly GitBook)</a></li>
             <li class="toc-full-h3"><a href="#introduction--sphinx" onclick="showChapterAndScroll('introduction', 'introduction--sphinx'); return false;">1.3.3 Sphinx</a></li>
             <li class="toc-full-h3"><a href="#introduction--pandoc" onclick="showChapterAndScroll('introduction', 'introduction--pandoc'); return false;">1.3.4 Pandoc</a></li>
-            <li class="toc-full-h3"><a href="#introduction--where-ligarb-fits" onclick="showChapterAndScroll('introduction', 'introduction--where-ligarb-fits'); return false;">1.3.5 Where ligarb Fits</a></li>
+            <li class="toc-full-h3"><a href="#introduction--vitepress" onclick="showChapterAndScroll('introduction', 'introduction--vitepress'); return false;">1.3.5 VitePress</a></li>
+            <li class="toc-full-h3"><a href="#introduction--where-ligarb-fits" onclick="showChapterAndScroll('introduction', 'introduction--where-ligarb-fits'); return false;">1.3.6 Where ligarb Fits</a></li>
             <li class="toc-full-h2"><a href="#introduction--about-this-manual" onclick="showChapterAndScroll('introduction', 'introduction--about-this-manual'); return false;">1.4 About This Manual</a></li>
 </ul>
         </div>
@@ -1404,7 +1405,11 @@ It is ideal for organizing information in “book” format, such as software do
 
 <p>A universal format converter. It can generate a single HTML from multiple Markdown files, but features like a sidebar TOC, chapter switching, and search must be built separately. ligarb includes all of these out of the box.</p>
 
-<h3 id="introduction--where-ligarb-fits">1.3.5 Where ligarb Fits</h3>
+<h3 id="introduction--vitepress">1.3.5 VitePress</h3>
+
+<p>A Vue-based static site generator widely used for documentation sites. It offers a dev server with instant preview, Vue component embedding, and SEO-friendly multi-page output — features tailored for public-facing documentation sites. ligarb, on the other hand, specializes in single HTML output that requires no hosting and can be shared by simply passing a file. VitePress is the better choice for public documentation sites where SEO matters; ligarb is ideal for internal manuals and distributable books.</p>
+
+<h3 id="introduction--where-ligarb-fits">1.3.6 Where ligarb Fits</h3>
 
 <p>ligarb focuses on making it easy to create a book and distribute it as-is. Single HTML output, built-in sidebar TOC and search, and AI integration are available with minimal configuration. For highly customizable output formats and themes, Sphinx or mdBook may be better suited, but when you want to quickly turn your Markdown into a book, ligarb shines.</p>
 
@@ -3336,7 +3341,7 @@ Also check the copyright laws in your jurisdiction regarding AI-generated works.
 
 <script>
 (function() {
-  var chapters = ["__toc__", "cover", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
+  var chapters = ["cover", "__toc__", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
   var navigating = false; // flag to suppress pushState during popstate/initial load

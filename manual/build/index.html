@@ -1406,7 +1406,8 @@ details.mermaid-source pre {
             <li class="toc-full-h3"><a href="#ja--introduction--honkit旧-gitbook" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--honkit旧-gitbook'); return false;">1.3.2 Honkit（旧 GitBook）</a></li>
             <li class="toc-full-h3"><a href="#ja--introduction--sphinx" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--sphinx'); return false;">1.3.3 Sphinx</a></li>
             <li class="toc-full-h3"><a href="#ja--introduction--pandoc" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--pandoc'); return false;">1.3.4 Pandoc</a></li>
-            <li class="toc-full-h3"><a href="#ja--introduction--ligarb-の立ち位置" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--ligarb-の立ち位置'); return false;">1.3.5 ligarb の立ち位置</a></li>
+            <li class="toc-full-h3"><a href="#ja--introduction--vitepress" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--vitepress'); return false;">1.3.5 VitePress</a></li>
+            <li class="toc-full-h3"><a href="#ja--introduction--ligarb-の立ち位置" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--ligarb-の立ち位置'); return false;">1.3.6 ligarb の立ち位置</a></li>
             <li class="toc-full-h2"><a href="#ja--introduction--このマニュアルについて" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--このマニュアルについて'); return false;">1.4 このマニュアルについて</a></li>
 </ul>
         </div>
@@ -1611,7 +1612,11 @@ details.mermaid-source pre {
 
 <p>あらゆるフォーマット間の変換に対応する汎用ツールです。複数の Markdown から単一 HTML を生成することも可能ですが、目次のサイドバーや章の切り替え表示、検索機能などは自分で用意する必要があります。ligarb はこれらを最初から組み込んでいます。</p>
 
-<h3 id="ja--introduction--ligarb-の立ち位置">1.3.5 ligarb の立ち位置</h3>
+<h3 id="ja--introduction--vitepress">1.3.5 VitePress</h3>
+
+<p>Vue ベースの静的サイトジェネレータで、ドキュメントサイトの構築に広く使われています。dev server による即時プレビュー、Vue コンポーネントの埋め込み、SEO に有利なマルチページ出力など、公開ドキュメントサイト向けの機能が充実しています。一方 ligarb は単一 HTML 出力に特化しており、ホスティング不要でファイルを渡すだけで読めます。SEO が必要な公開ドキュメントサイトには VitePress が、社内マニュアルや配布用の本には ligarb が適しています。</p>
+
+<h3 id="ja--introduction--ligarb-の立ち位置">1.3.6 ligarb の立ち位置</h3>
 
 <p>ligarb は「手軽に本を作って、そのまま配れる」ことに焦点を当てたツールです。単一 HTML への出力、サイドバー目次や検索の組み込み、AI との連携といった機能を、最小限の設定で利用できます。出力形式やテーマを細かくカスタマイズしたい場合は Sphinx や mdBook が適していますが、手元の Markdown をさっと本の形にまとめたいときに ligarb は力を発揮します。</p>
 
@@ -3616,7 +3621,8 @@ book.yml にも登録してください。
             <li class="toc-full-h3"><a href="#en--introduction--honkit-formerly-gitbook" onclick="showChapterAndScroll('en--introduction', 'en--introduction--honkit-formerly-gitbook'); return false;">1.3.2 Honkit (formerly GitBook)</a></li>
             <li class="toc-full-h3"><a href="#en--introduction--sphinx" onclick="showChapterAndScroll('en--introduction', 'en--introduction--sphinx'); return false;">1.3.3 Sphinx</a></li>
             <li class="toc-full-h3"><a href="#en--introduction--pandoc" onclick="showChapterAndScroll('en--introduction', 'en--introduction--pandoc'); return false;">1.3.4 Pandoc</a></li>
-            <li class="toc-full-h3"><a href="#en--introduction--where-ligarb-fits" onclick="showChapterAndScroll('en--introduction', 'en--introduction--where-ligarb-fits'); return false;">1.3.5 Where ligarb Fits</a></li>
+            <li class="toc-full-h3"><a href="#en--introduction--vitepress" onclick="showChapterAndScroll('en--introduction', 'en--introduction--vitepress'); return false;">1.3.5 VitePress</a></li>
+            <li class="toc-full-h3"><a href="#en--introduction--where-ligarb-fits" onclick="showChapterAndScroll('en--introduction', 'en--introduction--where-ligarb-fits'); return false;">1.3.6 Where ligarb Fits</a></li>
             <li class="toc-full-h2"><a href="#en--introduction--about-this-manual" onclick="showChapterAndScroll('en--introduction', 'en--introduction--about-this-manual'); return false;">1.4 About This Manual</a></li>
 </ul>
         </div>
@@ -3821,7 +3827,11 @@ It is ideal for organizing information in “book” format, such as software do
 
 <p>A universal format converter. It can generate a single HTML from multiple Markdown files, but features like a sidebar TOC, chapter switching, and search must be built separately. ligarb includes all of these out of the box.</p>
 
-<h3 id="en--introduction--where-ligarb-fits">1.3.5 Where ligarb Fits</h3>
+<h3 id="en--introduction--vitepress">1.3.5 VitePress</h3>
+
+<p>A Vue-based static site generator widely used for documentation sites. It offers a dev server with instant preview, Vue component embedding, and SEO-friendly multi-page output — features tailored for public-facing documentation sites. ligarb, on the other hand, specializes in single HTML output that requires no hosting and can be shared by simply passing a file. VitePress is the better choice for public documentation sites where SEO matters; ligarb is ideal for internal manuals and distributable books.</p>
+
+<h3 id="en--introduction--where-ligarb-fits">1.3.6 Where ligarb Fits</h3>
 
 <p>ligarb focuses on making it easy to create a book and distribute it as-is. Single HTML output, built-in sidebar TOC and search, and AI integration are available with minimal configuration. For highly customizable output formats and themes, Sphinx or mdBook may be better suited, but when you want to quickly turn your Markdown into a book, ligarb shines.</p>
 
@@ -5754,8 +5764,8 @@ Also check the copyright laws in your jurisdiction regarding AI-generated works.
 <script>
 (function() {
   var langChapters = {
-    "ja": ["ja--__toc__", "ja--cover", "ja--part1", "ja--introduction", "ja--install", "ja--book-yml", "ja--markdown", "ja--build", "ja--part2", "ja--translations", "ja--serve", "ja--ai", "ja--config-reference", "ja--__bibliography__", "ja--__index__"],
-    "en": ["en--__toc__", "en--cover", "en--part1", "en--introduction", "en--install", "en--book-yml", "en--markdown", "en--build", "en--part2", "en--translations", "en--serve", "en--ai", "en--config-reference", "en--__bibliography__", "en--__index__"],
+    "ja": ["ja--cover", "ja--__toc__", "ja--part1", "ja--introduction", "ja--install", "ja--book-yml", "ja--markdown", "ja--build", "ja--part2", "ja--translations", "ja--serve", "ja--ai", "ja--config-reference", "ja--__bibliography__", "ja--__index__"],
+    "en": ["en--cover", "en--__toc__", "en--part1", "en--introduction", "en--install", "en--book-yml", "en--markdown", "en--build", "en--part2", "en--translations", "en--serve", "en--ai", "en--config-reference", "en--__bibliography__", "en--__index__"],
   };
   var allLangs = ["ja", "en"];
   var currentLang = localStorage.getItem('ligarb-lang') || allLangs[0];
