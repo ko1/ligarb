@@ -19,10 +19,16 @@ The generated HTML includes:
 - "Edit on GitHub" links (optional)
 - Footnotes (kramdown syntax)
 
-**Security note:** ligarb is designed for trusted local authoring. It assumes
-that Markdown source files, bibliography data, and configuration files are
-written or reviewed by the author. It is not intended to safely process
-untrusted third-party content without additional sanitization and validation.
+**Intended use:** ligarb is a local CLI tool for authors who build books from
+their own Markdown sources. The generated HTML is a static file meant to be
+opened in a browser or deployed to a static hosting service. `ligarb serve`
+is for local preview only and must not be exposed to the internet.
+
+**Non-goals:** ligarb does not sanitize Markdown-derived HTML, CSS, or
+bibliography URLs. It is not designed for untrusted third-party content,
+public upload services, or automated pipelines that ingest unreviewed input.
+If such use cases are needed, add HTML sanitization, URL validation, and CSP
+headers externally.
 
 ## Commands
 
@@ -258,14 +264,22 @@ chapters:
 
 ### Building
 
+There are two ways to build a multi-language book:
+
+**Hub build** — pass the hub config to build all languages at once.
+Produces a single output with a language switcher linking all translations:
+
 ```
-ligarb build book.yml        # Builds all languages
-ligarb build book.ja.yml     # Builds only Japanese (standalone)
+ligarb build book.yml        # Builds all languages, adds language switcher
 ```
 
-When building a per-language config standalone, the `inherit` field loads
-the hub's inheritable settings (repository, style, ai_generated, etc.)
-as defaults.
+**Standalone build** — pass a per-language config to build one language.
+No language switcher is generated. The `inherit` field loads the hub's
+inheritable settings (repository, style, ai_generated, etc.) as defaults:
+
+```
+ligarb build book.ja.yml     # Builds only Japanese, no language switcher
+```
 
 ### Inheritance rules
 
@@ -338,8 +352,16 @@ Reference them from Markdown with relative paths:
 ![Screenshot](images/screenshot.png)
 ```
 
-ligarb rewrites image paths to `images/filename` in the output and copies
-all files from the images/ directory to the output.
+ligarb rewrites all local image paths to `images/{basename}` in the output
+(directory components are stripped). Images are copied from the `images/`
+directory next to book.yml — only top-level files, not subdirectories.
+
+This means:
+- `![img](images/foo.png)` and `![img](sub/dir/foo.png)` both become
+  `images/foo.png` in the output.
+- All image filenames must be unique regardless of source directory.
+- Remote URLs (http://, https://, data:) are left unchanged.
+- In multi-language builds, all languages share the same `images/` pool.
 
 ### Footnotes
 
@@ -668,7 +690,10 @@ Add a `style` field to book.yml to inject custom CSS:
 style: "custom.css"
 ```
 
-The custom CSS is loaded after the default styles. You can override any
+The custom CSS file is read and embedded as-is into a `<style>` tag in the
+generated HTML, after the default styles. No sanitization or escaping is
+applied — this is safe under the trusted authoring model, but means the CSS
+file should be treated as part of the trusted source. You can override any
 CSS custom property (e.g. colors, fonts, sidebar width) or add new rules.
 
 Example custom.css:
