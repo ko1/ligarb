@@ -1,0 +1,20 @@
+inherit: book.yml
+title: "ligarb マニュアル"
+language: "ja"
+output_dir: "build/ja"
+chapters:
+  - cover: chapters/cover.md
+  - part: chapters/part1.md
+    chapters:
+      - chapters/introduction.md
+      - chapters/install.md
+      - chapters/book-yml.md
+      - chapters/markdown.md
+      - chapters/build.md
+  - part: chapters/part2.md
+    chapters:
+      - chapters/translations.md
+      - chapters/serve.md
+      - chapters/ai.md
+  - appendix:
+    - chapters/config-reference.md

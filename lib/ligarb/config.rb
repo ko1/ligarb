@@ -6,19 +6,55 @@ module Ligarb
   class Config
     REQUIRED_KEYS = %w[title chapters].freeze
 
+    # Keys that can be inherited from a parent (translations hub) config.
+    # output_dir is intentionally excluded — it always comes from the
+    # config file that was directly passed to `ligarb build`.
+    INHERITABLE_KEYS = %w[author language chapter_numbers style
+                          repository ai_generated footer bibliography].freeze
+
     # Represents a structural entry in the book
     StructEntry = Struct.new(:type, :path, :children, keyword_init: true)
     # type: :chapter, :part, or :appendix_group
     # path: markdown file path (for :chapter and :part), nil for :appendix_group
     # children: array of StructEntry (for :part and :appendix_group)
 
+    # Represents a translation entry
+    # output_path: absolute path to the translation's build directory (for link generation)
+    TranslationEntry = Struct.new(:lang, :config_path, :title, :language, :output_path, keyword_init: true)
+
     attr_reader :title, :author, :language, :output_dir, :base_dir,
                 :chapter_numbers, :structure, :style, :repository,
-                :ai_generated, :footer, :bibliography, :sources
+                :ai_generated, :footer, :bibliography, :sources,
+                :translations
 
-    def initialize(path)
+    def initialize(path, parent_data: nil)
       @base_dir = File.dirname(File.expand_path(path))
       data = YAML.safe_load_file(path)
+
+      # If this is a translations hub (has translations but no chapters), skip normal validation
+      if data.is_a?(Hash) && data.key?("translations") && !data.key?("chapters")
+        @translations_hub = true
+        @translations_data = data
+        load_translations_hub(data)
+        return
+      end
+
+      # Load inherit file if specified (for standalone builds of child configs)
+      if !parent_data && data.is_a?(Hash) && data.key?("inherit")
+        inherit_path = File.expand_path(data["inherit"], @base_dir)
+        if File.exist?(inherit_path)
+          parent_data = YAML.safe_load_file(inherit_path)
+        else
+          abort "Error: inherit config not found: #{inherit_path}"
+        end
+      end
+
+      # Merge parent (inheritable) keys as defaults
+      if parent_data
+        INHERITABLE_KEYS.each do |key|
+          data[key] = parent_data[key] if parent_data.key?(key) && !data.key?(key)
+        end
+      end
 
       validate!(data)
 
@@ -34,6 +70,13 @@ module Ligarb
       @bibliography    = data.fetch("bibliography", nil)
       @sources         = parse_sources(data.fetch("sources", []))
       @structure       = parse_structure(data["chapters"])
+      @translations    = []
+
+      load_translations(data, path) if data.key?("translations")
+    end
+
+    def translations_hub?
+      @translations_hub == true
     end
 
     def output_path
@@ -135,6 +178,66 @@ module Ligarb
 
     def collect_all_paths(entries)
       collect_chapter_paths(entries)
+    end
+
+    def load_translations(data, config_path)
+      trans = data["translations"]
+      return unless trans.is_a?(Hash)
+
+      trans.each do |lang, rel_path|
+        abs_path = File.expand_path(rel_path, @base_dir)
+        unless File.exist?(abs_path)
+          abort "Error: translation config not found: #{abs_path}"
+        end
+        child_data = YAML.safe_load_file(abs_path)
+        # Merge parent keys for output_dir resolution
+        INHERITABLE_KEYS.each do |key|
+          child_data[key] = data[key] if data.key?(key) && !child_data.key?(key)
+        end
+        child_title = child_data["title"] || @title
+        child_lang = child_data.fetch("language", lang)
+        child_base = File.dirname(abs_path)
+        child_output = File.join(child_base, child_data.fetch("output_dir", "build"))
+        @translations << TranslationEntry.new(
+          lang: lang,
+          config_path: abs_path,
+          title: child_title,
+          language: child_lang,
+          output_path: child_output
+        )
+      end
+    end
+
+    def load_translations_hub(data)
+      @title = data.fetch("title", "")
+      @translations = []
+
+      trans = data["translations"]
+      return unless trans.is_a?(Hash)
+
+      trans.each do |lang, rel_path|
+        abs_path = File.expand_path(rel_path, @base_dir)
+        unless File.exist?(abs_path)
+          abort "Error: translation config not found: #{abs_path}"
+        end
+        child_data = YAML.safe_load_file(abs_path)
+        # Merge inheritable keys from hub as defaults
+        merged = child_data.dup
+        INHERITABLE_KEYS.each do |key|
+          merged[key] = data[key] if data.key?(key) && !merged.key?(key)
+        end
+        child_title = merged["title"] || @title
+        child_lang = merged.fetch("language", lang)
+        child_base = File.dirname(abs_path)
+        child_output = File.join(child_base, merged.fetch("output_dir", "build"))
+        @translations << TranslationEntry.new(
+          lang: lang,
+          config_path: abs_path,
+          title: child_title,
+          language: child_lang,
+          output_path: child_output
+        )
+      end
     end
 
     def validate!(data)

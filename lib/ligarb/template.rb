@@ -35,6 +35,61 @@ module Ligarb
       b.local_variable_set(:footer, config.effective_footer)
       b.local_variable_set(:index_tree, build_index_tree(index_entries, chapters))
       b.local_variable_set(:bibliography, bibliography)
+      b.local_variable_set(:multilang, false)
+      b.local_variable_set(:langs, [])
+
+      ERB.new(template, trim_mode: "-").result(b)
+    end
+
+    # Render a single HTML with all languages, switchable via JS
+    def render_multilang(langs:, assets:, hub_data:)
+      css = File.read(@css_path)
+      template = File.read(@template_path)
+
+      first = langs.first
+      first_config = first[:config]
+
+      custom_css = if first_config.style_path && File.exist?(first_config.style_path)
+                     File.read(first_config.style_path)
+                   end
+
+      # Build per-language template data
+      lang_data = langs.map do |ld|
+        cfg = ld[:config]
+        {
+          lang: ld[:lang],
+          title: cfg.title,
+          author: cfg.author,
+          language: cfg.language,
+          chapters: ld[:chapters],
+          structure: ld[:structure],
+          repository: cfg.repository,
+          appendix_label: cfg.appendix_label,
+          ai_generated: cfg.ai_generated,
+          footer: cfg.effective_footer,
+          index_tree: build_index_tree(ld[:index_entries], ld[:chapters]),
+          bibliography: ld[:bibliography],
+        }
+      end
+
+      b = binding
+      # Use first language's values as defaults for shared template vars
+      b.local_variable_set(:title, first_config.title)
+      b.local_variable_set(:author, first_config.author)
+      b.local_variable_set(:language, first_config.language)
+      b.local_variable_set(:chapters, first[:chapters])
+      b.local_variable_set(:structure, first[:structure])
+      b.local_variable_set(:css, css)
+      b.local_variable_set(:custom_css, custom_css)
+      b.local_variable_set(:assets, assets)
+      b.local_variable_set(:repository, first_config.repository)
+      b.local_variable_set(:appendix_label, first_config.appendix_label)
+      b.local_variable_set(:ai_generated, first_config.ai_generated)
+      b.local_variable_set(:footer, first_config.effective_footer)
+      b.local_variable_set(:index_tree, build_index_tree(first[:index_entries], first[:chapters]))
+      b.local_variable_set(:bibliography, first[:bibliography])
+      b.local_variable_set(:multilang, true)
+      b.local_variable_set(:langs, lang_data)
 
       ERB.new(template, trim_mode: "-").result(b)
     end

@@ -28,34 +28,65 @@
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-header-top">
+<%- if multilang -%>
+  <%- langs.each do |ld| -%>
+      <%- ld_cover = ld[:chapters].find(&:cover?) -%>
+      <%- if ld_cover -%>
+      <h1 class="book-title lang-content" data-lang="<%= ld[:lang] %>"><a href="#<%= ld_cover.slug %>" onclick="showChapter('<%= ld_cover.slug %>'); return false;"><%= h(ld[:title]) %></a></h1>
+      <%- else -%>
+      <h1 class="book-title lang-content" data-lang="<%= ld[:lang] %>"><%= h(ld[:title]) %></h1>
+      <%- end -%>
+  <%- end -%>
+<%- else -%>
       <%- cover_chapter = chapters.find(&:cover?) -%>
       <%- if cover_chapter -%>
       <h1 class="book-title"><a href="#<%= cover_chapter.slug %>" onclick="showChapter('<%= cover_chapter.slug %>'); return false;"><%= h(title) %></a></h1>
       <%- else -%>
       <h1 class="book-title"><%= h(title) %></h1>
       <%- end -%>
+<%- end -%>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
     </div>
+<%- if multilang -%>
+  <%- langs.each do |ld| -%>
+    <%- unless ld[:author].empty? -%>
+    <p class="book-author lang-content" data-lang="<%= ld[:lang] %>"><%= h(ld[:author]) %></p>
+    <%- end -%>
+  <%- end -%>
+<%- else -%>
     <%- unless author.empty? -%>
     <p class="book-author"><%= h(author) %></p>
     <%- end -%>
+<%- end -%>
     <%- if ai_generated -%>
     <span class="ai-badge"><%= language == 'ja' ? 'AI 生成' : 'AI Generated' %></span>
     <%- end -%>
+<%- if multilang -%>
+    <div class="lang-switcher">
+    <%- langs.each do |ld| -%>
+      <button class="lang-link" data-lang="<%= ld[:lang] %>" onclick="switchLang('<%= ld[:lang] %>')"><%= h(ld[:lang].upcase) %></button>
+    <%- end -%>
+    </div>
+<%- end -%>
   </div>
   <div class="search-box">
     <input type="text" id="toc-search" placeholder="Search..." autocomplete="off">
     <button class="search-clear" id="search-clear" type="button" aria-label="Clear search">&times;</button>
   </div>
   <nav class="toc" id="toc">
-    <ul>
-      <%- structure.each do |node| -%>
+<%- if multilang -%>
+  <%- langs.each do |ld| -%>
+    <ul class="lang-content" data-lang="<%= ld[:lang] %>">
+      <li class="toc-chapter" data-chapter="<%= ld[:lang] %>--__toc__">
+        <a href="#<%= ld[:lang] %>--__toc__" class="toc-h1" onclick="showChapter('<%= ld[:lang] %>--__toc__')"><%= ld[:language] == 'ja' ? '目次' : 'Contents' %></a>
+      </li>
+      <%- ld[:structure].each do |node| -%>
         <%- case node.type -%>
         <%- when :cover -%>
         <%- when :chapter -%>
       <li class="toc-chapter" data-chapter="<%= node.chapter.slug %>">
         <a href="#<%= node.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= node.chapter.slug %>')"><%= h(node.chapter.display_title) %></a>
-        <%- sub_headings = node.chapter.headings.select { |h| h.level >= 2 } -%>
+        <%- sub_headings = node.chapter.headings.select { |h| h.level == 2 } -%>
         <%- unless sub_headings.empty? -%>
         <ul>
           <%- sub_headings.each do |heading| -%>
@@ -73,7 +104,85 @@
           <%- (node.children || []).each do |child| -%>
           <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
             <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
-            <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level == 2 } -%>
+            <%- unless sub_headings.empty? -%>
+            <ul>
+              <%- sub_headings.each do |heading| -%>
+              <li>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
+              </li>
+              <%- end -%>
+            </ul>
+            <%- end -%>
+          </li>
+          <%- end -%>
+        </ul>
+      </li>
+        <%- when :appendix_group -%>
+      <li class="toc-appendix">
+        <span class="toc-appendix-title"><%= h(ld[:appendix_label]) %></span>
+        <ul>
+          <%- (node.children || []).each do |child| -%>
+          <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level == 2 } -%>
+            <%- unless sub_headings.empty? -%>
+            <ul>
+              <%- sub_headings.each do |heading| -%>
+              <li>
+                <a href="#<%= child.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
+              </li>
+              <%- end -%>
+            </ul>
+            <%- end -%>
+          </li>
+          <%- end -%>
+        </ul>
+      </li>
+        <%- end -%>
+      <%- end -%>
+      <%- unless ld[:bibliography].empty? -%>
+      <li class="toc-chapter" data-chapter="<%= ld[:lang] %>--__bibliography__">
+        <a href="#<%= ld[:lang] %>--__bibliography__" class="toc-h1" onclick="showChapter('<%= ld[:lang] %>--__bibliography__')"><%= ld[:language] == 'ja' ? '参考文献' : 'Bibliography' %></a>
+      </li>
+      <%- end -%>
+      <%- unless ld[:index_tree].empty? -%>
+      <li class="toc-chapter" data-chapter="<%= ld[:lang] %>--__index__">
+        <a href="#<%= ld[:lang] %>--__index__" class="toc-h1" onclick="showChapter('<%= ld[:lang] %>--__index__')"><%= ld[:language] == 'ja' ? '索引' : 'Index' %></a>
+      </li>
+      <%- end -%>
+    </ul>
+  <%- end -%>
+<%- else -%>
+    <ul>
+      <li class="toc-chapter" data-chapter="__toc__">
+        <a href="#__toc__" class="toc-h1" onclick="showChapter('__toc__')"><%= language == 'ja' ? '目次' : 'Contents' %></a>
+      </li>
+      <%- structure.each do |node| -%>
+        <%- case node.type -%>
+        <%- when :cover -%>
+        <%- when :chapter -%>
+      <li class="toc-chapter" data-chapter="<%= node.chapter.slug %>">
+        <a href="#<%= node.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= node.chapter.slug %>')"><%= h(node.chapter.display_title) %></a>
+        <%- sub_headings = node.chapter.headings.select { |h| h.level == 2 } -%>
+        <%- unless sub_headings.empty? -%>
+        <ul>
+          <%- sub_headings.each do |heading| -%>
+          <li>
+            <a href="#<%= node.chapter.slug %>--<%= heading.id %>" class="toc-h<%= heading.level %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>')"><%= h(heading.display_text) %></a>
+          </li>
+          <%- end -%>
+        </ul>
+        <%- end -%>
+      </li>
+        <%- when :part -%>
+      <li class="toc-part">
+        <a href="#<%= node.chapter.slug %>" class="toc-part-title" onclick="showChapter('<%= node.chapter.slug %>')"><%= h(node.chapter.title) %></a>
+        <ul>
+          <%- (node.children || []).each do |child| -%>
+          <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
+            <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level == 2 } -%>
             <%- unless sub_headings.empty? -%>
             <ul>
               <%- sub_headings.each do |heading| -%>
@@ -94,7 +203,7 @@
           <%- (node.children || []).each do |child| -%>
           <li class="toc-chapter" data-chapter="<%= child.chapter.slug %>">
             <a href="#<%= child.chapter.slug %>" class="toc-h1" onclick="showChapter('<%= child.chapter.slug %>')"><%= h(child.chapter.display_title) %></a>
-            <%- sub_headings = child.chapter.headings.select { |h| h.level >= 2 } -%>
+            <%- sub_headings = child.chapter.headings.select { |h| h.level == 2 } -%>
             <%- unless sub_headings.empty? -%>
             <ul>
               <%- sub_headings.each do |heading| -%>
@@ -121,12 +230,176 @@
       </li>
       <%- end -%>
     </ul>
+<%- end -%>
   </nav>
 </div>
 
 <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
 
 <main class="content" id="content">
+<%- if multilang -%>
+  <%- langs.each do |ld| -%>
+  <section class="chapter toc-page" id="chapter-<%= ld[:lang] %>--__toc__" data-lang="<%= ld[:lang] %>" style="display: none;">
+    <h1><%= ld[:language] == 'ja' ? '目次' : 'Contents' %></h1>
+    <nav class="toc-full">
+    <%- ld[:structure].each do |node| -%>
+      <%- case node.type -%>
+      <%- when :cover -%>
+      <%- when :chapter -%>
+      <div class="toc-full-chapter">
+        <a href="#<%= node.chapter.slug %>" onclick="showChapter('<%= node.chapter.slug %>'); return false;"><%= h(node.chapter.display_title) %></a>
+        <%- sub = node.chapter.headings.select { |h| h.level >= 2 } -%>
+        <%- unless sub.empty? -%>
+        <ul><%- sub.each do |heading| -%>
+          <li class="toc-full-h<%= heading.level %>"><a href="#<%= node.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+        <%- end -%></ul>
+        <%- end -%>
+      </div>
+      <%- when :part -%>
+      <div class="toc-full-part">
+        <a href="#<%= node.chapter.slug %>" onclick="showChapter('<%= node.chapter.slug %>'); return false;" class="toc-full-part-title"><%= h(node.chapter.title) %></a>
+        <%- (node.children || []).each do |child| -%>
+        <div class="toc-full-chapter">
+          <a href="#<%= child.chapter.slug %>" onclick="showChapter('<%= child.chapter.slug %>'); return false;"><%= h(child.chapter.display_title) %></a>
+          <%- sub = child.chapter.headings.select { |h| h.level >= 2 } -%>
+          <%- unless sub.empty? -%>
+          <ul><%- sub.each do |heading| -%>
+            <li class="toc-full-h<%= heading.level %>"><a href="#<%= child.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+          <%- end -%></ul>
+          <%- end -%>
+        </div>
+        <%- end -%>
+      </div>
+      <%- when :appendix_group -%>
+      <div class="toc-full-part">
+        <span class="toc-full-part-title"><%= h(ld[:appendix_label]) %></span>
+        <%- (node.children || []).each do |child| -%>
+        <div class="toc-full-chapter">
+          <a href="#<%= child.chapter.slug %>" onclick="showChapter('<%= child.chapter.slug %>'); return false;"><%= h(child.chapter.display_title) %></a>
+          <%- sub = child.chapter.headings.select { |h| h.level >= 2 } -%>
+          <%- unless sub.empty? -%>
+          <ul><%- sub.each do |heading| -%>
+            <li class="toc-full-h<%= heading.level %>"><a href="#<%= child.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+          <%- end -%></ul>
+          <%- end -%>
+        </div>
+        <%- end -%>
+      </div>
+      <%- end -%>
+    <%- end -%>
+    </nav>
+  </section>
+  <%- ld[:chapters].each_with_index do |chapter, idx| -%>
+  <section class="<%= chapter.cover? ? 'chapter cover-page' : 'chapter' %>" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
+    <%= chapter.html %>
+    <%- if ld[:repository] && !chapter.part_title? && !chapter.cover? -%>
+    <div class="edit-link">
+      <a href="<%= h(ld[:repository].chomp('/')) %>/blob/HEAD/<%= h(chapter.relative_path) %>" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <%- end -%>
+    <%- if ld[:footer] && !chapter.part_title? && !chapter.cover? -%>
+    <div class="chapter-footer"><%= h(ld[:footer]) %></div>
+    <%- end -%>
+    <%- unless chapter.cover? -%>
+    <nav class="chapter-nav">
+      <%- if idx > 0 -%>
+      <a href="#" class="nav-prev" onclick="showChapter('<%= ld[:chapters][idx-1].slug %>'); return false;">&larr; <%= h(ld[:chapters][idx-1].display_title) %></a>
+      <%- else -%>
+      <span></span>
+      <%- end -%>
+      <%- if idx < ld[:chapters].size - 1 -%>
+      <a href="#" class="nav-next" onclick="showChapter('<%= ld[:chapters][idx+1].slug %>'); return false;"><%= h(ld[:chapters][idx+1].display_title) %> &rarr;</a>
+      <%- end -%>
+    </nav>
+    <%- end -%>
+  </section>
+  <%- end -%>
+  <%- unless ld[:bibliography].empty? -%>
+  <section class="chapter bibliography-chapter" id="chapter-<%= ld[:lang] %>--__bibliography__" data-lang="<%= ld[:lang] %>" style="display: none;">
+    <h1><%= ld[:language] == 'ja' ? '参考文献' : 'Bibliography' %></h1>
+    <ul class="bibliography-list">
+      <%- ld[:bibliography].each do |entry| -%>
+      <li id="<%= ld[:lang] %>--bib-<%= h(entry[:key]) %>"><span class="bib-label">[<%= h(entry[:label]) %>]</span> <%= entry[:formatted_html] %></li>
+      <%- end -%>
+    </ul>
+  </section>
+  <%- end -%>
+  <%- unless ld[:index_tree].empty? -%>
+  <section class="chapter index-chapter" id="chapter-<%= ld[:lang] %>--__index__" data-lang="<%= ld[:lang] %>" style="display: none;">
+    <h1><%= ld[:language] == 'ja' ? '索引' : 'Index' %></h1>
+    <%- ld[:index_tree].keys.sort.each do |letter| -%>
+    <div class="index-group">
+      <h2 class="index-letter"><%= letter %></h2>
+      <dl class="index-entries">
+        <%- ld[:index_tree][letter].each do |item| -%>
+        <dt><%= h(item[:term]) %></dt>
+        <%- item[:refs].each do |ref| -%>
+        <dd><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
+        <%- end -%>
+        <%- item[:children].each do |child| -%>
+        <dt class="index-sub"><%= h(child[:term]) %></dt>
+        <%- child[:refs].each do |ref| -%>
+        <dd class="index-sub"><a href="#<%= ref[:anchor_id] %>" onclick="showChapterAndScroll('<%= ref[:chapter_slug] %>', '<%= ref[:anchor_id] %>'); return false;"><%= ref[:chapter_title] %></a></dd>
+        <%- end -%>
+        <%- end -%>
+        <%- end -%>
+      </dl>
+    </div>
+    <%- end -%>
+  </section>
+  <%- end -%>
+  <%- end -%>
+<%- else -%>
+  <section class="chapter toc-page" id="chapter-__toc__" style="display: none;">
+    <h1><%= language == 'ja' ? '目次' : 'Contents' %></h1>
+    <nav class="toc-full">
+    <%- structure.each do |node| -%>
+      <%- case node.type -%>
+      <%- when :cover -%>
+      <%- when :chapter -%>
+      <div class="toc-full-chapter">
+        <a href="#<%= node.chapter.slug %>" onclick="showChapter('<%= node.chapter.slug %>'); return false;"><%= h(node.chapter.display_title) %></a>
+        <%- sub = node.chapter.headings.select { |h| h.level >= 2 } -%>
+        <%- unless sub.empty? -%>
+        <ul><%- sub.each do |heading| -%>
+          <li class="toc-full-h<%= heading.level %>"><a href="#<%= node.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= node.chapter.slug %>', '<%= node.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+        <%- end -%></ul>
+        <%- end -%>
+      </div>
+      <%- when :part -%>
+      <div class="toc-full-part">
+        <a href="#<%= node.chapter.slug %>" onclick="showChapter('<%= node.chapter.slug %>'); return false;" class="toc-full-part-title"><%= h(node.chapter.title) %></a>
+        <%- (node.children || []).each do |child| -%>
+        <div class="toc-full-chapter">
+          <a href="#<%= child.chapter.slug %>" onclick="showChapter('<%= child.chapter.slug %>'); return false;"><%= h(child.chapter.display_title) %></a>
+          <%- sub = child.chapter.headings.select { |h| h.level >= 2 } -%>
+          <%- unless sub.empty? -%>
+          <ul><%- sub.each do |heading| -%>
+            <li class="toc-full-h<%= heading.level %>"><a href="#<%= child.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+          <%- end -%></ul>
+          <%- end -%>
+        </div>
+        <%- end -%>
+      </div>
+      <%- when :appendix_group -%>
+      <div class="toc-full-part">
+        <span class="toc-full-part-title"><%= h(appendix_label) %></span>
+        <%- (node.children || []).each do |child| -%>
+        <div class="toc-full-chapter">
+          <a href="#<%= child.chapter.slug %>" onclick="showChapter('<%= child.chapter.slug %>'); return false;"><%= h(child.chapter.display_title) %></a>
+          <%- sub = child.chapter.headings.select { |h| h.level >= 2 } -%>
+          <%- unless sub.empty? -%>
+          <ul><%- sub.each do |heading| -%>
+            <li class="toc-full-h<%= heading.level %>"><a href="#<%= child.chapter.slug %>--<%= heading.id %>" onclick="showChapterAndScroll('<%= child.chapter.slug %>', '<%= child.chapter.slug %>--<%= heading.id %>'); return false;"><%= h(heading.display_text) %></a></li>
+          <%- end -%></ul>
+          <%- end -%>
+        </div>
+        <%- end -%>
+      </div>
+      <%- end -%>
+    <%- end -%>
+    </nav>
+  </section>
   <%- chapters.each_with_index do |chapter, idx| -%>
   <section class="<%= chapter.cover? ? 'chapter cover-page' : 'chapter' %>" id="chapter-<%= chapter.slug %>" style="display: none;">
     <%= chapter.html %>
@@ -186,14 +459,138 @@
     <%- end -%>
   </section>
   <%- end -%>
+<%- end -%>
 </main>
 
 <script>
 (function() {
-  var chapters = [<%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
+<%- if multilang -%>
+  var langChapters = {
+  <%- langs.each do |ld| -%>
+    "<%= ld[:lang] %>": ["<%= ld[:lang] %>--__toc__", <%= ld[:chapters].map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ", \"#{ld[:lang]}--__bibliography__\"" unless ld[:bibliography].empty? %><%= ", \"#{ld[:lang]}--__index__\"" unless ld[:index_tree].empty? %>],
+  <%- end -%>
+  };
+  var allLangs = [<%= langs.map { |ld| "\"#{ld[:lang]}\"" }.join(", ") %>];
+  var currentLang = localStorage.getItem('ligarb-lang') || allLangs[0];
+  if (allLangs.indexOf(currentLang) === -1) currentLang = allLangs[0];
+  var chapters = langChapters[currentLang];
+<%- else -%>
+  var chapters = ["__toc__", <%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
+<%- end -%>
   var currentChapter = null;
 
   var navigating = false; // flag to suppress pushState during popstate/initial load
+
+  // Track the currently visible heading index and highlight TOC
+  var currentHeadingIndex = -1;
+  var headingObserver = null;
+
+  function setupHeadingObserver() {
+    if (headingObserver) headingObserver.disconnect();
+    if (!currentChapter) return;
+    var section = document.getElementById('chapter-' + currentChapter);
+    if (!section) return;
+    var headings = section.querySelectorAll('h1, h2, h3');
+    if (headings.length === 0) return;
+
+    headingObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var idx = Array.prototype.indexOf.call(headings, entry.target);
+          if (idx !== -1) {
+            currentHeadingIndex = idx;
+            highlightTocHeading(entry.target);
+          }
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+    headings.forEach(function(h) { headingObserver.observe(h); });
+  }
+
+  function highlightTocHeading(heading) {
+    // Remove previous active-section highlights
+    document.querySelectorAll('.toc a.active-section').forEach(function(a) {
+      a.classList.remove('active-section');
+    });
+    // Find the TOC link matching this heading's ID
+    var hid = heading.id;
+    if (!hid) return;
+    var tocLink = document.querySelector('.toc a[href="#' + CSS.escape(hid) + '"]');
+    if (tocLink) tocLink.classList.add('active-section');
+  }
+
+<%- if multilang -%>
+
+  function switchLang(lang) {
+    // Remember current position: chapter base slug and heading index
+    var oldLang = currentLang;
+    var targetSlug = null;
+    var targetHeadingIdx = currentHeadingIndex;
+
+    if (currentChapter) {
+      // Strip lang prefix to get the base slug (e.g. "ja--03-book-yml" → "03-book-yml")
+      var baseSlug = currentChapter.replace(new RegExp('^' + oldLang + '--'), '');
+      targetSlug = lang + '--' + baseSlug;
+    }
+
+    currentLang = lang;
+    chapters = langChapters[lang];
+    localStorage.setItem('ligarb-lang', lang);
+
+    // Toggle lang-content elements (TOC, header)
+    document.querySelectorAll('.lang-content').forEach(function(el) {
+      el.style.display = el.dataset.lang === lang ? '' : 'none';
+    });
+
+    // Toggle lang-switcher buttons
+    document.querySelectorAll('.lang-link').forEach(function(btn) {
+      if (btn.dataset.lang === lang) {
+        btn.classList.add('lang-current');
+      } else {
+        btn.classList.remove('lang-current');
+      }
+    });
+
+    // Hide all chapter sections, then show first of current lang
+    document.querySelectorAll('main .chapter').forEach(function(el) {
+      el.style.display = 'none';
+    });
+
+    // Reset search cache
+    chapterTextCache = null;
+
+    // Navigate to the corresponding chapter in the new language
+    if (targetSlug && chapters.indexOf(targetSlug) !== -1) {
+      showChapter(targetSlug);
+      // Scroll to the corresponding heading by index
+      if (targetHeadingIdx >= 0) {
+        setTimeout(function() {
+          var section = document.getElementById('chapter-' + targetSlug);
+          if (!section) return;
+          var headings = section.querySelectorAll('h1, h2, h3');
+          if (targetHeadingIdx < headings.length) {
+            headings[targetHeadingIdx].scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 50);
+      }
+    } else {
+      showChapter(chapters[0]);
+    }
+  }
+
+  // Initialize lang display
+  function initLang() {
+    document.querySelectorAll('.lang-content').forEach(function(el) {
+      el.style.display = el.dataset.lang === currentLang ? '' : 'none';
+    });
+    document.querySelectorAll('.lang-link').forEach(function(btn) {
+      if (btn.dataset.lang === currentLang) btn.classList.add('lang-current');
+    });
+  }
+
+  window.switchLang = switchLang;
+<%- end -%>
 
   function showChapter(slug, hash) {
     chapters.forEach(function(ch) {
@@ -202,7 +599,12 @@
     });
 
     // Update active state in TOC and scroll sidebar to show active item
+<%- if multilang -%>
+    var tocContainer = document.querySelector('.toc .lang-content[data-lang="' + currentLang + '"]');
+    var tocItems = tocContainer ? tocContainer.querySelectorAll('.toc-chapter') : [];
+<%- else -%>
     var tocItems = document.querySelectorAll('.toc-chapter');
+<%- end -%>
     var activeItem = null;
     tocItems.forEach(function(item) {
       if (item.dataset.chapter === slug) {
@@ -222,11 +624,14 @@
     }
 
     currentChapter = slug;
+    currentHeadingIndex = -1;
     var newHash = '#' + (hash || slug);
     if (!navigating) {
       history.pushState(null, '', newHash);
     }
     window.scrollTo(0, 0);
+
+    setupHeadingObserver();
 
     // Re-apply highlight if search is active
     if (searchInput && searchInput.value) {
@@ -251,7 +656,7 @@
             // mermaid sets data-processed; if it's still text-only (no SVG), it failed
             if (!el.querySelector('svg')) {
               var src = sources[el.id || el.textContent.slice(0, 50)] || el.textContent;
-              el.innerHTML = '<pre style="color:#c00;border:1px solid #c00;padding:0.5em;white-space:pre-wrap">mermaid エラー:\n' +
+              el.innerHTML = '<pre style="color:#c00;border:1px solid #c00;padding:0.5em;white-space:pre-wrap">mermaid error:\n' +
                 src.replace(/</g, '&lt;') + '</pre>';
             }
           });
@@ -349,6 +754,7 @@
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
         highlightElement(target);
+        highlightTocHeading(target);
       }
     }, 50);
   }
@@ -369,6 +775,14 @@
       return;
     }
 
+<%- if multilang -%>
+    // In multilang mode, detect language from hash prefix (e.g., "en--cover")
+    var langMatch = hash.match(/^([a-z]{2})--/);
+    if (langMatch && allLangs.indexOf(langMatch[1]) !== -1 && langMatch[1] !== currentLang) {
+      switchLang(langMatch[1]);
+    }
+<%- end -%>
+
     // Check if hash matches a chapter slug directly
     if (chapters.indexOf(hash) !== -1) {
       showChapter(hash);
@@ -376,7 +790,20 @@
       return;
     }
 
-    <%- unless bibliography.empty? -%>
+<%- if multilang -%>
+    // Check for bibliography entry (bib-KEY)
+    var bibMatch = hash.match(/^(?:([a-z]{2})--)?bib-(.+)/);
+    if (bibMatch) {
+      var bibLang = bibMatch[1] || currentLang;
+      showChapter(bibLang + '--__bibliography__', hash);
+      setTimeout(function() {
+        var target = document.getElementById(hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+      navigating = false;
+      return;
+    }
+<%- elsif !bibliography.empty? -%>
     // Check for bibliography entry (bib-KEY)
     var bibMatch = hash.match(/^bib-(.+)/);
     if (bibMatch) {
@@ -388,7 +815,7 @@
       navigating = false;
       return;
     }
-    <%- end -%>
+<%- end -%>
 
     // Check for footnote links (fn: or fnref:)
     var fnMatch = hash.match(/^(?:fn|fnref):(.+?)--/);
@@ -406,12 +833,31 @@
     // Check for deep link (chapter--heading)
     var parts = hash.split('--');
     if (parts.length >= 2) {
+<%- if multilang -%>
+      // In multilang, slug is "lang--chapter" so join first two parts
+      var chSlug = parts[0] + '--' + parts[1];
+      if (chapters.indexOf(chSlug) !== -1) {
+        showChapterAndScroll(chSlug, hash);
+        navigating = false;
+        return;
+      }
+      // Try 3 parts: "lang--chapter--heading" → chapter is "lang--chapter"
+      if (parts.length >= 3) {
+        chSlug = parts[0] + '--' + parts[1];
+        if (chapters.indexOf(chSlug) !== -1) {
+          showChapterAndScroll(chSlug, hash);
+          navigating = false;
+          return;
+        }
+      }
+<%- else -%>
       var chSlug = parts[0];
       if (chapters.indexOf(chSlug) !== -1) {
         showChapterAndScroll(chSlug, hash);
         navigating = false;
         return;
       }
+<%- end -%>
     }
 
     // Fallback
@@ -453,8 +899,14 @@
     // Remove existing match count badges
     document.querySelectorAll('.search-match-count').forEach(function(el) { el.remove(); });
 
+<%- if multilang -%>
+    var tocContainer = document.querySelector('.toc .lang-content[data-lang="' + currentLang + '"]');
+    var items = tocContainer ? tocContainer.querySelectorAll('.toc-chapter') : [];
+    var partItems = tocContainer ? tocContainer.querySelectorAll('.toc-part, .toc-appendix') : [];
+<%- else -%>
     var items = document.querySelectorAll('.toc-chapter');
     var partItems = document.querySelectorAll('.toc-part, .toc-appendix');
+<%- end -%>
 
     if (!query || query.length < 2) {
       // Show all items when query is too short
@@ -621,6 +1073,9 @@
   window.renderSpecialBlocks = function() { if (currentChapter) renderSpecialBlocks(currentChapter); };
 
   // Initialize (replace initial entry so first back goes to previous page, not same page)
+<%- if multilang -%>
+  initLang();
+<%- end -%>
   navigating = true;
   handleHash();
   history.replaceState(null, '', location.hash || '#' + (chapters[0] || ''));

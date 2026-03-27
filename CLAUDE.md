@@ -46,6 +46,7 @@ ruby exe/ligarb help
 - chapters 配列は 4 種類の要素を持つ: cover, 章（文字列）, part, appendix
 - GitHub リンクは `/blob/HEAD/` を使い、ブランチ名の指定を不要にしている
 - Git リポジトリルートを自動検出し、章ファイルのパスを解決
+- 多言語対応: ハブ `book.yml` が `translations` で言語別設定を参照。共通設定を継承し、サイドバーに言語切り替え UI を表示
 
 ## ドキュメント更新時の注意
 

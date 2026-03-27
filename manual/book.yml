@@ -1,23 +1,8 @@
-title: "ligarb マニュアル"
 author: "Claude Code (asked by @ko1)"
-language: "ja"
-output_dir: "build"
-# style: "custom.css"
 repository: "https://github.com/ko1/ligarb"
 ai_generated: true
 bibliography: references.bib
-chapters:
-  - cover: chapters/cover.md
-  - part: chapters/part1.md
-    chapters:
-      - chapters/01-introduction.md
-      - chapters/02-install.md
-      - chapters/03-book-yml.md
-      - chapters/04-markdown.md
-      - chapters/05-build.md
-  - part: chapters/part2.md
-    chapters:
-      - chapters/06-serve.md
-      - chapters/07-ai.md
-  - appendix:
-    - chapters/a1-config-reference.md
+output_dir: "build"
+translations:
+  ja: book.ja.yml
+  en: book.en.yml

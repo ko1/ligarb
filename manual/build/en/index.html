@@ -1,0 +1,3833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ligarb Manual</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="robots" content="noai, noimageai">
+<style>
+/* === Reset & Base === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --sidebar-width: 280px;
+  --color-bg: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-border: #e0e0e0;
+  --color-sidebar-bg: #f5f5f5;
+  --color-sidebar-hover: #e8e8e8;
+  --color-accent: #2563eb;
+  --color-accent-light: #dbeafe;
+  --color-code-bg: #f8f8f8;
+  --color-code-border: #e5e5e5;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* === Sidebar === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--color-sidebar-bg);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.book-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--color-text);
+}
+
+.book-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-title a:hover {
+  color: var(--color-accent);
+}
+
+.book-author {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.search-box {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 0.4rem 1.8rem 0.4rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.search-clear {
+  display: none;
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  line-height: 1;
+}
+
+.search-clear:hover {
+  color: var(--color-text);
+}
+
+.search-box input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-light);
+}
+
+/* TOC */
+.toc {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.toc ul {
+  list-style: none;
+}
+
+.toc > ul > li {
+  margin-bottom: 0.25rem;
+}
+
+.toc a {
+  display: block;
+  padding: 0.3rem 1rem;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.88rem;
+  border-left: 3px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.toc a:hover {
+  background: var(--color-sidebar-hover);
+}
+
+.toc a.toc-h1 {
+  font-weight: 600;
+}
+
+.toc a.toc-h2 {
+  padding-left: 1.8rem;
+  font-size: 0.84rem;
+}
+
+.toc a.toc-h3 {
+  padding-left: 2.6rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.toc a.active-section {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.toc-chapter.active > a.toc-h1 {
+  border-left-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+}
+
+/* Part & Appendix titles in TOC */
+.toc-part-title {
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  color: var(--color-text) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding-top: 0.6rem !important;
+  padding-bottom: 0.3rem !important;
+  border-left-color: transparent !important;
+}
+
+.toc-part > ul {
+  margin-bottom: 0.5rem;
+}
+
+.toc-appendix-title {
+  display: block;
+  padding: 0.6rem 1rem 0.3rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.toc-appendix > ul {
+  margin-bottom: 0.5rem;
+}
+
+/* Sidebar toggle */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* === Main Content === */
+.content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  max-width: 800px;
+  padding: 2.5rem 3rem;
+}
+
+.chapter h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.chapter h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.chapter h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.chapter h4,
+.chapter h5,
+.chapter h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.chapter p {
+  margin-bottom: 1rem;
+}
+
+.chapter ul,
+.chapter ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.chapter li {
+  margin-bottom: 0.3rem;
+}
+
+.chapter li > ul,
+.chapter li > ol {
+  margin-top: 0.3rem;
+  margin-bottom: 0;
+}
+
+/* Links */
+.chapter a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.chapter a:hover {
+  text-decoration: underline;
+}
+
+/* Code */
+.chapter code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
+  border-radius: 3px;
+  padding: 0.15em 0.35em;
+}
+
+.chapter pre {
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+.chapter pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+/* Tables */
+.chapter table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.2rem;
+  font-size: 0.92rem;
+}
+
+.chapter th,
+.chapter td {
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.chapter th {
+  background: var(--color-sidebar-bg);
+  font-weight: 600;
+}
+
+/* Blockquote */
+.chapter blockquote {
+  border-left: 4px solid var(--color-accent);
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  color: var(--color-text-muted);
+  background: var(--color-code-bg);
+  border-radius: 0 4px 4px 0;
+}
+
+.chapter blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Images */
+.chapter img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+/* Horizontal rule */
+.chapter hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+/* Task lists */
+.chapter .task-list-item {
+  list-style: none;
+  margin-left: -1.5rem;
+}
+
+.chapter .task-list-item input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.search-match-count {
+  display: inline-block;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.05em 0.45em;
+  border-radius: 8px;
+  margin-left: 0.4em;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+/* Search highlight */
+mark.search-highlight {
+  background: #fef08a;
+  color: inherit;
+  padding: 0.1em 0;
+  border-radius: 2px;
+}
+
+/* === Admonitions === */
+.admonition {
+  border-left: 4px solid;
+  border-radius: 0 4px 4px 0;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.admonition p:last-child {
+  margin-bottom: 0;
+}
+
+.admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.4rem !important;
+}
+
+.admonition-note {
+  border-left-color: #2563eb;
+  background: #eff6ff;
+}
+.admonition-note .admonition-title::before { content: "\2139\FE0F  "; }
+
+.admonition-tip {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+}
+.admonition-tip .admonition-title::before { content: "\1F4A1  "; }
+
+.admonition-warning {
+  border-left-color: #ca8a04;
+  background: #fefce8;
+}
+.admonition-warning .admonition-title::before { content: "\26A0\FE0F  "; }
+
+.admonition-caution {
+  border-left-color: #dc2626;
+  background: #fef2f2;
+}
+.admonition-caution .admonition-title::before { content: "\1F6D1  "; }
+
+.admonition-important {
+  border-left-color: #9333ea;
+  background: #faf5ff;
+}
+.admonition-important .admonition-title::before { content: "\2757  "; }
+
+/* === Dark Mode === */
+[data-theme="dark"] {
+  --color-bg: #1a1a2e;
+  --color-text: #e0e0e0;
+  --color-text-muted: #a0a0a0;
+  --color-border: #333;
+  --color-sidebar-bg: #16213e;
+  --color-sidebar-hover: #1a1a3a;
+  --color-accent: #4dabf7;
+  --color-accent-light: #1c3a5c;
+  --color-code-bg: #0f172a;
+  --color-code-border: #2d3748;
+  --color-highlight: rgba(255, 243, 205, 0.15);
+}
+
+[data-theme="dark"] .admonition-note {
+  background: #1e2a3a;
+}
+[data-theme="dark"] .admonition-tip {
+  background: #1a2e1a;
+}
+[data-theme="dark"] .admonition-warning {
+  background: #2e2a1a;
+}
+[data-theme="dark"] .admonition-caution {
+  background: #2e1a1a;
+}
+[data-theme="dark"] .admonition-important {
+  background: #2a1a2e;
+}
+
+[data-theme="dark"] .search-box input {
+  background: var(--color-code-bg);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] mark.search-highlight {
+  background: #854d0e;
+  color: #fef08a;
+}
+
+[data-theme="dark"] .hljs {
+  background: var(--color-code-bg) !important;
+  color: #e0e0e0 !important;
+}
+
+/* Theme toggle */
+.sidebar-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  color: var(--color-text);
+  background: var(--color-sidebar-hover);
+}
+
+/* === Part / Appendix TOC === */
+.toc-part {
+  margin-top: 0.5rem;
+}
+
+.toc-part-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  padding: 0.6rem 1rem 0.3rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.toc-part-title:hover {
+  color: var(--color-text);
+}
+
+.toc-appendix {
+  margin-top: 0.5rem;
+}
+
+.toc-appendix-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  padding: 0.6rem 1rem 0.3rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* === Chapter Navigation === */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  gap: 1rem;
+}
+
+.nav-prev,
+.nav-next {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  transition: background 0.15s, border-color 0.15s;
+  max-width: 45%;
+}
+
+.nav-prev:hover,
+.nav-next:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+  text-decoration: none;
+}
+
+.nav-next {
+  text-align: right;
+  margin-left: auto;
+}
+
+/* === Edit Link === */
+.edit-link {
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.edit-link a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.edit-link a:hover {
+  color: var(--color-accent);
+}
+
+/* === Footnotes === */
+.chapter .footnotes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.88rem;
+}
+
+.chapter .footnotes ol {
+  padding-left: 1.5rem;
+}
+
+.chapter sup a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.chapter sup a:hover {
+  text-decoration: underline;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .content {
+    margin-left: 0;
+    padding: 2rem 1.5rem;
+    padding-top: 3.5rem;
+  }
+}
+
+/* === Bibliography === */
+.bibliography-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.bibliography-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  text-indent: -1.5rem;
+  line-height: 1.5;
+}
+
+.bibliography-list li a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.bibliography-list li a:hover {
+  text-decoration: underline;
+}
+
+.ligarb-highlight {
+  border-radius: 4px;
+  padding: 4px 6px;
+  animation: ligarb-highlight-fade 3s ease-out forwards;
+}
+
+@keyframes ligarb-highlight-fade {
+  0% { background: var(--color-highlight, #fff3cd); }
+  100% { background: transparent; }
+}
+
+.cite-ref {
+  font-size: 0.8em;
+}
+
+.bib-label {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-right: 0.3em;
+}
+
+.cite-ref a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cite-ref a:hover {
+  text-decoration: underline;
+}
+
+.cite-missing {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 0 3px;
+  border-radius: 2px;
+  cursor: help;
+}
+
+[data-theme="dark"] .cite-missing {
+  color: #ef9a9a;
+  background: rgba(211, 47, 47, 0.15);
+}
+
+/* === Index === */
+.index-group {
+  margin-bottom: 1.5rem;
+}
+
+.index-letter {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.index-entries {
+  margin-left: 0;
+}
+
+.index-entries dt {
+  font-weight: 600;
+  margin-top: 0.4rem;
+}
+
+.index-entries dt.index-sub {
+  font-weight: 400;
+  margin-left: 1.5rem;
+}
+
+.index-entries dd {
+  margin-left: 1.5rem;
+  font-size: 0.92rem;
+}
+
+.index-entries dd.index-sub {
+  margin-left: 3rem;
+}
+
+.index-entries dd a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.index-entries dd a:hover {
+  text-decoration: underline;
+}
+
+/* === AI Generated Notice === */
+.ai-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ca8a04;
+  background: #fefce8;
+  border: 1px solid #facc15;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  margin-top: 0.3rem;
+  letter-spacing: 0.03em;
+}
+
+[data-theme="dark"] .ai-badge {
+  color: #fbbf24;
+  background: #2e2a1a;
+  border-color: #854d0e;
+}
+
+.lang-switcher {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lang-link {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+  background: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lang-link:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.lang-link.lang-current {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+  cursor: default;
+}
+
+.chapter-footer {
+  margin-top: 2rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+}
+
+/* === Full TOC Page === */
+.toc-full {
+  line-height: 1.8;
+}
+
+.toc-full a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.toc-full a:hover {
+  color: var(--color-accent);
+}
+
+.toc-full-part {
+  margin-top: 1.5rem;
+}
+
+.toc-full-part-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+a.toc-full-part-title {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.toc-full-part-title:hover {
+  color: var(--color-accent);
+}
+
+.toc-full-chapter {
+  margin-top: 0.5rem;
+}
+
+.toc-full-chapter > a {
+  font-weight: 600;
+}
+
+.toc-full ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-full-h2 {
+  padding-left: 1.5rem;
+  font-size: 0.92rem;
+}
+
+.toc-full-h3 {
+  padding-left: 3rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* === Print === */
+@media print {
+  .sidebar,
+  .sidebar-toggle,
+  .chapter-nav,
+  .edit-link {
+    display: none !important;
+  }
+
+  html {
+    font-size: 11pt;
+  }
+
+  body {
+    line-height: 1.5;
+  }
+
+  .content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .chapter {
+    display: block !important;
+    page-break-before: always;
+  }
+
+  .chapter:first-child {
+    page-break-before: avoid;
+  }
+
+  .chapter pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .chapter pre code {
+    font-size: 0.8rem;
+  }
+
+  @page {
+    margin: 20mm 15mm;
+    @bottom-center {
+      content: counter(page);
+      font-size: 9pt;
+      color: #666;
+    }
+  }
+}
+
+/* === Mermaid source toggle === */
+details.mermaid-source {
+  margin-top: 0.3em;
+  font-size: 0.8em;
+}
+details.mermaid-source summary {
+  cursor: pointer;
+  color: #888;
+  user-select: none;
+}
+details.mermaid-source pre {
+  margin-top: 0.3em;
+  padding: 0.5em;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+.dark-mode details.mermaid-source pre {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+</style>
+<link rel="stylesheet" href="css/highlight.css">
+<link rel="stylesheet" href="css/katex.min.css">
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-header-top">
+      <h1 class="book-title"><a href="#cover" onclick="showChapter('cover'); return false;">ligarb Manual</a></h1>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">&#9790;</button>
+    </div>
+    <p class="book-author">Claude Code (asked by @ko1)</p>
+    <span class="ai-badge">AI Generated</span>
+  </div>
+  <div class="search-box">
+    <input type="text" id="toc-search" placeholder="Search..." autocomplete="off">
+    <button class="search-clear" id="search-clear" type="button" aria-label="Clear search">&times;</button>
+  </div>
+  <nav class="toc" id="toc">
+    <ul>
+      <li class="toc-chapter" data-chapter="__toc__">
+        <a href="#__toc__" class="toc-h1" onclick="showChapter('__toc__')">Contents</a>
+      </li>
+      <li class="toc-part">
+        <a href="#part1" class="toc-part-title" onclick="showChapter('part1')">Basics</a>
+        <ul>
+          <li class="toc-chapter" data-chapter="introduction">
+            <a href="#introduction" class="toc-h1" onclick="showChapter('introduction')">1. Introduction</a>
+            <ul>
+              <li>
+                <a href="#introduction--what-is-ligarb" class="toc-h2" onclick="showChapterAndScroll('introduction', 'introduction--what-is-ligarb')">1.1 What is ligarb?</a>
+              </li>
+              <li>
+                <a href="#introduction--features" class="toc-h2" onclick="showChapterAndScroll('introduction', 'introduction--features')">1.2 Features</a>
+              </li>
+              <li>
+                <a href="#introduction--comparison-with-similar-tools" class="toc-h2" onclick="showChapterAndScroll('introduction', 'introduction--comparison-with-similar-tools')">1.3 Comparison with Similar Tools</a>
+              </li>
+              <li>
+                <a href="#introduction--about-this-manual" class="toc-h2" onclick="showChapterAndScroll('introduction', 'introduction--about-this-manual')">1.4 About This Manual</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="install">
+            <a href="#install" class="toc-h1" onclick="showChapter('install')">2. Installation and Setup</a>
+            <ul>
+              <li>
+                <a href="#install--requirements" class="toc-h2" onclick="showChapterAndScroll('install', 'install--requirements')">2.1 Requirements</a>
+              </li>
+              <li>
+                <a href="#install--installation" class="toc-h2" onclick="showChapterAndScroll('install', 'install--installation')">2.2 Installation</a>
+              </li>
+              <li>
+                <a href="#install--checking-the-help" class="toc-h2" onclick="showChapterAndScroll('install', 'install--checking-the-help')">2.3 Checking the Help</a>
+              </li>
+              <li>
+                <a href="#install--creating-a-project" class="toc-h2" onclick="showChapterAndScroll('install', 'install--creating-a-project')">2.4 Creating a Project</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="book-yml">
+            <a href="#book-yml" class="toc-h1" onclick="showChapter('book-yml')">3. Writing book.yml</a>
+            <ul>
+              <li>
+                <a href="#book-yml--basic-structure" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--basic-structure')">3.1 Basic Structure</a>
+              </li>
+              <li>
+                <a href="#book-yml--field-list" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--field-list')">3.2 Field List</a>
+              </li>
+              <li>
+                <a href="#book-yml--specifying-chapters" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--specifying-chapters')">3.3 Specifying Chapters</a>
+              </li>
+              <li>
+                <a href="#book-yml--custom-css" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--custom-css')">3.4 Custom CSS</a>
+              </li>
+              <li>
+                <a href="#book-yml--github-edit-links" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--github-edit-links')">3.5 GitHub Edit Links</a>
+              </li>
+              <li>
+                <a href="#book-yml--ai-generated-mark" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--ai-generated-mark')">3.6 AI-Generated Mark</a>
+              </li>
+              <li>
+                <a href="#book-yml--footer" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--footer')">3.7 Footer</a>
+              </li>
+              <li>
+                <a href="#book-yml--bibliography" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--bibliography')">3.8 Bibliography</a>
+              </li>
+              <li>
+                <a href="#book-yml--source-files-sources" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--source-files-sources')">3.9 Source Files (sources)</a>
+              </li>
+              <li>
+                <a href="#book-yml--multi-language-support-translations-inherit" class="toc-h2" onclick="showChapterAndScroll('book-yml', 'book-yml--multi-language-support-translations-inherit')">3.10 Multi-Language Support (translations / inherit)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="markdown">
+            <a href="#markdown" class="toc-h1" onclick="showChapter('markdown')">4. Markdown Syntax and Images</a>
+            <ul>
+              <li>
+                <a href="#markdown--supported-markdown-syntax" class="toc-h2" onclick="showChapterAndScroll('markdown', 'markdown--supported-markdown-syntax')">4.1 Supported Markdown Syntax</a>
+              </li>
+              <li>
+                <a href="#markdown--images" class="toc-h2" onclick="showChapterAndScroll('markdown', 'markdown--images')">4.2 Images</a>
+              </li>
+              <li>
+                <a href="#markdown--index" class="toc-h2" onclick="showChapterAndScroll('markdown', 'markdown--index')">4.3 Index</a>
+              </li>
+              <li>
+                <a href="#markdown--bibliography" class="toc-h2" onclick="showChapterAndScroll('markdown', 'markdown--bibliography')">4.4 Bibliography</a>
+              </li>
+              <li>
+                <a href="#markdown--cross-references" class="toc-h2" onclick="showChapterAndScroll('markdown', 'markdown--cross-references')">4.5 Cross-References</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="build">
+            <a href="#build" class="toc-h1" onclick="showChapter('build')">5. Building and Reviewing</a>
+            <ul>
+              <li>
+                <a href="#build--build-command" class="toc-h2" onclick="showChapterAndScroll('build', 'build--build-command')">5.1 Build Command</a>
+              </li>
+              <li>
+                <a href="#build--output" class="toc-h2" onclick="showChapterAndScroll('build', 'build--output')">5.2 Output</a>
+              </li>
+              <li>
+                <a href="#build--viewing" class="toc-h2" onclick="showChapterAndScroll('build', 'build--viewing')">5.3 Viewing</a>
+              </li>
+              <li>
+                <a href="#build--verification-checklist" class="toc-h2" onclick="showChapterAndScroll('build', 'build--verification-checklist')">5.4 Verification Checklist</a>
+              </li>
+              <li>
+                <a href="#build--distribution" class="toc-h2" onclick="showChapterAndScroll('build', 'build--distribution')">5.5 Distribution</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li class="toc-part">
+        <a href="#part2" class="toc-part-title" onclick="showChapter('part2')">Advanced</a>
+        <ul>
+          <li class="toc-chapter" data-chapter="translations">
+            <a href="#translations" class="toc-h1" onclick="showChapter('translations')">6. Multi-Language Support (Translations)</a>
+            <ul>
+              <li>
+                <a href="#translations--hub-configuration-file" class="toc-h2" onclick="showChapterAndScroll('translations', 'translations--hub-configuration-file')">6.1 Hub Configuration File</a>
+              </li>
+              <li>
+                <a href="#translations--child-configuration-files-and-inheritance" class="toc-h2" onclick="showChapterAndScroll('translations', 'translations--child-configuration-files-and-inheritance')">6.2 Child Configuration Files and Inheritance</a>
+              </li>
+              <li>
+                <a href="#translations--building" class="toc-h2" onclick="showChapterAndScroll('translations', 'translations--building')">6.3 Building</a>
+              </li>
+              <li>
+                <a href="#translations--language-switcher-ui" class="toc-h2" onclick="showChapterAndScroll('translations', 'translations--language-switcher-ui')">6.4 Language Switcher UI</a>
+              </li>
+              <li>
+                <a href="#translations--directory-structure-example" class="toc-h2" onclick="showChapterAndScroll('translations', 'translations--directory-structure-example')">6.5 Directory Structure Example</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="serve">
+            <a href="#serve" class="toc-h1" onclick="showChapter('serve')">7. Preview and Review</a>
+            <ul>
+              <li>
+                <a href="#serve--ligarb-serve-local-server" class="toc-h2" onclick="showChapterAndScroll('serve', 'serve--ligarb-serve-local-server')">7.1 ligarb serve  Local Server</a>
+              </li>
+              <li>
+                <a href="#serve--live-reload" class="toc-h2" onclick="showChapterAndScroll('serve', 'serve--live-reload')">7.2 Live Reload</a>
+              </li>
+              <li>
+                <a href="#serve--review-ui" class="toc-h2" onclick="showChapterAndScroll('serve', 'serve--review-ui')">7.3 Review UI</a>
+              </li>
+              <li>
+                <a href="#serve--internal-api" class="toc-h2" onclick="showChapterAndScroll('serve', 'serve--internal-api')">7.4 Internal API</a>
+              </li>
+            </ul>
+          </li>
+          <li class="toc-chapter" data-chapter="ai">
+            <a href="#ai" class="toc-h1" onclick="showChapter('ai')">8. Using AI</a>
+            <ul>
+              <li>
+                <a href="#ai--ligarb-write-auto-generate-a-book-with-ai" class="toc-h2" onclick="showChapterAndScroll('ai', 'ai--ligarb-write-auto-generate-a-book-with-ai')">8.1 ligarb write  Auto-Generate a Book with AI</a>
+              </li>
+              <li>
+                <a href="#ai--using-ai-manually" class="toc-h2" onclick="showChapterAndScroll('ai', 'ai--using-ai-manually')">8.2 Using AI Manually</a>
+              </li>
+              <li>
+                <a href="#ai--important-notes" class="toc-h2" onclick="showChapterAndScroll('ai', 'ai--important-notes')">8.3 Important Notes</a>
+              </li>
+              <li>
+                <a href="#ai--key-points" class="toc-h2" onclick="showChapterAndScroll('ai', 'ai--key-points')">8.4 Key Points</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li class="toc-appendix">
+        <span class="toc-appendix-title">Appendix</span>
+        <ul>
+          <li class="toc-chapter" data-chapter="config-reference">
+            <a href="#config-reference" class="toc-h1" onclick="showChapter('config-reference')">A. Configuration Reference</a>
+            <ul>
+              <li>
+                <a href="#config-reference--bookyml-field-list" class="toc-h2" onclick="showChapterAndScroll('config-reference', 'config-reference--bookyml-field-list')">A.1 book.yml Field List</a>
+              </li>
+              <li>
+                <a href="#config-reference--chapters-elements" class="toc-h2" onclick="showChapterAndScroll('config-reference', 'config-reference--chapters-elements')">A.2 chapters Elements</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li class="toc-chapter" data-chapter="__bibliography__">
+        <a href="#__bibliography__" class="toc-h1" onclick="showChapter('__bibliography__')">Bibliography</a>
+      </li>
+      <li class="toc-chapter" data-chapter="__index__">
+        <a href="#__index__" class="toc-h1" onclick="showChapter('__index__')">Index</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+
+<button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
+
+<main class="content" id="content">
+  <section class="chapter toc-page" id="chapter-__toc__" style="display: none;">
+    <h1>Contents</h1>
+    <nav class="toc-full">
+      <div class="toc-full-part">
+        <a href="#part1" onclick="showChapter('part1'); return false;" class="toc-full-part-title">Basics</a>
+        <div class="toc-full-chapter">
+          <a href="#introduction" onclick="showChapter('introduction'); return false;">1. Introduction</a>
+          <ul>            <li class="toc-full-h2"><a href="#introduction--what-is-ligarb" onclick="showChapterAndScroll('introduction', 'introduction--what-is-ligarb'); return false;">1.1 What is ligarb?</a></li>
+            <li class="toc-full-h2"><a href="#introduction--features" onclick="showChapterAndScroll('introduction', 'introduction--features'); return false;">1.2 Features</a></li>
+            <li class="toc-full-h3"><a href="#introduction--output" onclick="showChapterAndScroll('introduction', 'introduction--output'); return false;">1.2.1 Output</a></li>
+            <li class="toc-full-h3"><a href="#introduction--writing-assistance" onclick="showChapterAndScroll('introduction', 'introduction--writing-assistance'); return false;">1.2.2 Writing Assistance</a></li>
+            <li class="toc-full-h2"><a href="#introduction--comparison-with-similar-tools" onclick="showChapterAndScroll('introduction', 'introduction--comparison-with-similar-tools'); return false;">1.3 Comparison with Similar Tools</a></li>
+            <li class="toc-full-h3"><a href="#introduction--mdbook" onclick="showChapterAndScroll('introduction', 'introduction--mdbook'); return false;">1.3.1 mdBook</a></li>
+            <li class="toc-full-h3"><a href="#introduction--honkit-formerly-gitbook" onclick="showChapterAndScroll('introduction', 'introduction--honkit-formerly-gitbook'); return false;">1.3.2 Honkit (formerly GitBook)</a></li>
+            <li class="toc-full-h3"><a href="#introduction--sphinx" onclick="showChapterAndScroll('introduction', 'introduction--sphinx'); return false;">1.3.3 Sphinx</a></li>
+            <li class="toc-full-h3"><a href="#introduction--pandoc" onclick="showChapterAndScroll('introduction', 'introduction--pandoc'); return false;">1.3.4 Pandoc</a></li>
+            <li class="toc-full-h3"><a href="#introduction--where-ligarb-fits" onclick="showChapterAndScroll('introduction', 'introduction--where-ligarb-fits'); return false;">1.3.5 Where ligarb Fits</a></li>
+            <li class="toc-full-h2"><a href="#introduction--about-this-manual" onclick="showChapterAndScroll('introduction', 'introduction--about-this-manual'); return false;">1.4 About This Manual</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#install" onclick="showChapter('install'); return false;">2. Installation and Setup</a>
+          <ul>            <li class="toc-full-h2"><a href="#install--requirements" onclick="showChapterAndScroll('install', 'install--requirements'); return false;">2.1 Requirements</a></li>
+            <li class="toc-full-h2"><a href="#install--installation" onclick="showChapterAndScroll('install', 'install--installation'); return false;">2.2 Installation</a></li>
+            <li class="toc-full-h2"><a href="#install--checking-the-help" onclick="showChapterAndScroll('install', 'install--checking-the-help'); return false;">2.3 Checking the Help</a></li>
+            <li class="toc-full-h2"><a href="#install--creating-a-project" onclick="showChapterAndScroll('install', 'install--creating-a-project'); return false;">2.4 Creating a Project</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#book-yml" onclick="showChapter('book-yml'); return false;">3. Writing book.yml</a>
+          <ul>            <li class="toc-full-h2"><a href="#book-yml--basic-structure" onclick="showChapterAndScroll('book-yml', 'book-yml--basic-structure'); return false;">3.1 Basic Structure</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--field-list" onclick="showChapterAndScroll('book-yml', 'book-yml--field-list'); return false;">3.2 Field List</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--specifying-chapters" onclick="showChapterAndScroll('book-yml', 'book-yml--specifying-chapters'); return false;">3.3 Specifying Chapters</a></li>
+            <li class="toc-full-h3"><a href="#book-yml--cover-page" onclick="showChapterAndScroll('book-yml', 'book-yml--cover-page'); return false;">3.3.1 Cover Page</a></li>
+            <li class="toc-full-h3"><a href="#book-yml--simple-structure" onclick="showChapterAndScroll('book-yml', 'book-yml--simple-structure'); return false;">3.3.2 Simple Structure</a></li>
+            <li class="toc-full-h3"><a href="#book-yml--grouping-with-parts" onclick="showChapterAndScroll('book-yml', 'book-yml--grouping-with-parts'); return false;">3.3.3 Grouping with Parts</a></li>
+            <li class="toc-full-h3"><a href="#book-yml--adding-appendices" onclick="showChapterAndScroll('book-yml', 'book-yml--adding-appendices'); return false;">3.3.4 Adding Appendices</a></li>
+            <li class="toc-full-h3"><a href="#book-yml--file-naming-conventions" onclick="showChapterAndScroll('book-yml', 'book-yml--file-naming-conventions'); return false;">3.3.5 File Naming Conventions</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--custom-css" onclick="showChapterAndScroll('book-yml', 'book-yml--custom-css'); return false;">3.4 Custom CSS</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--github-edit-links" onclick="showChapterAndScroll('book-yml', 'book-yml--github-edit-links'); return false;">3.5 GitHub Edit Links</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--ai-generated-mark" onclick="showChapterAndScroll('book-yml', 'book-yml--ai-generated-mark'); return false;">3.6 AI-Generated Mark</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--footer" onclick="showChapterAndScroll('book-yml', 'book-yml--footer'); return false;">3.7 Footer</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--bibliography" onclick="showChapterAndScroll('book-yml', 'book-yml--bibliography'); return false;">3.8 Bibliography</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--source-files-sources" onclick="showChapterAndScroll('book-yml', 'book-yml--source-files-sources'); return false;">3.9 Source Files (sources)</a></li>
+            <li class="toc-full-h2"><a href="#book-yml--multi-language-support-translations-inherit" onclick="showChapterAndScroll('book-yml', 'book-yml--multi-language-support-translations-inherit'); return false;">3.10 Multi-Language Support (translations / inherit)</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#markdown" onclick="showChapter('markdown'); return false;">4. Markdown Syntax and Images</a>
+          <ul>            <li class="toc-full-h2"><a href="#markdown--supported-markdown-syntax" onclick="showChapterAndScroll('markdown', 'markdown--supported-markdown-syntax'); return false;">4.1 Supported Markdown Syntax</a></li>
+            <li class="toc-full-h3"><a href="#markdown--headings" onclick="showChapterAndScroll('markdown', 'markdown--headings'); return false;">4.1.1 Headings</a></li>
+            <li class="toc-full-h3"><a href="#markdown--code-blocks" onclick="showChapterAndScroll('markdown', 'markdown--code-blocks'); return false;">4.1.2 Code Blocks</a></li>
+            <li class="toc-full-h3"><a href="#markdown--diagrams-mermaid" onclick="showChapterAndScroll('markdown', 'markdown--diagrams-mermaid'); return false;">4.1.3 Diagrams (Mermaid)</a></li>
+            <li class="toc-full-h3"><a href="#markdown--math-katex" onclick="showChapterAndScroll('markdown', 'markdown--math-katex'); return false;">4.1.4 Math (KaTeX)</a></li>
+            <li class="toc-full-h3"><a href="#markdown--function-plots-functionplot" onclick="showChapterAndScroll('markdown', 'markdown--function-plots-functionplot'); return false;">4.1.5 Function Plots (functionplot)</a></li>
+            <li class="toc-full-h3"><a href="#markdown--inline-math" onclick="showChapterAndScroll('markdown', 'markdown--inline-math'); return false;">4.1.6 Inline Math</a></li>
+            <li class="toc-full-h3"><a href="#markdown--tables" onclick="showChapterAndScroll('markdown', 'markdown--tables'); return false;">4.1.7 Tables</a></li>
+            <li class="toc-full-h3"><a href="#markdown--lists" onclick="showChapterAndScroll('markdown', 'markdown--lists'); return false;">4.1.8 Lists</a></li>
+            <li class="toc-full-h3"><a href="#markdown--blockquotes" onclick="showChapterAndScroll('markdown', 'markdown--blockquotes'); return false;">4.1.9 Blockquotes</a></li>
+            <li class="toc-full-h3"><a href="#markdown--admonitions" onclick="showChapterAndScroll('markdown', 'markdown--admonitions'); return false;">4.1.10 Admonitions</a></li>
+            <li class="toc-full-h3"><a href="#markdown--footnotes" onclick="showChapterAndScroll('markdown', 'markdown--footnotes'); return false;">4.1.11 Footnotes</a></li>
+            <li class="toc-full-h2"><a href="#markdown--images" onclick="showChapterAndScroll('markdown', 'markdown--images'); return false;">4.2 Images</a></li>
+            <li class="toc-full-h3"><a href="#markdown--directory" onclick="showChapterAndScroll('markdown', 'markdown--directory'); return false;">4.2.1 Directory</a></li>
+            <li class="toc-full-h3"><a href="#markdown--referencing-in-markdown" onclick="showChapterAndScroll('markdown', 'markdown--referencing-in-markdown'); return false;">4.2.2 Referencing in Markdown</a></li>
+            <li class="toc-full-h3"><a href="#markdown--supported-formats" onclick="showChapterAndScroll('markdown', 'markdown--supported-formats'); return false;">4.2.3 Supported Formats</a></li>
+            <li class="toc-full-h2"><a href="#markdown--index" onclick="showChapterAndScroll('markdown', 'markdown--index'); return false;">4.3 Index</a></li>
+            <li class="toc-full-h3"><a href="#markdown--basic-usage" onclick="showChapterAndScroll('markdown', 'markdown--basic-usage'); return false;">4.3.1 Basic Usage</a></li>
+            <li class="toc-full-h3"><a href="#markdown--multiple-index-terms" onclick="showChapterAndScroll('markdown', 'markdown--multiple-index-terms'); return false;">4.3.2 Multiple Index Terms</a></li>
+            <li class="toc-full-h3"><a href="#markdown--hierarchical-index" onclick="showChapterAndScroll('markdown', 'markdown--hierarchical-index'); return false;">4.3.3 Hierarchical Index</a></li>
+            <li class="toc-full-h3"><a href="#markdown--example" onclick="showChapterAndScroll('markdown', 'markdown--example'); return false;">4.3.4 Example</a></li>
+            <li class="toc-full-h2"><a href="#markdown--bibliography" onclick="showChapterAndScroll('markdown', 'markdown--bibliography'); return false;">4.4 Bibliography</a></li>
+            <li class="toc-full-h3"><a href="#markdown--setup" onclick="showChapterAndScroll('markdown', 'markdown--setup'); return false;">4.4.1 Setup</a></li>
+            <li class="toc-full-h3"><a href="#markdown--supported-fields" onclick="showChapterAndScroll('markdown', 'markdown--supported-fields'); return false;">4.4.2 Supported Fields</a></li>
+            <li class="toc-full-h3"><a href="#markdown--display-by-entry-type" onclick="showChapterAndScroll('markdown', 'markdown--display-by-entry-type'); return false;">4.4.3 Display by Entry Type</a></li>
+            <li class="toc-full-h3"><a href="#markdown--citing-references" onclick="showChapterAndScroll('markdown', 'markdown--citing-references'); return false;">4.4.4 Citing References</a></li>
+            <li class="toc-full-h3"><a href="#markdown--example" onclick="showChapterAndScroll('markdown', 'markdown--example'); return false;">4.4.5 Example</a></li>
+            <li class="toc-full-h3"><a href="#markdown--behavior-details" onclick="showChapterAndScroll('markdown', 'markdown--behavior-details'); return false;">4.4.6 Behavior Details</a></li>
+            <li class="toc-full-h2"><a href="#markdown--cross-references" onclick="showChapterAndScroll('markdown', 'markdown--cross-references'); return false;">4.5 Cross-References</a></li>
+            <li class="toc-full-h3"><a href="#markdown--basic-usage" onclick="showChapterAndScroll('markdown', 'markdown--basic-usage'); return false;">4.5.1 Basic Usage</a></li>
+            <li class="toc-full-h3"><a href="#markdown--auto-filled-link-text" onclick="showChapterAndScroll('markdown', 'markdown--auto-filled-link-text'); return false;">4.5.2 Auto-Filled Link Text</a></li>
+            <li class="toc-full-h3"><a href="#markdown--path-resolution" onclick="showChapterAndScroll('markdown', 'markdown--path-resolution'); return false;">4.5.3 Path Resolution</a></li>
+            <li class="toc-full-h3"><a href="#markdown--error-detection" onclick="showChapterAndScroll('markdown', 'markdown--error-detection'); return false;">4.5.4 Error Detection</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#build" onclick="showChapter('build'); return false;">5. Building and Reviewing</a>
+          <ul>            <li class="toc-full-h2"><a href="#build--build-command" onclick="showChapterAndScroll('build', 'build--build-command'); return false;">5.1 Build Command</a></li>
+            <li class="toc-full-h2"><a href="#build--output" onclick="showChapterAndScroll('build', 'build--output'); return false;">5.2 Output</a></li>
+            <li class="toc-full-h2"><a href="#build--viewing" onclick="showChapterAndScroll('build', 'build--viewing'); return false;">5.3 Viewing</a></li>
+            <li class="toc-full-h2"><a href="#build--verification-checklist" onclick="showChapterAndScroll('build', 'build--verification-checklist'); return false;">5.4 Verification Checklist</a></li>
+            <li class="toc-full-h2"><a href="#build--distribution" onclick="showChapterAndScroll('build', 'build--distribution'); return false;">5.5 Distribution</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="toc-full-part">
+        <a href="#part2" onclick="showChapter('part2'); return false;" class="toc-full-part-title">Advanced</a>
+        <div class="toc-full-chapter">
+          <a href="#translations" onclick="showChapter('translations'); return false;">6. Multi-Language Support (Translations)</a>
+          <ul>            <li class="toc-full-h2"><a href="#translations--hub-configuration-file" onclick="showChapterAndScroll('translations', 'translations--hub-configuration-file'); return false;">6.1 Hub Configuration File</a></li>
+            <li class="toc-full-h2"><a href="#translations--child-configuration-files-and-inheritance" onclick="showChapterAndScroll('translations', 'translations--child-configuration-files-and-inheritance'); return false;">6.2 Child Configuration Files and Inheritance</a></li>
+            <li class="toc-full-h3"><a href="#translations--inheritance-rules" onclick="showChapterAndScroll('translations', 'translations--inheritance-rules'); return false;">6.2.1 Inheritance Rules</a></li>
+            <li class="toc-full-h3"><a href="#translations--required-fields-per-language" onclick="showChapterAndScroll('translations', 'translations--required-fields-per-language'); return false;">6.2.2 Required Fields per Language</a></li>
+            <li class="toc-full-h2"><a href="#translations--building" onclick="showChapterAndScroll('translations', 'translations--building'); return false;">6.3 Building</a></li>
+            <li class="toc-full-h2"><a href="#translations--language-switcher-ui" onclick="showChapterAndScroll('translations', 'translations--language-switcher-ui'); return false;">6.4 Language Switcher UI</a></li>
+            <li class="toc-full-h2"><a href="#translations--directory-structure-example" onclick="showChapterAndScroll('translations', 'translations--directory-structure-example'); return false;">6.5 Directory Structure Example</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#serve" onclick="showChapter('serve'); return false;">7. Preview and Review</a>
+          <ul>            <li class="toc-full-h2"><a href="#serve--ligarb-serve-local-server" onclick="showChapterAndScroll('serve', 'serve--ligarb-serve-local-server'); return false;">7.1 ligarb serve  Local Server</a></li>
+            <li class="toc-full-h2"><a href="#serve--live-reload" onclick="showChapterAndScroll('serve', 'serve--live-reload'); return false;">7.2 Live Reload</a></li>
+            <li class="toc-full-h2"><a href="#serve--review-ui" onclick="showChapterAndScroll('serve', 'serve--review-ui'); return false;">7.3 Review UI</a></li>
+            <li class="toc-full-h3"><a href="#serve--comment-flow" onclick="showChapterAndScroll('serve', 'serve--comment-flow'); return false;">7.3.1 Comment Flow</a></li>
+            <li class="toc-full-h3"><a href="#serve--approve-and-dismiss" onclick="showChapterAndScroll('serve', 'serve--approve-and-dismiss'); return false;">7.3.2 Approve and Dismiss</a></li>
+            <li class="toc-full-h3"><a href="#serve--managing-reviews" onclick="showChapterAndScroll('serve', 'serve--managing-reviews'); return false;">7.3.3 Managing Reviews</a></li>
+            <li class="toc-full-h3"><a href="#serve--data-storage" onclick="showChapterAndScroll('serve', 'serve--data-storage'); return false;">7.3.4 Data Storage</a></li>
+            <li class="toc-full-h2"><a href="#serve--internal-api" onclick="showChapterAndScroll('serve', 'serve--internal-api'); return false;">7.4 Internal API</a></li>
+</ul>
+        </div>
+        <div class="toc-full-chapter">
+          <a href="#ai" onclick="showChapter('ai'); return false;">8. Using AI</a>
+          <ul>            <li class="toc-full-h2"><a href="#ai--ligarb-write-auto-generate-a-book-with-ai" onclick="showChapterAndScroll('ai', 'ai--ligarb-write-auto-generate-a-book-with-ai'); return false;">8.1 ligarb write  Auto-Generate a Book with AI</a></li>
+            <li class="toc-full-h3"><a href="#ai--workflow" onclick="showChapterAndScroll('ai', 'ai--workflow'); return false;">8.1.1 Workflow</a></li>
+            <li class="toc-full-h3"><a href="#ai--writing-briefyml" onclick="showChapterAndScroll('ai', 'ai--writing-briefyml'); return false;">8.1.2 Writing brief.yml</a></li>
+            <li class="toc-full-h3"><a href="#ai--reference-files-sources" onclick="showChapterAndScroll('ai', 'ai--reference-files-sources'); return false;">8.1.3 Reference Files (sources)</a></li>
+            <li class="toc-full-h3"><a href="#ai--ai-generated-content-display" onclick="showChapterAndScroll('ai', 'ai--ai-generated-content-display'); return false;">8.1.4 AI-Generated Content Display</a></li>
+            <li class="toc-full-h3"><a href="#ai--prerequisites" onclick="showChapterAndScroll('ai', 'ai--prerequisites'); return false;">8.1.5 Prerequisites</a></li>
+            <li class="toc-full-h2"><a href="#ai--using-ai-manually" onclick="showChapterAndScroll('ai', 'ai--using-ai-manually'); return false;">8.2 Using AI Manually</a></li>
+            <li class="toc-full-h3"><a href="#ai--prompt-examples" onclick="showChapterAndScroll('ai', 'ai--prompt-examples'); return false;">8.2.1 Prompt Examples</a></li>
+            <li class="toc-full-h3"><a href="#ai--add-a-translation-to-an-existing-book" onclick="showChapterAndScroll('ai', 'ai--add-a-translation-to-an-existing-book'); return false;">8.2.2 Add a translation to an existing book</a></li>
+            <li class="toc-full-h2"><a href="#ai--important-notes" onclick="showChapterAndScroll('ai', 'ai--important-notes'); return false;">8.3 Important Notes</a></li>
+            <li class="toc-full-h2"><a href="#ai--key-points" onclick="showChapterAndScroll('ai', 'ai--key-points'); return false;">8.4 Key Points</a></li>
+</ul>
+        </div>
+      </div>
+      <div class="toc-full-part">
+        <span class="toc-full-part-title">Appendix</span>
+        <div class="toc-full-chapter">
+          <a href="#config-reference" onclick="showChapter('config-reference'); return false;">A. Configuration Reference</a>
+          <ul>            <li class="toc-full-h2"><a href="#config-reference--bookyml-field-list" onclick="showChapterAndScroll('config-reference', 'config-reference--bookyml-field-list'); return false;">A.1 book.yml Field List</a></li>
+            <li class="toc-full-h2"><a href="#config-reference--chapters-elements" onclick="showChapterAndScroll('config-reference', 'config-reference--chapters-elements'); return false;">A.2 chapters Elements</a></li>
+            <li class="toc-full-h3"><a href="#config-reference--chapter-string" onclick="showChapterAndScroll('config-reference', 'config-reference--chapter-string'); return false;">A.2.1 Chapter (string)</a></li>
+            <li class="toc-full-h3"><a href="#config-reference--part" onclick="showChapterAndScroll('config-reference', 'config-reference--part'); return false;">A.2.2 Part</a></li>
+            <li class="toc-full-h3"><a href="#config-reference--appendix" onclick="showChapterAndScroll('config-reference', 'config-reference--appendix'); return false;">A.2.3 Appendix</a></li>
+</ul>
+        </div>
+      </div>
+    </nav>
+  </section>
+  <section class="chapter cover-page" id="chapter-cover" style="display: none;">
+    <h1 id="cover--ligarb-manual">ligarb Manual</h1>
+
+<p><img src="images/logo.svg" alt="ligarb" /></p>
+
+<p>A complete guide to the simple CLI tool that creates books from Markdown files.</p>
+
+  </section>
+  <section class="chapter" id="chapter-part1" style="display: none;">
+    <h1 id="part1--basics">Basics</h1>
+
+<p>In this part, you will learn the fundamentals of creating a book with ligarb, from installation and project setup to writing in Markdown and building for review.</p>
+
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('cover'); return false;">&larr; ligarb Manual</a>
+      <a href="#" class="nav-next" onclick="showChapter('introduction'); return false;">1. Introduction &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-introduction" style="display: none;">
+    <h1 id="introduction--introduction">1. Introduction</h1>
+
+<h2 id="introduction--what-is-ligarb">1.1 What is ligarb?</h2>
+
+<p><span id="introduction--idx-0">ligarb</span> is a CLI tool that generates a single HTML file from multiple <span id="introduction--idx-1">Markdown</span> files.
+It is ideal for organizing information in “book” format, such as software documentation and tutorials.</p>
+
+<h2 id="introduction--features">1.2 Features</h2>
+
+<h3 id="introduction--output">1.2.1 Output</h3>
+
+<ul>
+  <li><strong>Single HTML output</strong>: All chapters are combined into one <code>index.html</code></li>
+  <li><strong>Searchable <span id="introduction--idx-2">table of contents</span></strong>: A sidebar TOC with keyword filtering</li>
+  <li><strong>Chapter switching</strong>: JavaScript toggles content by chapter</li>
+  <li><strong><span id="introduction--idx-3">Permalink</span> support</strong>: Link directly to a specific chapter via URL <code>#</code></li>
+  <li><strong><span id="introduction--idx-4">Parts</span> &amp; <span id="introduction--idx-5">appendices</span></strong>: Group chapters into parts and add appendices</li>
+  <li><strong>Previous/Next navigation</strong>: Links to adjacent chapters at the bottom of each chapter</li>
+  <li><strong><span id="introduction--idx-6">Dark mode</span></strong>: Toggle via a button in the sidebar</li>
+  <li><strong><span id="introduction--idx-7">Custom CSS</span></strong>: Apply your own styles</li>
+  <li><strong><span id="introduction--idx-8">GitHub edit links</span></strong>: Show “Edit on GitHub” links for each chapter</li>
+  <li><strong>Responsive design</strong>: Comfortable reading on both desktop and mobile</li>
+  <li><strong>Print support</strong>: All chapters are expanded when printing</li>
+</ul>
+
+<h3 id="introduction--writing-assistance">1.2.2 Writing Assistance</h3>
+
+<ul>
+  <li><strong><a href="#ai">AI auto-writing</a></strong>: Write a brief (<code>brief.yml</code>) and run <code>ligarb write</code> to automate everything from generation to build</li>
+  <li><strong><a href="#serve">Comment &amp; review</a></strong>: Select text in <code>ligarb serve</code> to comment, and Claude will return improvement suggestions and patches. Approve to auto-apply to source files</li>
+  <li><strong><a href="#ai">Manual AI integration</a></strong>: Pass the output of <code>ligarb help</code> to an AI for accurate spec-aware chapter editing</li>
+</ul>
+
+<h2 id="introduction--comparison-with-similar-tools">1.3 Comparison with Similar Tools</h2>
+
+<p>Several tools generate books from Markdown. Here is how ligarb compares to some popular ones.</p>
+
+<h3 id="introduction--mdbook">1.3.1 mdBook</h3>
+
+<p>A Rust-based documentation generator used for the official Rust documentation. It generates multi-page output by default. ligarb combines all chapters into a single HTML, so you can share the entire book by passing a single file.</p>
+
+<h3 id="introduction--honkit-formerly-gitbook">1.3.2 Honkit (formerly GitBook)</h3>
+
+<p>A Node.js-based open-source fork of GitBook. It can produce single-page output but requires a Node.js build environment. ligarb runs with just Ruby and a few gems, and configuration is a single <code>book.yml</code>.</p>
+
+<h3 id="introduction--sphinx">1.3.3 Sphinx</h3>
+
+<p>A Python-based documentation generator supporting reStructuredText and Markdown. It is very feature-rich but has a steeper learning curve. ligarb prioritizes simplicity: “write in Markdown, build with one command.”</p>
+
+<h3 id="introduction--pandoc">1.3.4 Pandoc</h3>
+
+<p>A universal format converter. It can generate a single HTML from multiple Markdown files, but features like a sidebar TOC, chapter switching, and search must be built separately. ligarb includes all of these out of the box.</p>
+
+<h3 id="introduction--where-ligarb-fits">1.3.5 Where ligarb Fits</h3>
+
+<p>ligarb focuses on making it easy to create a book and distribute it as-is. Single HTML output, built-in sidebar TOC and search, and AI integration are available with minimal configuration. For highly customizable output formats and themes, Sphinx or mdBook may be better suited, but when you want to quickly turn your Markdown into a book, ligarb shines.</p>
+
+<h2 id="introduction--about-this-manual">1.4 About This Manual</h2>
+
+<p>This manual itself is built with ligarb.
+The following chapters walk you through installation to building your first book.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/introduction.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('part1'); return false;">&larr; Basics</a>
+      <a href="#" class="nav-next" onclick="showChapter('install'); return false;">2. Installation and Setup &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-install" style="display: none;">
+    <h1 id="install--installation-and-setup">2. Installation and Setup</h1>
+
+<h2 id="install--requirements">2.1 Requirements</h2>
+
+<p>To use ligarb, you need:</p>
+
+<ul>
+  <li><span id="install--idx-0">Ruby</span> 3.0 or later</li>
+  <li><span id="install--idx-1">Bundler</span> (gem install bundler)</li>
+</ul>
+
+<h2 id="install--installation">2.2 Installation</h2>
+
+<p>Clone the ligarb repository and install dependencies:</p>
+
+<pre><code class="language-bash">git clone https://github.com/ko1/ligarb.git
+cd ligarb
+bundle install
+</code></pre>
+
+<h2 id="install--checking-the-help">2.3 Checking the Help</h2>
+
+<p>Once installed, check the usage with the <span id="install--idx-2"><code>ligarb help</code></span> command:</p>
+
+<pre><code class="language-bash">ligarb help
+</code></pre>
+
+<p>All commands and configuration options are displayed. Refer to this command first whenever you have questions.</p>
+
+<h2 id="install--creating-a-project">2.4 Creating a Project</h2>
+
+<p>Create a book project with the following directory structure:</p>
+
+<pre><code>my-book/
+├── book.yml
+├── chapters/
+│   ├── 01-first-chapter.md
+│   └── 02-second-chapter.md
+└── images/          # if you have images
+    └── screenshot.png
+</code></pre>
+
+<p><span id="install--idx-3"><code>book.yml</code></span> is the configuration file, and Markdown files for each chapter go under <code>chapters/</code>.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/install.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('introduction'); return false;">&larr; 1. Introduction</a>
+      <a href="#" class="nav-next" onclick="showChapter('book-yml'); return false;">3. Writing book.yml &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-book-yml" style="display: none;">
+    <h1 id="book-yml--writing-bookyml">3. Writing book.yml</h1>
+
+<h2 id="book-yml--basic-structure">3.1 Basic Structure</h2>
+
+<p><span id="book-yml--idx-0"><code>book.yml</code></span> is a <span id="book-yml--idx-1">YAML</span> configuration file. Here is the basic structure:</p>
+
+<pre><code class="language-yaml">title: "Book Title"
+author: "Author Name"
+language: "en"
+output_dir: "build"
+chapters:
+  - 01-introduction.md
+  - 02-details.md
+</code></pre>
+
+<h2 id="book-yml--field-list">3.2 Field List</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span id="book-yml--idx-2">title</span></td>
+      <td>Yes</td>
+      <td>–</td>
+      <td>Book title. Shown in the header and <code>&lt;title&gt;</code></td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-3">author</span></td>
+      <td>No</td>
+      <td>(empty)</td>
+      <td>Author name. Shown in the header</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-4">language</span></td>
+      <td>No</td>
+      <td>“en”</td>
+      <td>HTML <code>lang</code> attribute</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-5">output_dir</span></td>
+      <td>No</td>
+      <td>“build”</td>
+      <td>Output directory (relative to book.yml)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-6">chapter_numbers</span></td>
+      <td>No</td>
+      <td>true</td>
+      <td>Whether to show chapter numbers</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-7">style</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Path to a custom CSS file</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-8">repository</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>GitHub repository URL (for edit links)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-9">ai_generated</span></td>
+      <td>No</td>
+      <td>false</td>
+      <td>Mark as AI-generated content (badge, disclaimer, noindex meta tags)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-10">footer</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Text displayed at the bottom of each chapter (can override <code>ai_generated</code> default disclaimer)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-11">bibliography</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Path to bibliography data file (<code>.yml</code> or <code>.bib</code>)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-12">sources</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Reference files for AI writing</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-13">translations</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Multi-language support (lang code to config path)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-14">inherit</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Parent config path (inherits shared settings)</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-15">chapters</span></td>
+      <td>Yes</td>
+      <td>–</td>
+      <td>Chapter, part, and appendix structure (see below)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="book-yml--specifying-chapters">3.3 Specifying Chapters</h2>
+
+<p><code>chapters</code> can list chapter file paths directly, or organize them into parts and appendices.</p>
+
+<h3 id="book-yml--cover-page">3.3.1 Cover Page</h3>
+
+<p>You can add a <span id="book-yml--idx-16">cover</span> page at the beginning of the book. The cover is not shown in the table of contents and is the first page displayed when the book is opened:</p>
+
+<pre><code class="language-yaml">chapters:
+  - cover: cover.md
+  - 01-introduction.md
+</code></pre>
+
+<h3 id="book-yml--simple-structure">3.3.2 Simple Structure</h3>
+
+<p>The simplest format lists chapters flat:</p>
+
+<pre><code class="language-yaml">chapters:
+  - 01-introduction.md
+  - 02-getting-started.md
+  - 03-advanced.md
+</code></pre>
+
+<h3 id="book-yml--grouping-with-parts">3.3.3 Grouping with Parts</h3>
+
+<p>For books with many chapters, you can group them into <span id="book-yml--idx-17">parts</span>:</p>
+
+<pre><code class="language-yaml">chapters:
+  - part: part1.md
+    chapters:
+      - 01-introduction.md
+      - 02-getting-started.md
+  - part: part2.md
+    chapters:
+      - 03-advanced.md
+      - 04-tips.md
+</code></pre>
+
+<p>Specify a Markdown file for <code>part</code>.
+Its h1 becomes the part title, and the body becomes the title page.</p>
+
+<h3 id="book-yml--adding-appendices">3.3.4 Adding Appendices</h3>
+
+<p>You can add <span id="book-yml--idx-18">appendices</span> at the end. Appendix chapters are numbered with letters (A, B, C, …):</p>
+
+<pre><code class="language-yaml">chapters:
+  - part: part1.md
+    chapters:
+      - 01-introduction.md
+  - appendix:
+    - a1-references.md
+    - a2-glossary.md
+</code></pre>
+
+<h3 id="book-yml--file-naming-conventions">3.3.5 File Naming Conventions</h3>
+
+<p>There are no strict rules for file names, but <code>number-slug.md</code> is recommended for easy management.
+The <code>number-slug</code> portion becomes the chapter identifier (<span id="book-yml--idx-19">slug</span>) used in the URL <code>#</code>.</p>
+
+<h2 id="book-yml--custom-css">3.4 Custom CSS</h2>
+
+<p>Specify a <span id="book-yml--idx-20">CSS</span> file with the <code>style</code> field. It is loaded after the default styles:</p>
+
+<pre><code class="language-yaml">style: "custom.css"
+</code></pre>
+
+<p>Override CSS custom properties to change colors, fonts, etc.:</p>
+
+<pre><code class="language-css">:root {
+  --color-accent: #e63946;
+  --sidebar-width: 320px;
+}
+</code></pre>
+
+<h2 id="book-yml--github-edit-links">3.5 GitHub Edit Links</h2>
+
+<p>Set the <code>repository</code> field to show “View on GitHub” links at the bottom of each chapter (<span id="book-yml--idx-21">GitHub edit links</span>):</p>
+
+<pre><code class="language-yaml">repository: "https://github.com/user/my-book"
+</code></pre>
+
+<h2 id="book-yml--ai-generated-mark">3.6 AI-Generated Mark</h2>
+
+<p>Setting <code>ai_generated</code> to <code>true</code> has the following effects:</p>
+
+<ul>
+  <li>Displays an “AI Generated” badge in the sidebar</li>
+  <li>Automatically adds a disclaimer footer to each chapter</li>
+  <li>Adds <code>noindex</code> / <code>noai</code> meta tags (suppresses search indexing and AI training)</li>
+</ul>
+
+<pre><code class="language-yaml">ai_generated: true
+</code></pre>
+
+<h2 id="book-yml--footer">3.7 Footer</h2>
+
+<p>Use the <code>footer</code> field to display text at the bottom of each chapter. It can also override the default <code>ai_generated</code> disclaimer:</p>
+
+<pre><code class="language-yaml">footer: "(c) 2025 Author Name. All rights reserved."
+</code></pre>
+
+<h2 id="book-yml--bibliography">3.8 Bibliography</h2>
+
+<p>Specify a bibliography data file with the <code>bibliography</code> field. Both YAML (<code>.yml</code>) and BibTeX (<code>.bib</code>) formats are supported:</p>
+
+<pre><code class="language-yaml">bibliography: references.bib
+</code></pre>
+
+<p>See <a href="#markdown--bibliography">Markdown Syntax</a> for detailed usage.</p>
+
+<h2 id="book-yml--source-files-sources">3.9 Source Files (sources)</h2>
+
+<p>The <code>sources</code> field specifies files for the AI to reference during <a href="#ai">AI writing</a> (<code>ligarb write</code>). The contents are passed as context to the AI:</p>
+
+<pre><code class="language-yaml">sources:
+  - notes.md
+  - path: data/research.pdf
+    label: "Research Report"
+</code></pre>
+
+<p>A plain string uses the filename as the label. You can also specify <code>path</code> and <code>label</code> separately.</p>
+
+<h2 id="book-yml--multi-language-support-translations-inherit">3.10 Multi-Language Support (translations / inherit)</h2>
+
+<p>The <code>translations</code> field manages multiple language versions of the same book. The <code>inherit</code> field inherits shared settings from a parent config.</p>
+
+<pre><code class="language-yaml"># book.yml (hub)
+repository: "https://github.com/user/repo"
+translations:
+  ja: book.ja.yml
+  en: book.en.yml
+</code></pre>
+
+<pre><code class="language-yaml"># book.ja.yml (child)
+inherit: book.yml
+title: "Manual"
+language: "ja"
+chapters:
+  - 01-intro.md
+</code></pre>
+
+<p>See <a href="#translations">6. Multi-Language Support (Translations)</a> for details.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/book-yml.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('install'); return false;">&larr; 2. Installation and Setup</a>
+      <a href="#" class="nav-next" onclick="showChapter('markdown'); return false;">4. Markdown Syntax and Images &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-markdown" style="display: none;">
+    <h1 id="markdown--markdown-syntax-and-images">4. Markdown Syntax and Images</h1>
+
+<h2 id="markdown--supported-markdown-syntax">4.1 Supported Markdown Syntax</h2>
+
+<p>ligarb supports <span id="markdown--idx-0">GitHub Flavored Markdown</span> (<span id="markdown--cite-0">GFM<sup class="cite-ref"><a href="#bib-gfm2017" title="GitHub. GitHub Flavored Markdown Spec. 2017." onclick="showChapterAndScroll('__bibliography__', 'bib-gfm2017'); return false;">[GitHub, 2017]</a></sup></span>). Markdown is a lightweight markup language <span id="markdown--cite-1">first published by John Gruber in 2004<sup class="cite-ref"><a href="#bib-gruber2004" title="John Gruber. Markdown. 2004." onclick="showChapterAndScroll('__bibliography__', 'bib-gruber2004'); return false;">[John, 2004]</a></sup></span>, and the following syntax is available.</p>
+
+<h3 id="markdown--headings">4.1.1 Headings</h3>
+
+<p><span id="markdown--idx-1">Headings</span> are written with <code>#</code>. <code>h1</code> through <code>h3</code> appear in the table of contents:</p>
+
+<pre><code class="language-markdown"># Chapter Title (h1)
+## Section (h2)
+### Subsection (h3)
+</code></pre>
+
+<blockquote>
+  <p>The first <code>h1</code> in each file becomes the chapter title shown in the TOC.</p>
+</blockquote>
+
+<h3 id="markdown--code-blocks">4.1.2 Code Blocks</h3>
+
+<p>Wrap code with triple backticks to create a <span id="markdown--idx-2">code block</span>.
+Specifying a language name enables automatic <span id="markdown--idx-3">syntax highlighting</span>:</p>
+
+<pre><code class="language-ruby">def greet(name)
+  puts "Hello, #{name}!"
+end
+</code></pre>
+
+<pre><code class="language-python">def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+</code></pre>
+
+<pre><code class="language-javascript">const fetchData = async (url) =&gt; {
+  const response = await fetch(url);
+  return response.json();
+};
+</code></pre>
+
+<blockquote>
+  <p>Syntax highlighting uses <span id="markdown--cite-2">highlight.js<sup class="cite-ref"><a href="#bib-highlightjs2011" title="Ivan Sagalaev. highlight.js. 2011." onclick="showChapterAndScroll('__bibliography__', 'bib-highlightjs2011'); return false;">[Ivan, 2011]</a></sup></span>.
+It is automatically downloaded at build time only when language-specified
+code blocks are present in the Markdown.</p>
+</blockquote>
+
+<h3 id="markdown--diagrams-mermaid">4.1.3 Diagrams (Mermaid)</h3>
+
+<p>Use ` ```mermaid` to draw <a href="https://mermaid.js.org/">Mermaid</a> diagrams.
+Flowcharts, sequence diagrams, class diagrams, and many more are supported.</p>
+
+<p>Flowchart:</p>
+
+<div class="mermaid">
+graph TD
+    A[User] -->|Request| B[Web Server]
+    B --> C{Authenticated?}
+    C -->|Yes| D[Serve Content]
+    C -->|No| E[Login Page]
+    E -->|Authenticate| C
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>graph TD
+    A[User] --&gt;|Request| B[Web Server]
+    B --&gt; C{Authenticated?}
+    C --&gt;|Yes| D[Serve Content]
+    C --&gt;|No| E[Login Page]
+    E --&gt;|Authenticate| C
+</pre></details>
+
+<p>Sequence diagram:</p>
+
+<div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant S as Server
+    participant DB as Database
+    U->>S: Send Request
+    S->>DB: Execute Query
+    DB-->>S: Return Results
+    S-->>U: Response
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>sequenceDiagram
+    participant U as User
+    participant S as Server
+    participant DB as Database
+    U-&gt;&gt;S: Send Request
+    S-&gt;&gt;DB: Execute Query
+    DB--&gt;&gt;S: Return Results
+    S--&gt;&gt;U: Response
+</pre></details>
+
+<p>Bar chart (<code>xychart</code>):</p>
+
+<div class="mermaid">
+xychart
+    title "Monthly Sales"
+    x-axis ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    y-axis "Sales ($K)" 0 --> 500
+    bar [120, 230, 180, 350, 410, 300]
+    line [120, 230, 180, 350, 410, 300]
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>xychart
+    title "Monthly Sales"
+    x-axis ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    y-axis "Sales ($K)" 0 --&gt; 500
+    bar [120, 230, 180, 350, 410, 300]
+    line [120, 230, 180, 350, 410, 300]
+</pre></details>
+
+<p>Line chart (<code>xychart</code>, <code>line</code> only):</p>
+
+<div class="mermaid">
+xychart
+    title "Temperature"
+    x-axis ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    y-axis "Temp (C)" -5 --> 30
+    line [2, 4, 10, 16, 22, 26]
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>xychart
+    title "Temperature"
+    x-axis ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+    y-axis "Temp (C)" -5 --&gt; 30
+    line [2, 4, 10, 16, 22, 26]
+</pre></details>
+
+<p>Pie chart:</p>
+
+<div class="mermaid">
+pie title Browser Share
+    "Chrome" : 65
+    "Safari" : 19
+    "Firefox" : 4
+    "Edge" : 4
+    "Other" : 8
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>pie title Browser Share
+    "Chrome" : 65
+    "Safari" : 19
+    "Firefox" : 4
+    "Edge" : 4
+    "Other" : 8
+</pre></details>
+
+<p>Gantt chart:</p>
+
+<div class="mermaid">
+gantt
+    title Project Plan
+    dateFormat YYYY-MM-DD
+    section Design
+        Requirements      :a1, 2025-01-01, 14d
+        Architecture      :a2, after a1, 10d
+    section Development
+        Implementation    :b1, after a2, 21d
+        Testing           :b2, after b1, 14d
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>gantt
+    title Project Plan
+    dateFormat YYYY-MM-DD
+    section Design
+        Requirements      :a1, 2025-01-01, 14d
+        Architecture      :a2, after a1, 10d
+    section Development
+        Implementation    :b1, after a2, 21d
+        Testing           :b2, after b1, 14d
+</pre></details>
+
+<p>Mind map:</p>
+
+<div class="mermaid">
+mindmap
+    root((ligarb))
+        Markdown
+            GFM
+            Code Blocks
+            Math
+        Build
+            HTML Generation
+            Asset Management
+        Features
+            TOC
+            Index
+            Bibliography
+</div><details class="mermaid-source"><summary>mermaid source</summary><pre>mindmap
+    root((ligarb))
+        Markdown
+            GFM
+            Code Blocks
+            Math
+        Build
+            HTML Generation
+            Asset Management
+        Features
+            TOC
+            Index
+            Bibliography
+</pre></details>
+
+<blockquote>
+  <p>See the <a href="https://mermaid.js.org/intro/">Mermaid documentation</a> for detailed syntax.</p>
+</blockquote>
+
+<h3 id="markdown--math-katex">4.1.4 Math (KaTeX)</h3>
+
+<p>Use ` ```math` for math rendering with <span id="markdown--cite-3">KaTeX<sup class="cite-ref"><a href="#bib-katex2014" title="Khan Academy. KaTeX -- The fastest math typesetting library for the web. 2014." onclick="showChapterAndScroll('__bibliography__', 'bib-katex2014'); return false;">[Khan, 2014]</a></sup></span>.
+Write equations in <span id="markdown--cite-4">LaTeX<sup class="cite-ref"><a href="#bib-lamport1994" title="Leslie Lamport. LaTeX: A Document Preparation System. Addison-Wesley. 2nd ed.. 1994." onclick="showChapterAndScroll('__bibliography__', 'bib-lamport1994'); return false;">[Leslie, 1994]</a></sup></span> notation.</p>
+
+<p>Quadratic formula:</p>
+
+<div class="math-block" data-math="x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+"></div>
+
+<p>Gaussian integral:</p>
+
+<div class="math-block" data-math="\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+"></div>
+
+<p>Matrix:</p>
+
+<div class="math-block" data-math="A = \begin{pmatrix} a_{11} &amp; a_{12} \\ a_{21} &amp; a_{22} \end{pmatrix}
+"></div>
+
+<h3 id="markdown--function-plots-functionplot">4.1.5 Function Plots (functionplot)</h3>
+
+<p>Use ` ```functionplot` to draw function graphs.</p>
+
+<div class="functionplot" data-plot="y = sin(x)
+y = x^2 - 1
+range: [-2pi, 2pi]
+yrange: [-3, 3]
+"></div>
+
+<p>Write one function per line in the <code>y = &lt;expression&gt;</code> format:</p>
+
+<div class="functionplot" data-plot="y = cos(x) * exp(-x/5)
+range: [0, 20]
+title: Damped Oscillation
+grid: true
+"></div>
+
+<p>Polar and parametric curves are also supported:</p>
+
+<div class="functionplot" data-plot="r = cos(2*theta)
+"></div>
+
+<div class="functionplot" data-plot="parametric: cos(t), sin(t)
+range: [-2pi, 2pi]
+width: 400
+height: 400
+"></div>
+
+<p>Options are specified as <code>key: value</code>:</p>
+
+<ul>
+  <li><code>range</code> / <code>xrange</code> – X-axis range (e.g., <code>[-2pi, 2pi]</code>)</li>
+  <li><code>yrange</code> – Y-axis range</li>
+  <li><code>width</code> / <code>height</code> – Size in pixels (default: 600x400)</li>
+  <li><code>title</code> – Graph title</li>
+  <li><code>grid: true</code> – Show grid lines</li>
+</ul>
+
+<blockquote>
+  <p>These external libraries are automatically downloaded at build time only
+when the corresponding code blocks are present in the Markdown.
+They are placed in <code>build/js/</code> and <code>build/css/</code>.
+Already-downloaded files are skipped.</p>
+</blockquote>
+
+<h3 id="markdown--inline-math">4.1.6 Inline Math</h3>
+
+<p>Embed math in text by wrapping it with <code>$...$</code>. For example, the famous equation <span class="math-inline" data-math="E = mc^2"></span> is written as:</p>
+
+<pre><code class="language-markdown">The famous equation $E = mc^2$ is written as follows.
+</code></pre>
+
+<p>Complex expressions like the quadratic formula <span class="math-inline" data-math="x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}"></span> can also be written inline.</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>A <code>$</code> followed or preceded by a space is not recognized as math.
+This prevents currency notations like <code>$10</code> from being converted.
+Content inside <code>&lt;code&gt;</code> and <code>&lt;pre&gt;</code> is also unaffected.
+For display math, use ` ```math ` (<code>$$...$$</code> is not supported).</p>
+</div>
+
+<h3 id="markdown--tables">4.1.7 Tables</h3>
+
+<p>GFM table syntax is supported:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Col 1</th>
+      <th>Col 2</th>
+      <th>Col 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A</td>
+      <td>B</td>
+      <td>C</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="markdown--lists">4.1.8 Lists</h3>
+
+<p>Both regular lists and task lists are supported:</p>
+
+<ul>
+  <li>Item 1</li>
+  <li>Item 2
+    <ul>
+      <li>Nesting is possible</li>
+    </ul>
+  </li>
+</ul>
+
+<ol>
+  <li>Numbered list</li>
+  <li>Second item</li>
+</ol>
+
+<h3 id="markdown--blockquotes">4.1.9 Blockquotes</h3>
+
+<pre><code class="language-markdown">&gt; This is a blockquote.
+&gt; It can span multiple lines.
+</code></pre>
+
+<h3 id="markdown--admonitions">4.1.10 Admonitions</h3>
+
+<p>GFM blockquote alert syntax creates styled admonition boxes:</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>This is supplemental information that provides additional context.</p>
+</div>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>Use this for helpful advice and best practices.</p>
+</div>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>Use this for items that need attention.</p>
+</div>
+
+<div class="admonition admonition-caution">
+<p class="admonition-title">Caution</p>
+<p>Use this to warn about dangerous or irreversible operations.</p>
+</div>
+
+<div class="admonition admonition-important">
+<p class="admonition-title">Important</p>
+<p>Use this to highlight critical information.</p>
+</div>
+
+<p>The syntax is as follows:</p>
+
+<pre><code class="language-markdown">&gt; [!NOTE]
+&gt; Write supplemental information here.
+
+&gt; [!TIP]
+&gt; Write advice here.
+
+&gt; [!WARNING]
+&gt; Write cautions here.
+
+&gt; [!CAUTION]
+&gt; Write warnings about dangerous operations here.
+
+&gt; [!IMPORTANT]
+&gt; Write important information here.
+</code></pre>
+
+<p>Five types are supported: <code>NOTE</code>, <code>TIP</code>, <code>WARNING</code>, <code>CAUTION</code>, and <code>IMPORTANT</code>.</p>
+
+<h3 id="markdown--footnotes">4.1.11 Footnotes</h3>
+
+<p>You can insert <span id="markdown--idx-4">footnotes</span> in the text<sup id="fnref:markdown--1"><a href="#fn:markdown--1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>. Multiple footnotes are also supported<sup id="fnref:markdown--2"><a href="#fn:markdown--2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup>.</p>
+
+<pre><code class="language-markdown">You can insert footnotes in the text[^1].
+
+[^1]: This is the footnote content.
+</code></pre>
+
+<p>Footnote IDs are scoped per chapter, so the same number can be used in different chapters without collision.</p>
+
+<h2 id="markdown--images">4.2 Images</h2>
+
+<h3 id="markdown--directory">4.2.1 Directory</h3>
+
+<p>Place <span id="markdown--idx-5">image</span> files in the <code>images/</code> directory:</p>
+
+<pre><code>my-book/
+├── book.yml
+├── chapters/
+│   └── 01-introduction.md
+└── images/
+    ├── screenshot.png
+    └── diagram.svg
+</code></pre>
+
+<h3 id="markdown--referencing-in-markdown">4.2.2 Referencing in Markdown</h3>
+
+<p>Reference images with relative paths in Markdown:</p>
+
+<pre><code class="language-markdown">![Screenshot](images/screenshot.png)
+</code></pre>
+
+<p>ligarb rewrites image paths to <code>images/filename</code> at build time
+and copies the contents of the <code>images/</code> directory to the output.</p>
+
+<h3 id="markdown--supported-formats">4.2.3 Supported Formats</h3>
+
+<p>Common image formats such as PNG, JPEG, SVG, and GIF are supported.
+Images are copied as-is without conversion or optimization.</p>
+
+<h2 id="markdown--index">4.3 Index</h2>
+
+<p>An index can be automatically generated at the end of the book. Use Markdown link syntax to mark index terms.</p>
+
+<h3 id="markdown--basic-usage">4.3.1 Basic Usage</h3>
+
+<p>Specify <code>#index</code> as the link target, and the link text becomes the index term:</p>
+
+<pre><code class="language-markdown">[Ruby](#index) is a dynamically typed language.
+</code></pre>
+
+<p>To use a different index term from the display text, use <code>#index:term</code>:</p>
+
+<pre><code class="language-markdown">[dynamically typed language](#index:dynamic typing)
+</code></pre>
+
+<h3 id="markdown--multiple-index-terms">4.3.2 Multiple Index Terms</h3>
+
+<p>Register multiple index terms from a single location using commas:</p>
+
+<pre><code class="language-markdown">[Ruby](#index:Ruby,Programming Languages/Ruby)
+</code></pre>
+
+<h3 id="markdown--hierarchical-index">4.3.3 Hierarchical Index</h3>
+
+<p>Use <code>/</code> to create hierarchical index entries. For example, <code>Programming Languages/Ruby</code> produces:</p>
+
+<pre><code>Programming Languages
+  Ruby ......... Chapter 4
+</code></pre>
+
+<h3 id="markdown--example">4.3.4 Example</h3>
+
+<p>Here are examples of index markers used in this manual:</p>
+
+<p><span id="markdown--idx-6">Markdown</span> is a lightweight markup language.
+<span id="markdown--idx-7">highlight.js</span> provides syntax highlighting,
+<span id="markdown--idx-8">Mermaid</span> provides diagrams,
+and <span id="markdown--idx-9">KaTeX</span> provides math rendering.</p>
+
+<blockquote>
+  <p>Index markers are displayed as plain text without link styling.
+An “Index” section is automatically added at the end of the book.</p>
+</blockquote>
+
+<h2 id="markdown--bibliography">4.4 Bibliography</h2>
+
+<p>You can cite references in the text and automatically generate a bibliography list at the end of the book.</p>
+
+<h3 id="markdown--setup">4.4.1 Setup</h3>
+
+<p>Specify a bibliography data file in <code>book.yml</code>. The format is auto-detected by file extension:</p>
+
+<pre><code class="language-yaml">bibliography: references.yml   # YAML format
+bibliography: references.bib   # BibTeX format
+</code></pre>
+
+<h4 id="yaml-format">YAML Format</h4>
+
+<p>A mapping of keys to reference data:</p>
+
+<pre><code class="language-yaml">matz1995:
+  author: "Yukihiro Matsumoto"
+  title: "The Ruby Programming Language"
+  year: 1995
+  url: "https://www.ruby-lang.org"
+  publisher: "O'Reilly"
+</code></pre>
+
+<h4 id="bibtex-format-bib">BibTeX Format (.bib)</h4>
+
+<p>Standard BibTeX notation:</p>
+
+<pre><code class="language-bibtex">@book{matz1995,
+  author = {Yukihiro Matsumoto},
+  title = {The Ruby Programming Language},
+  year = {1995},
+  publisher = {O'Reilly},
+  url = {https://www.ruby-lang.org}
+}
+
+@article{knuth1984,
+  author = {Donald Knuth},
+  title = {Literate Programming},
+  year = {1984},
+  journal = {The Computer Journal},
+  volume = {27},
+  number = {2},
+  pages = {97-111}
+}
+</code></pre>
+
+<p>BibTeX notes:</p>
+
+<ul>
+  <li>Lines starting with <code>%</code> are treated as comments</li>
+  <li>Field values are enclosed in <code>{...}</code> or <code>"..."</code></li>
+  <li>One level of nested braces is supported (e.g., <code>{The {Ruby} Language}</code>)</li>
+  <li>Entry types (<code>@book</code>, <code>@article</code>, etc.) affect the display format</li>
+</ul>
+
+<h3 id="markdown--supported-fields">4.4.2 Supported Fields</h3>
+
+<p>The following fields are available for both YAML and BibTeX:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>author</code></td>
+      <td>Author</td>
+    </tr>
+    <tr>
+      <td><code>title</code></td>
+      <td>Title</td>
+    </tr>
+    <tr>
+      <td><code>year</code></td>
+      <td>Publication year</td>
+    </tr>
+    <tr>
+      <td><code>url</code></td>
+      <td>URL (title becomes a link)</td>
+    </tr>
+    <tr>
+      <td><code>publisher</code></td>
+      <td>Publisher</td>
+    </tr>
+    <tr>
+      <td><code>journal</code></td>
+      <td>Journal name</td>
+    </tr>
+    <tr>
+      <td><code>booktitle</code></td>
+      <td>Book/conference name</td>
+    </tr>
+    <tr>
+      <td><code>volume</code></td>
+      <td>Volume</td>
+    </tr>
+    <tr>
+      <td><code>number</code></td>
+      <td>Issue number</td>
+    </tr>
+    <tr>
+      <td><code>pages</code></td>
+      <td>Pages</td>
+    </tr>
+    <tr>
+      <td><code>edition</code></td>
+      <td>Edition</td>
+    </tr>
+    <tr>
+      <td><code>doi</code></td>
+      <td>DOI (appends a DOI link)</td>
+    </tr>
+    <tr>
+      <td><code>editor</code></td>
+      <td>Editor</td>
+    </tr>
+    <tr>
+      <td><code>note</code></td>
+      <td>Note</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="markdown--display-by-entry-type">4.4.3 Display by Entry Type</h3>
+
+<p>The bibliography list format varies by BibTeX entry type:</p>
+
+<ul>
+  <li><strong>book</strong>: Author. <em>Title</em>. Edition. Publisher. Year.</li>
+  <li><strong>article</strong>: Author. “Title”. <em>Journal</em>, Volume(Number), pp. Pages. Year.</li>
+  <li><strong>inproceedings</strong>: Author. “Title”. In <em>Booktitle</em>, pp. Pages. Year.</li>
+  <li><strong>other/YAML</strong>: Author. <em>Title</em>. Publisher. Journal. Volume. Pages. Year.</li>
+</ul>
+
+<h3 id="markdown--citing-references">4.4.4 Citing References</h3>
+
+<p>Specify <code>#cite:key</code> as the link target:</p>
+
+<pre><code class="language-markdown">[Ruby](#cite:matz1995) is a wonderful language.
+</code></pre>
+
+<p>This renders as “Ruby<sup>[Yukihiro, 1995]</sup> is a wonderful language.” The superscript <code>[author, year]</code> is a link to the bibliography section, and hovering shows the full reference information.</p>
+
+<h3 id="markdown--example">4.4.5 Example</h3>
+
+<p>This manual itself uses the bibliography feature. References are defined in BibTeX format in <code>manual/references.bib</code> and cited throughout the text.</p>
+
+<p><span id="markdown--cite-5">Markdown<sup class="cite-ref"><a href="#bib-gruber2004" title="John Gruber. Markdown. 2004." onclick="showChapterAndScroll('__bibliography__', 'bib-gruber2004'); return false;">[John, 2004]</a></sup></span> is a lightweight markup language published in 2004. <span id="markdown--cite-6">GitHub later extended it as GFM<sup class="cite-ref"><a href="#bib-gfm2017" title="GitHub. GitHub Flavored Markdown Spec. 2017." onclick="showChapterAndScroll('__bibliography__', 'bib-gfm2017'); return false;">[GitHub, 2017]</a></sup></span>, adding features like tables and task lists. Math rendering uses <span id="markdown--cite-7">KaTeX<sup class="cite-ref"><a href="#bib-katex2014" title="Khan Academy. KaTeX -- The fastest math typesetting library for the web. 2014." onclick="showChapterAndScroll('__bibliography__', 'bib-katex2014'); return false;">[Khan, 2014]</a></sup></span>, and syntax highlighting uses <span id="markdown--cite-8">highlight.js<sup class="cite-ref"><a href="#bib-highlightjs2011" title="Ivan Sagalaev. highlight.js. 2011." onclick="showChapterAndScroll('__bibliography__', 'bib-highlightjs2011'); return false;">[Ivan, 2011]</a></sup></span>. The math notation is based on <span id="markdown--cite-9">Lamport’s LaTeX<sup class="cite-ref"><a href="#bib-lamport1994" title="Leslie Lamport. LaTeX: A Document Preparation System. Addison-Wesley. 2nd ed.. 1994." onclick="showChapterAndScroll('__bibliography__', 'bib-lamport1994'); return false;">[Leslie, 1994]</a></sup></span>, and the fusion of documentation and executable code via code blocks is influenced by <span id="markdown--cite-10">Knuth’s Literate Programming<sup class="cite-ref"><a href="#bib-knuth1984" title="Donald E. Knuth. Literate Programming. The Computer Journal. Vol. 27. No. 2. pp. 97-111. 1984." onclick="showChapterAndScroll('__bibliography__', 'bib-knuth1984'); return false;">[Donald, 1984]</a></sup></span>. Cross-referencing via hyperlinks is a fundamental concept of <span id="markdown--cite-11">Berners-Lee et al.’s WWW<sup class="cite-ref"><a href="#bib-berners-lee1992" title="Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. World-Wide Web: The Information Universe. Electronic Networking: Research, Applications and Policy. Vol. 2. No. 1. pp. 52-58. 1992." onclick="showChapterAndScroll('__bibliography__', 'bib-berners-lee1992'); return false;">[Tim, 1992]</a></sup></span>.</p>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>Hover over the citations above to see detailed information in a tooltip.
+Click to jump to the bibliography section at the end of the book.</p>
+</div>
+
+<p>The source of the above example looks like this:</p>
+
+<pre><code class="language-markdown">[Markdown](#cite:gruber2004) is a lightweight markup language...
+[Knuth's Literate Programming](#cite:knuth1984) is influenced by...
+[Berners-Lee et al.'s WWW](#cite:berners-lee1992) is a fundamental concept.
+</code></pre>
+
+<h3 id="markdown--behavior-details">4.4.6 Behavior Details</h3>
+
+<ul>
+  <li>The bibliography section is automatically added before the index</li>
+  <li>References are sorted by author name and year</li>
+  <li>If <code>url</code> is present, the title becomes a link</li>
+  <li>If <code>doi</code> is present, a DOI link is appended</li>
+  <li>Referencing a non-existent key with <code>#cite:</code> outputs a warning and displays <code>[key?]</code> in red (the build is not interrupted)</li>
+  <li>If <code>bibliography</code> is not configured, the bibliography section is not generated</li>
+</ul>
+
+<h2 id="markdown--cross-references">4.5 Cross-References</h2>
+
+<p>You can create links to other chapters or headings using standard Markdown link syntax.
+At build time, relative links to <code>.md</code> files are converted to anchors within the single HTML.</p>
+
+<h3 id="markdown--basic-usage">4.5.1 Basic Usage</h3>
+
+<p><span id="markdown--idx-10">Cross-references</span> are written as standard Markdown links. Specifying a <code>.md</code> file as the link target resolves it automatically at build time:</p>
+
+<pre><code class="language-markdown">[Configuration details](03-book-yml.md)
+</code></pre>
+
+<p>To link to a specific heading, add a <code>#</code> fragment:</p>
+
+<pre><code class="language-markdown">[chapters field](03-book-yml.md#Specifying Chapters)
+</code></pre>
+
+<h3 id="markdown--auto-filled-link-text">4.5.2 Auto-Filled Link Text</h3>
+
+<p>Leaving the link text empty auto-fills it with the target’s chapter title or heading text (with numbering):</p>
+
+<pre><code class="language-markdown">See [](03-book-yml.md) for details.
+Configuration is explained in [](03-book-yml.md#Specifying Chapters).
+</code></pre>
+
+<p>In the above example, the link text is filled with something like “3. Writing book.yml” and “3.1 Specifying Chapters” with chapter/section numbers.</p>
+
+<h3 id="markdown--path-resolution">4.5.3 Path Resolution</h3>
+
+<p>The <code>.md</code> path is resolved relative to the current Markdown file’s directory. Files in the same directory can be referenced by filename alone.</p>
+
+<h3 id="markdown--error-detection">4.5.4 Error Detection</h3>
+
+<p>If the referenced chapter file or heading does not exist, the build fails with an error:</p>
+
+<pre><code>Error: cross-reference target not found: missing.md (from 01-introduction.md)
+Error: cross-reference heading not found: 03-book-yml.md#typo (from 04-markdown.md)
+</code></pre>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>Cross-references also work as regular relative links on GitHub,
+so links remain functional when browsing the source on GitHub.</p>
+</div>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:markdown--1">
+      <p>This is the footnote content. Footnotes are displayed together at the bottom of the page. <a href="#fnref:markdown--1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:markdown--2">
+      <p>You can use multiple footnotes. <a href="#fnref:markdown--2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/markdown.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('book-yml'); return false;">&larr; 3. Writing book.yml</a>
+      <a href="#" class="nav-next" onclick="showChapter('build'); return false;">5. Building and Reviewing &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-build" style="display: none;">
+    <h1 id="build--building-and-reviewing">5. Building and Reviewing</h1>
+
+<h2 id="build--build-command">5.1 Build Command</h2>
+
+<p>Run the following in your book project directory (<span id="build--idx-0"><code>ligarb build</code></span>):</p>
+
+<pre><code class="language-bash">ligarb build
+</code></pre>
+
+<p>If <code>book.yml</code> is in a different location, specify the path:</p>
+
+<pre><code class="language-bash">ligarb build path/to/book.yml
+</code></pre>
+
+<h2 id="build--output">5.2 Output</h2>
+
+<p>When the build succeeds, the following is generated in the directory specified by <code>output_dir</code> (default: <code>build/</code>):</p>
+
+<pre><code>build/
+├── index.html    # Single HTML file containing all chapters
+└── images/       # Copied image files
+</code></pre>
+
+<h2 id="build--viewing">5.3 Viewing</h2>
+
+<p>Simply open the generated <span id="build--idx-1"><code>index.html</code></span> in a browser.
+No web server is required:</p>
+
+<pre><code class="language-bash"># macOS
+open build/index.html
+
+# Linux
+xdg-open build/index.html
+</code></pre>
+
+<h2 id="build--verification-checklist">5.4 Verification Checklist</h2>
+
+<p>After building, verify the following:</p>
+
+<ul>
+  <li><strong>Table of contents</strong>: Are all chapter headings displayed in the left sidebar?</li>
+  <li><strong>Chapter switching</strong>: Do chapters switch when clicking TOC items?</li>
+  <li><strong>Search</strong>: Does typing keywords in the search box filter the TOC?</li>
+  <li><strong>Permalinks</strong>: Does the URL <code>#</code> contain the chapter slug, and does reloading show the same chapter?</li>
+  <li><strong>Images</strong>: Are images referenced in Markdown displayed correctly?</li>
+</ul>
+
+<h2 id="build--distribution">5.5 Distribution</h2>
+
+<p>Distributing your finished book is very simple. Just share the contents of the <code>build/</code> directory.</p>
+
+<p>Books generated by ligarb are self-contained with a single HTML file and assets. JavaScript and CSS for syntax highlighting, Mermaid diagrams, and math rendering are all included in <code>build/</code>, so recipients can view the entire book by opening <code>index.html</code> in a browser – even without an internet connection.</p>
+
+<p>For web publishing, simply deploy the <code>build/</code> directory to a static hosting service like GitHub Pages, and it works as a book immediately.</p>
+
+<p>Note that books created with <code>ai_generated: true</code> in <code>book.yml</code> automatically include a badge and disclaimer indicating AI-generated content. Since AI-generated text may contain inaccuracies, please review and correct the content before distribution.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/build.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('markdown'); return false;">&larr; 4. Markdown Syntax and Images</a>
+      <a href="#" class="nav-next" onclick="showChapter('part2'); return false;">Advanced &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-part2" style="display: none;">
+    <h1 id="part2--advanced">Advanced</h1>
+
+<p>In this part, we introduce features that help you get more out of ligarb, including local server preview, review functionality, and AI-powered writing assistance.</p>
+
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('build'); return false;">&larr; 5. Building and Reviewing</a>
+      <a href="#" class="nav-next" onclick="showChapter('translations'); return false;">6. Multi-Language Support (Translations) &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-translations" style="display: none;">
+    <h1 id="translations--multi-language-support-translations">6. Multi-Language Support (Translations)</h1>
+
+<p>ligarb can generate HTML output in multiple languages from a single book project. You define <span id="translations--idx-0">translations</span> in a hub configuration file and manage per-language content through child configuration files.</p>
+
+<h2 id="translations--hub-configuration-file">6.1 Hub Configuration File</h2>
+
+<p>The <code>book.yml</code> at the project root serves as the <span id="translations--idx-1">hub</span>. It contains the <span id="translations--idx-2"><code>translations</code></span> field, which maps language codes to child configuration files.</p>
+
+<pre><code class="language-yaml">repository: "https://github.com/user/repo"
+ai_generated: true
+bibliography: references.bib
+output_dir: "build"
+translations:
+  ja: book.ja.yml
+  en: book.en.yml
+</code></pre>
+
+<p>Each key under <code>translations</code> is an IETF language tag (<code>ja</code>, <code>en</code>, etc.), and the value is a relative path to the child configuration file.</p>
+
+<h2 id="translations--child-configuration-files-and-inheritance">6.2 Child Configuration Files and Inheritance</h2>
+
+<p>Each language’s child configuration file (<code>book.ja.yml</code>, <code>book.en.yml</code>, etc.) uses the <span id="translations--idx-3"><code>inherit</code></span> field to inherit shared settings from the hub.</p>
+
+<p>Japanese version (<code>book.ja.yml</code>):</p>
+
+<pre><code class="language-yaml">inherit: book.yml
+title: "マニュアル"
+language: "ja"
+output_dir: "build/ja"
+chapters:
+  - chapters/01-intro.md
+</code></pre>
+
+<p>English version (<code>book.en.yml</code>):</p>
+
+<pre><code class="language-yaml">inherit: book.yml
+title: "Manual"
+language: "en"
+output_dir: "build/en"
+chapters:
+  - chapters/en/01-intro.md
+</code></pre>
+
+<h3 id="translations--inheritance-rules">6.2.1 Inheritance Rules</h3>
+
+<p>Shared settings written in the hub (<code>repository</code>, <code>bibliography</code>, <code>ai_generated</code>, etc.) are automatically <span id="translations--idx-4">inherited</span> by child files. A child can override any inherited key by specifying it directly.</p>
+
+<p>However, <code>output_dir</code> is not inherited. The <code>output_dir</code> of whichever config file is passed to <code>ligarb build</code> is always used.</p>
+
+<h3 id="translations--required-fields-per-language">6.2.2 Required Fields per Language</h3>
+
+<p>The following fields are required in each child configuration file:</p>
+
+<ul>
+  <li><code>title</code> – The book title (different for each language)</li>
+  <li><code>language</code> – The language code</li>
+  <li><code>chapters</code> – The list of chapter files</li>
+</ul>
+
+<h2 id="translations--building">6.3 Building</h2>
+
+<p>You can produce an integrated build or standalone per-language builds depending on which file you pass to <code>ligarb build</code>.</p>
+
+<pre><code class="language-bash">ligarb build book.yml       # Hub: all languages in one file
+ligarb build book.ja.yml    # Japanese only
+ligarb build book.en.yml    # English only
+</code></pre>
+
+<p>For example, given these settings:</p>
+
+<pre><code class="language-yaml"># book.yml       → output_dir: "build"
+# book.ja.yml    → output_dir: "build/ja"
+# book.en.yml    → output_dir: "build/en"
+</code></pre>
+
+<p>Building all three produces:</p>
+
+<pre><code>build/
+├── index.html        # Integrated (with language switcher)
+├── ja/index.html     # Japanese only
+└── en/index.html     # English only
+</code></pre>
+
+<p>The integrated build includes content for all languages in a single <code>index.html</code>, with a JavaScript-based <span id="translations--idx-5">language switcher</span> to toggle the display. Standalone builds inherit shared settings from the hub via <code>inherit</code>, but generate HTML for the specified language only.</p>
+
+<h2 id="translations--language-switcher-ui">6.4 Language Switcher UI</h2>
+
+<p>In the integrated build output, the sidebar displays language switcher buttons. For example, with a Japanese and English configuration, buttons like <code>EN | JA</code> appear.</p>
+
+<p>The selected language is stored in <code>localStorage</code> and automatically restored on the next visit.</p>
+
+<h2 id="translations--directory-structure-example">6.5 Directory Structure Example</h2>
+
+<p>A typical <span id="translations--idx-6">multi-language</span> project directory looks like this:</p>
+
+<pre><code>my-book/
+├── book.yml          # Hub (shared settings + translations)
+├── book.ja.yml       # Japanese version
+├── book.en.yml       # English version
+├── chapters/
+│   ├── 01-intro.md       # Japanese chapters
+│   └── en/
+│       └── 01-intro.md   # English chapters
+└── images/
+</code></pre>
+
+<p>Assets such as images can be shared across languages. If language-specific images are needed, you can organize them into subdirectories like <code>images/ja/</code> and <code>images/en/</code>.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/translations.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('part2'); return false;">&larr; Advanced</a>
+      <a href="#" class="nav-next" onclick="showChapter('serve'); return false;">7. Preview and Review &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-serve" style="display: none;">
+    <h1 id="serve--preview-and-review">7. Preview and Review</h1>
+
+<h2 id="serve--ligarb-serve-local-server">7.1 ligarb serve – Local Server</h2>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p><code>ligarb serve</code> is for local development only. Do not use it for production or public-facing deployments.</p>
+</div>
+
+<p>The <span id="serve--idx-0"><code>ligarb serve</code></span> command serves the built book via a local web server.
+A build is automatically run at startup, so there is no need to run <code>ligarb build</code> beforehand.</p>
+
+<pre><code class="language-bash">ligarb serve                    # Serve at http://localhost:3000
+ligarb serve --port 8080        # Specify port
+ligarb serve path/to/book.yml   # Specify book.yml path
+</code></pre>
+
+<h2 id="serve--live-reload">7.2 Live Reload</h2>
+
+<p>When you edit the source and run <code>ligarb build</code>, a reload button appears in the bottom-right corner of the browser.
+Clicking it updates the content while preserving the scroll position.</p>
+
+<p>On Linux, <span id="serve--idx-1">inotify</span> is used to detect changes to <code>index.html</code> immediately.
+On other operating systems, changes are detected via 2-second interval polling.</p>
+
+<h2 id="serve--review-ui">7.3 Review UI</h2>
+
+<p>You can add comments to the book text in the browser, discuss with <span id="serve--idx-2">Claude</span>, and apply approved changes to the source files.</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>The review feature requires the <a href="https://claude.com/claude-code">Claude Code</a> CLI (<code>claude</code> command).
+Server delivery and live reload work without it.</p>
+</div>
+
+<h3 id="serve--comment-flow">7.3.1 Comment Flow</h3>
+
+<ol>
+  <li><strong>Text selection</strong>: Drag to select text in the book content, and a “Comment” button appears</li>
+  <li><strong>Comment input</strong>: Click the button to open a side panel for entering your comment</li>
+  <li><strong>Claude review</strong>: Submitting a comment triggers Claude (Opus) to read <code>book.yml</code> and reference all chapters and bibliography files as needed, returning improvement suggestions. Patches spanning multiple chapters can also be generated</li>
+  <li><strong>Patch review</strong>: Use the “Show patch” button in the message to view the proposed changes as a diff (red = deletion, green = addition)</li>
+  <li><strong>Discussion</strong>: Reply to the suggestion to continue the discussion</li>
+</ol>
+
+<h3 id="serve--approve-and-dismiss">7.3.2 Approve and Dismiss</h3>
+
+<ul>
+  <li><strong>Approve</strong>: Applies the patch to source files and triggers an automatic rebuild. Claude is not called again, so this completes instantly</li>
+  <li><strong>Dismiss</strong>: Closes the thread (no changes are applied)</li>
+</ul>
+
+<h3 id="serve--managing-reviews">7.3.3 Managing Reviews</h3>
+
+<p>Click the mail icon in the bottom-right corner to open the review list panel.
+When there are unresolved threads, the icon is highlighted in yellow with a badge showing the count.</p>
+
+<p>Reviews in progress are not interrupted when the panel is closed.
+Click a thread in the list to resume the conversation at any time.</p>
+
+<h3 id="serve--data-storage">7.3.4 Data Storage</h3>
+
+<p>Review data is saved as JSON files in the <code>.ligarb/reviews/</code> directory.
+Decide whether to add it to <code>.gitignore</code> based on your project needs.</p>
+
+<pre><code>.ligarb/
+└── reviews/
+    ├── 3f8a1b2c-...json
+    └── 7d4e5f6a-...json
+</code></pre>
+
+<h2 id="serve--internal-api">7.4 Internal API</h2>
+
+<p>The server provides an internal API under the <code>/_ligarb/</code> prefix.
+The frontend JS uses these, but they can also be used for integration with external tools.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>Path</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET</td>
+      <td><code>/_ligarb/events</code></td>
+      <td>SSE stream (<code>build_updated</code> / <code>review_updated</code> / <code>write_updated</code>)</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td><code>/_ligarb/reviews</code></td>
+      <td>Thread list</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td><code>/_ligarb/reviews</code></td>
+      <td>Create new thread</td>
+    </tr>
+    <tr>
+      <td>POST</td>
+      <td><code>/_ligarb/reviews/:id/approve</code></td>
+      <td>Apply patch &amp; rebuild</td>
+    </tr>
+  </tbody>
+</table>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/serve.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('translations'); return false;">&larr; 6. Multi-Language Support (Translations)</a>
+      <a href="#" class="nav-next" onclick="showChapter('ai'); return false;">8. Using AI &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-ai" style="display: none;">
+    <h1 id="ai--using-ai">8. Using AI</h1>
+
+<h2 id="ai--ligarb-write-auto-generate-a-book-with-ai">8.1 ligarb write – Auto-Generate a Book with AI</h2>
+
+<p>The <code>ligarb write</code> command lets <span id="ai--idx-0">AI</span> (Claude) write an entire book.
+Prepare a brief (<code>brief.yml</code>) and run the command to automate everything from Markdown generation to building.</p>
+
+<h3 id="ai--workflow">8.1.1 Workflow</h3>
+
+<pre><code class="language-bash">ligarb write --init ruby_book    # Generate ruby_book/brief.yml
+vi ruby_book/brief.yml           # Edit the brief
+ligarb write ruby_book/brief.yml # Generate book in ruby_book/ + build
+ligarb write --no-build          # Generate only (skip build)
+</code></pre>
+
+<h3 id="ai--writing-briefyml">8.1.2 Writing brief.yml</h3>
+
+<p>The minimum is just a title:</p>
+
+<pre><code class="language-yaml">title: "Git Getting Started Guide"
+</code></pre>
+
+<p>You can specify more details:</p>
+
+<pre><code class="language-yaml"># brief.yml - Book brief
+title: "Ruby for Beginners"
+language: en
+audience: "Programming beginners"
+notes: |
+  About 5 chapters.
+  Include plenty of code examples.
+  Focus on pure Ruby, no Rails.
+</code></pre>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Required</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>title</code></td>
+      <td>Yes</td>
+      <td>Book title</td>
+    </tr>
+    <tr>
+      <td><code>language</code></td>
+      <td>No</td>
+      <td>Language (default: <code>ja</code>)</td>
+    </tr>
+    <tr>
+      <td><code>audience</code></td>
+      <td>No</td>
+      <td>Target audience</td>
+    </tr>
+    <tr>
+      <td><code>notes</code></td>
+      <td>No</td>
+      <td>Additional instructions (free text)</td>
+    </tr>
+    <tr>
+      <td><code>sources</code></td>
+      <td>No</td>
+      <td>Reference files for AI (see below)</td>
+    </tr>
+    <tr>
+      <td><code>author</code></td>
+      <td>No</td>
+      <td>Author name (passed to book.yml)</td>
+    </tr>
+    <tr>
+      <td><code>output_dir</code></td>
+      <td>No</td>
+      <td>Output directory (passed to book.yml)</td>
+    </tr>
+    <tr>
+      <td><code>chapter_numbers</code></td>
+      <td>No</td>
+      <td>Show chapter numbers (passed to book.yml)</td>
+    </tr>
+    <tr>
+      <td><code>style</code></td>
+      <td>No</td>
+      <td>Custom CSS path (passed to book.yml)</td>
+    </tr>
+    <tr>
+      <td><code>repository</code></td>
+      <td>No</td>
+      <td>GitHub repository URL (passed to book.yml)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You can write anything in <code>notes</code>, including desired number of chapters, style instructions, content to include or exclude, etc.</p>
+
+<h3 id="ai--reference-files-sources">8.1.3 Reference Files (sources)</h3>
+
+<p>Specifying <code>sources</code> lets the AI read those files before writing the book. This is useful when you want the book based on existing materials or notes:</p>
+
+<pre><code class="language-yaml">title: "Internal System Documentation"
+sources:
+  - architecture.md
+  - path: notes/meeting-2025-03.md
+    label: "March Meeting Notes"
+</code></pre>
+
+<p>A plain string uses the filename as the label. You can also specify <code>path</code> and <code>label</code> separately. Paths are relative to <code>brief.yml</code>.</p>
+
+<h3 id="ai--ai-generated-content-display">8.1.4 AI-Generated Content Display</h3>
+
+<p>Books generated with <code>ligarb write</code> automatically have <code>ai_generated: true</code> set in <code>book.yml</code>. This means:</p>
+
+<ul>
+  <li>An “AI Generated” badge is displayed in the sidebar</li>
+  <li>A disclaimer text is shown at the bottom of each chapter</li>
+  <li>Meta tags are added to suppress search engine indexing and AI crawler training</li>
+</ul>
+
+<p>The footer text can be customized with the <code>footer</code> field:</p>
+
+<pre><code class="language-yaml">ai_generated: true
+footer: "AI-generated content. Please verify before relying on it."
+</code></pre>
+
+<p><code>footer</code> can also be used independently of <code>ai_generated</code> (e.g., for copyright notices).</p>
+
+<h3 id="ai--prerequisites">8.1.5 Prerequisites</h3>
+
+<p>The <a href="https://claude.com/claude-code">Claude Code</a> CLI (<code>claude</code> command) must be installed.</p>
+
+<h2 id="ai--using-ai-manually">8.2 Using AI Manually</h2>
+
+<p>You can also instruct AI manually without using <code>ligarb write</code>.
+Pass the output of <code>ligarb help</code> to the AI:</p>
+
+<pre><code class="language-bash">ligarb help
+</code></pre>
+
+<p>This output contains everything the AI needs to create a book: configuration file specs, supported Markdown syntax, available code block types, and more.</p>
+
+<h3 id="ai--prompt-examples">8.2.1 Prompt Examples</h3>
+
+<h4 id="create-a-new-book-from-scratch">Create a new book from scratch</h4>
+
+<pre><code>Read the output of ligarb help and create the following book:
+- Topic: Git Getting Started Guide
+- Audience: Programming beginners
+- Structure: About 5 chapters
+- Language: English
+
+Use ligarb init to create a scaffold, then add chapters.
+</code></pre>
+
+<h4 id="turn-existing-documents-into-a-book">Turn existing documents into a book</h4>
+
+<pre><code>Combine the Markdown files in this directory into a book using ligarb.
+Read ligarb help, create book.yml, and build with ligarb build.
+</code></pre>
+
+<h4 id="create-a-book-with-diagrams-and-math">Create a book with diagrams and math</h4>
+
+<pre><code>Read ligarb help and create a book with the following content.
+Include architecture diagrams using mermaid.
+
+Topic: Web Application Design Patterns
+</code></pre>
+
+<pre><code>Read ligarb help and create an introduction to linear algebra.
+Use ```math (KaTeX) for equations.
+</code></pre>
+
+<h4 id="add-or-edit-chapters">Add or edit chapters</h4>
+
+<pre><code>Read ligarb help and add a "Deployment" chapter to this book.
+Register it in book.yml as well.
+</code></pre>
+
+<pre><code>Review the content of 03-api.md and add sequence diagrams (mermaid).
+</code></pre>
+
+<h3 id="ai--add-a-translation-to-an-existing-book">8.2.2 Add a translation to an existing book</h3>
+
+<p>Sometimes you want to make an English book available to Japanese readers, or add an English version to a Japanese technical document. ligarb’s multi-language feature (<a href="#translations">6. Multi-Language Support (Translations)</a>) lets you bundle multiple languages into a single HTML with a language switcher.</p>
+
+<p>When asking the AI to do this, tell it to convert the existing <code>book.yml</code> into a hub and translate all chapters. Since <code>ligarb help</code> includes the spec, the AI can correctly handle <code>translations</code>, <code>inherit</code>, and other settings.</p>
+
+<p>Adding Japanese to an English book:</p>
+
+<pre><code>Read ligarb help and add a Japanese translation to this English book.
+
+Steps:
+1. Convert the existing book.yml into a translations hub
+   - Keep shared settings (repository, bibliography, etc.) in the hub
+   - Move English-specific settings to book.en.yml (add inherit: book.yml)
+2. Translate all chapters into Japanese under chapters/ja/
+3. Create book.ja.yml (with inherit: book.yml)
+4. Build with ligarb build book.yml and verify
+</code></pre>
+
+<p>Adding English to a Japanese book follows the same approach:</p>
+
+<pre><code>Read ligarb help and add an English translation to this Japanese book.
+
+Steps:
+1. Convert the existing book.yml into a translations hub
+   - Keep shared settings in the hub
+   - Move Japanese-specific settings to book.ja.yml (add inherit: book.yml)
+2. Translate all chapters into English under chapters/en/
+3. Create book.en.yml (with inherit: book.yml)
+4. Build with ligarb build book.yml and verify
+</code></pre>
+
+<h4 id="build-and-verify">Build and verify</h4>
+
+<pre><code>Build with ligarb build. Fix any errors.
+</code></pre>
+
+<h2 id="ai--important-notes">8.3 Important Notes</h2>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>AI-generated content may contain errors. Always review and proofread before publishing.
+Also check the copyright laws in your jurisdiction regarding AI-generated works.</p>
+</div>
+
+<h2 id="ai--key-points">8.4 Key Points</h2>
+
+<ul>
+  <li><strong>Use <code>ligarb write</code></strong>: Write a brief and run it to automate everything from generation to build</li>
+  <li><strong>Pass <code>ligarb help</code></strong>: When using AI manually, this is the most reliable way to make it understand the spec</li>
+  <li><strong>Request diagrams</strong>: Explicitly asking for “mermaid diagrams” or “KaTeX equations” helps the AI use the appropriate code blocks</li>
+  <li><strong>Work incrementally</strong>: Instructing chapter by chapter yields better quality than doing everything at once</li>
+</ul>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/ai.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('serve'); return false;">&larr; 7. Preview and Review</a>
+      <a href="#" class="nav-next" onclick="showChapter('config-reference'); return false;">A. Configuration Reference &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-config-reference" style="display: none;">
+    <h1 id="config-reference--configuration-reference">A. Configuration Reference</h1>
+
+<h2 id="config-reference--bookyml-field-list">A.1 book.yml Field List</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Type</th>
+      <th>Required</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><span id="config-reference--idx-0"><code>title</code></span></td>
+      <td>String</td>
+      <td>Yes</td>
+      <td>–</td>
+      <td>Book title</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-1"><code>author</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td><code>""</code></td>
+      <td>Author name</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-2"><code>language</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td><code>"en"</code></td>
+      <td>HTML <code>lang</code> attribute</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-3"><code>output_dir</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td><code>"build"</code></td>
+      <td>Output directory</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-4"><code>chapter_numbers</code></span></td>
+      <td>Boolean</td>
+      <td>No</td>
+      <td><code>true</code></td>
+      <td>Show chapter numbers</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-5"><code>chapters</code></span></td>
+      <td>Array</td>
+      <td>Yes</td>
+      <td>–</td>
+      <td>Chapter, part, and appendix structure</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="config-reference--chapters-elements">A.2 chapters Elements</h2>
+
+<p>The <code>chapters</code> array can contain the following 3 types of elements:</p>
+
+<h3 id="config-reference--chapter-string">A.2.1 Chapter (string)</h3>
+
+<pre><code class="language-yaml">chapters:
+  - 01-introduction.md
+  - 02-getting-started.md
+</code></pre>
+
+<h3 id="config-reference--part">A.2.2 Part</h3>
+
+<pre><code class="language-yaml">chapters:
+  - part: part1.md
+    chapters:
+      - 01-introduction.md
+      - 02-getting-started.md
+</code></pre>
+
+<p>Specify a Markdown file for <code>part</code>. Its <code>h1</code> becomes the part title, and the body becomes the title page.</p>
+
+<h3 id="config-reference--appendix">A.2.3 Appendix</h3>
+
+<pre><code class="language-yaml">chapters:
+  - appendix:
+    - a1-references.md
+    - a2-glossary.md
+</code></pre>
+
+<p>Appendix chapters are numbered with letters (A, B, C, …) instead of numbers.</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/en/config-reference.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">This chapter was generated by AI. Accuracy is not guaranteed.</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('ai'); return false;">&larr; 8. Using AI</a>
+    </nav>
+  </section>
+  <section class="chapter bibliography-chapter" id="chapter-__bibliography__" style="display: none;">
+    <h1>Bibliography</h1>
+    <ul class="bibliography-list">
+      <li id="bib-knuth1984"><span class="bib-label">[Donald, 1984]</span> Donald E. Knuth. "Literate Programming". <em>The Computer Journal</em>, 27(2), pp. 97-111. 1984. <a href="https://doi.org/10.1093/comjnl/27.2.97" target="_blank" rel="noopener">DOI</a></li>
+      <li id="bib-gfm2017"><span class="bib-label">[GitHub, 2017]</span> GitHub. <em><a href="https://github.github.com/gfm/" target="_blank" rel="noopener">GitHub Flavored Markdown Spec</a></em>. 2017.</li>
+      <li id="bib-highlightjs2011"><span class="bib-label">[Ivan, 2011]</span> Ivan Sagalaev. <em><a href="https://highlightjs.org/" target="_blank" rel="noopener">highlight.js</a></em>. 2011.</li>
+      <li id="bib-gruber2004"><span class="bib-label">[John, 2004]</span> John Gruber. <em><a href="https://daringfireball.net/projects/markdown/" target="_blank" rel="noopener">Markdown</a></em>. 2004.</li>
+      <li id="bib-katex2014"><span class="bib-label">[Khan, 2014]</span> Khan Academy. <em><a href="https://katex.org/" target="_blank" rel="noopener">KaTeX -- The fastest math typesetting library for the web</a></em>. 2014.</li>
+      <li id="bib-lamport1994"><span class="bib-label">[Leslie, 1994]</span> Leslie Lamport. <em>LaTeX: A Document Preparation System</em>. 2nd ed. Addison-Wesley. 1994.</li>
+      <li id="bib-berners-lee1992"><span class="bib-label">[Tim, 1992]</span> Tim Berners-Lee and Robert Cailliau and Jean-François Groff and Bernd Pollermann. "World-Wide Web: The Information Universe". <em>Electronic Networking: Research, Applications and Policy</em>, 2(1), pp. 52-58. 1992.</li>
+    </ul>
+  </section>
+  <section class="chapter index-chapter" id="chapter-__index__" style="display: none;">
+    <h1>Index</h1>
+    <div class="index-group">
+      <h2 class="index-letter">A</h2>
+      <dl class="index-entries">
+        <dt>AI integration</dt>
+        <dd><a href="#serve--idx-2" onclick="showChapterAndScroll('serve', 'serve--idx-2'); return false;">7. Preview and Review</a></dd>
+        <dd><a href="#ai--idx-0" onclick="showChapterAndScroll('ai', 'ai--idx-0'); return false;">8. Using AI</a></dd>
+        <dt>appendices</dt>
+        <dd><a href="#introduction--idx-5" onclick="showChapterAndScroll('introduction', 'introduction--idx-5'); return false;">1. Introduction</a></dd>
+        <dd><a href="#book-yml--idx-18" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-18'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">B</h2>
+      <dl class="index-entries">
+        <dt>Bundler</dt>
+        <dd><a href="#install--idx-1" onclick="showChapterAndScroll('install', 'install--idx-1'); return false;">2. Installation and Setup</a></dd>
+        <dt>book.yml</dt>
+        <dd><a href="#install--idx-3" onclick="showChapterAndScroll('install', 'install--idx-3'); return false;">2. Installation and Setup</a></dd>
+        <dd><a href="#book-yml--idx-0" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-0'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">ai_generated</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-9" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-9'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">author</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-3" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-3'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-1" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-1'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">bibliography</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-11" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-11'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">chapter_numbers</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-6" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-6'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-4" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-4'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">chapters</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-15" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-15'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-5" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-5'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">footer</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-10" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-10'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">inherit</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-14" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-14'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">language</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-4" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-4'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-2" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-2'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">output_dir</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-5" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-5'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-3" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-3'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">repository</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-8" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-8'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">sources</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-12" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-12'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">style</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-7" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-7'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">title</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-2" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-2'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-0" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-0'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">translations</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-13" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-13'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">C</h2>
+      <dl class="index-entries">
+        <dt>Custom CSS</dt>
+        <dd><a href="#introduction--idx-7" onclick="showChapterAndScroll('introduction', 'introduction--idx-7'); return false;">1. Introduction</a></dd>
+        <dt>code blocks</dt>
+        <dd><a href="#markdown--idx-2" onclick="showChapterAndScroll('markdown', 'markdown--idx-2'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>configuration inheritance</dt>
+        <dd><a href="#translations--idx-4" onclick="showChapterAndScroll('translations', 'translations--idx-4'); return false;">6. Multi-Language Support (Translations)</a></dd>
+        <dt>cover</dt>
+        <dd><a href="#book-yml--idx-16" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-16'); return false;">3. Writing book.yml</a></dd>
+        <dt>cross-references</dt>
+        <dd><a href="#markdown--idx-10" onclick="showChapterAndScroll('markdown', 'markdown--idx-10'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>custom CSS</dt>
+        <dd><a href="#book-yml--idx-20" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-20'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">D</h2>
+      <dl class="index-entries">
+        <dt>Dark mode</dt>
+        <dd><a href="#introduction--idx-6" onclick="showChapterAndScroll('introduction', 'introduction--idx-6'); return false;">1. Introduction</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">E</h2>
+      <dl class="index-entries">
+        <dt>External Libraries</dt>
+        <dt class="index-sub">KaTeX</dt>
+        <dd class="index-sub"><a href="#markdown--idx-9" onclick="showChapterAndScroll('markdown', 'markdown--idx-9'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt class="index-sub">Mermaid</dt>
+        <dd class="index-sub"><a href="#markdown--idx-8" onclick="showChapterAndScroll('markdown', 'markdown--idx-8'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt class="index-sub">highlight.js</dt>
+        <dd class="index-sub"><a href="#markdown--idx-7" onclick="showChapterAndScroll('markdown', 'markdown--idx-7'); return false;">4. Markdown Syntax and Images</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">F</h2>
+      <dl class="index-entries">
+        <dt>footnotes</dt>
+        <dd><a href="#markdown--idx-4" onclick="showChapterAndScroll('markdown', 'markdown--idx-4'); return false;">4. Markdown Syntax and Images</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">G</h2>
+      <dl class="index-entries">
+        <dt>GFM</dt>
+        <dd><a href="#markdown--idx-0" onclick="showChapterAndScroll('markdown', 'markdown--idx-0'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>GitHub edit links</dt>
+        <dd><a href="#introduction--idx-8" onclick="showChapterAndScroll('introduction', 'introduction--idx-8'); return false;">1. Introduction</a></dd>
+        <dd><a href="#book-yml--idx-21" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-21'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">H</h2>
+      <dl class="index-entries">
+        <dt>headings</dt>
+        <dd><a href="#markdown--idx-1" onclick="showChapterAndScroll('markdown', 'markdown--idx-1'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>highlight.js</dt>
+        <dd><a href="#markdown--idx-7" onclick="showChapterAndScroll('markdown', 'markdown--idx-7'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>hub configuration file</dt>
+        <dd><a href="#translations--idx-1" onclick="showChapterAndScroll('translations', 'translations--idx-1'); return false;">6. Multi-Language Support (Translations)</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">I</h2>
+      <dl class="index-entries">
+        <dt>images</dt>
+        <dd><a href="#markdown--idx-5" onclick="showChapterAndScroll('markdown', 'markdown--idx-5'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>index.html</dt>
+        <dd><a href="#build--idx-1" onclick="showChapterAndScroll('build', 'build--idx-1'); return false;">5. Building and Reviewing</a></dd>
+        <dt>inherit</dt>
+        <dd><a href="#translations--idx-3" onclick="showChapterAndScroll('translations', 'translations--idx-3'); return false;">6. Multi-Language Support (Translations)</a></dd>
+        <dt>inotify</dt>
+        <dd><a href="#serve--idx-1" onclick="showChapterAndScroll('serve', 'serve--idx-1'); return false;">7. Preview and Review</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">K</h2>
+      <dl class="index-entries">
+        <dt>KaTeX</dt>
+        <dd><a href="#markdown--idx-9" onclick="showChapterAndScroll('markdown', 'markdown--idx-9'); return false;">4. Markdown Syntax and Images</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">L</h2>
+      <dl class="index-entries">
+        <dt>language switcher</dt>
+        <dd><a href="#translations--idx-5" onclick="showChapterAndScroll('translations', 'translations--idx-5'); return false;">6. Multi-Language Support (Translations)</a></dd>
+        <dt>ligarb</dt>
+        <dd><a href="#introduction--idx-0" onclick="showChapterAndScroll('introduction', 'introduction--idx-0'); return false;">1. Introduction</a></dd>
+        <dt>ligarb build</dt>
+        <dd><a href="#build--idx-0" onclick="showChapterAndScroll('build', 'build--idx-0'); return false;">5. Building and Reviewing</a></dd>
+        <dt>ligarb help</dt>
+        <dd><a href="#install--idx-2" onclick="showChapterAndScroll('install', 'install--idx-2'); return false;">2. Installation and Setup</a></dd>
+        <dt>ligarb serve</dt>
+        <dd><a href="#serve--idx-0" onclick="showChapterAndScroll('serve', 'serve--idx-0'); return false;">7. Preview and Review</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">M</h2>
+      <dl class="index-entries">
+        <dt>Markdown</dt>
+        <dd><a href="#introduction--idx-1" onclick="showChapterAndScroll('introduction', 'introduction--idx-1'); return false;">1. Introduction</a></dd>
+        <dd><a href="#markdown--idx-6" onclick="showChapterAndScroll('markdown', 'markdown--idx-6'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>Mermaid</dt>
+        <dd><a href="#markdown--idx-8" onclick="showChapterAndScroll('markdown', 'markdown--idx-8'); return false;">4. Markdown Syntax and Images</a></dd>
+        <dt>multi-language</dt>
+        <dd><a href="#translations--idx-6" onclick="showChapterAndScroll('translations', 'translations--idx-6'); return false;">6. Multi-Language Support (Translations)</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">P</h2>
+      <dl class="index-entries">
+        <dt>Parts</dt>
+        <dd><a href="#introduction--idx-4" onclick="showChapterAndScroll('introduction', 'introduction--idx-4'); return false;">1. Introduction</a></dd>
+        <dt>Permalink</dt>
+        <dd><a href="#introduction--idx-3" onclick="showChapterAndScroll('introduction', 'introduction--idx-3'); return false;">1. Introduction</a></dd>
+        <dt>parts</dt>
+        <dd><a href="#book-yml--idx-17" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-17'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">R</h2>
+      <dl class="index-entries">
+        <dt>Ruby</dt>
+        <dd><a href="#install--idx-0" onclick="showChapterAndScroll('install', 'install--idx-0'); return false;">2. Installation and Setup</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">S</h2>
+      <dl class="index-entries">
+        <dt>slug</dt>
+        <dd><a href="#book-yml--idx-19" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-19'); return false;">3. Writing book.yml</a></dd>
+        <dt>syntax highlighting</dt>
+        <dd><a href="#markdown--idx-3" onclick="showChapterAndScroll('markdown', 'markdown--idx-3'); return false;">4. Markdown Syntax and Images</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">T</h2>
+      <dl class="index-entries">
+        <dt>table of contents</dt>
+        <dd><a href="#introduction--idx-2" onclick="showChapterAndScroll('introduction', 'introduction--idx-2'); return false;">1. Introduction</a></dd>
+        <dt>translations</dt>
+        <dd><a href="#translations--idx-0" onclick="showChapterAndScroll('translations', 'translations--idx-0'); return false;">6. Multi-Language Support (Translations)</a></dd>
+        <dd><a href="#translations--idx-2" onclick="showChapterAndScroll('translations', 'translations--idx-2'); return false;">6. Multi-Language Support (Translations)</a></dd>
+      </dl>
+    </div>
+    <div class="index-group">
+      <h2 class="index-letter">Y</h2>
+      <dl class="index-entries">
+        <dt>YAML</dt>
+        <dd><a href="#book-yml--idx-1" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-1'); return false;">3. Writing book.yml</a></dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<script>
+(function() {
+  var chapters = ["__toc__", "cover", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
+  var currentChapter = null;
+
+  var navigating = false; // flag to suppress pushState during popstate/initial load
+
+  // Track the currently visible heading index and highlight TOC
+  var currentHeadingIndex = -1;
+  var headingObserver = null;
+
+  function setupHeadingObserver() {
+    if (headingObserver) headingObserver.disconnect();
+    if (!currentChapter) return;
+    var section = document.getElementById('chapter-' + currentChapter);
+    if (!section) return;
+    var headings = section.querySelectorAll('h1, h2, h3');
+    if (headings.length === 0) return;
+
+    headingObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var idx = Array.prototype.indexOf.call(headings, entry.target);
+          if (idx !== -1) {
+            currentHeadingIndex = idx;
+            highlightTocHeading(entry.target);
+          }
+        }
+      });
+    }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+    headings.forEach(function(h) { headingObserver.observe(h); });
+  }
+
+  function highlightTocHeading(heading) {
+    // Remove previous active-section highlights
+    document.querySelectorAll('.toc a.active-section').forEach(function(a) {
+      a.classList.remove('active-section');
+    });
+    // Find the TOC link matching this heading's ID
+    var hid = heading.id;
+    if (!hid) return;
+    var tocLink = document.querySelector('.toc a[href="#' + CSS.escape(hid) + '"]');
+    if (tocLink) tocLink.classList.add('active-section');
+  }
+
+
+  function showChapter(slug, hash) {
+    chapters.forEach(function(ch) {
+      var el = document.getElementById('chapter-' + ch);
+      if (el) el.style.display = (ch === slug) ? 'block' : 'none';
+    });
+
+    // Update active state in TOC and scroll sidebar to show active item
+    var tocItems = document.querySelectorAll('.toc-chapter');
+    var activeItem = null;
+    tocItems.forEach(function(item) {
+      if (item.dataset.chapter === slug) {
+        item.classList.add('active');
+        activeItem = item;
+      } else {
+        item.classList.remove('active');
+      }
+    });
+    if (activeItem) {
+      var tocNav = document.getElementById('toc');
+      var itemRect = activeItem.getBoundingClientRect();
+      var tocRect = tocNav.getBoundingClientRect();
+      if (itemRect.top < tocRect.top || itemRect.bottom > tocRect.bottom) {
+        activeItem.scrollIntoView({ block: 'center' });
+      }
+    }
+
+    currentChapter = slug;
+    currentHeadingIndex = -1;
+    var newHash = '#' + (hash || slug);
+    if (!navigating) {
+      history.pushState(null, '', newHash);
+    }
+    window.scrollTo(0, 0);
+
+    setupHeadingObserver();
+
+    // Re-apply highlight if search is active
+    if (searchInput && searchInput.value) {
+      highlightContent(searchInput.value);
+    }
+
+    // Render mermaid/KaTeX in newly visible chapter if not yet rendered
+    renderSpecialBlocks(slug);
+  }
+
+  function renderSpecialBlocks(slug) {
+    var section = document.getElementById('chapter-' + slug);
+    if (!section) return;
+    if (typeof mermaid !== 'undefined') {
+      var unrendered = section.querySelectorAll('.mermaid:not([data-processed])');
+      if (unrendered.length > 0) {
+        // Save original source for error recovery
+        var sources = {};
+        unrendered.forEach(function(el) { sources[el.id || el.textContent.slice(0, 50)] = el.textContent; });
+        mermaid.run({nodes: unrendered, suppressErrors: true}).catch(function() {}).finally(function() {
+          unrendered.forEach(function(el) {
+            // mermaid sets data-processed; if it's still text-only (no SVG), it failed
+            if (!el.querySelector('svg')) {
+              var src = sources[el.id || el.textContent.slice(0, 50)] || el.textContent;
+              el.innerHTML = '<pre style="color:#c00;border:1px solid #c00;padding:0.5em;white-space:pre-wrap">mermaid error:\n' +
+                src.replace(/</g, '&lt;') + '</pre>';
+            }
+          });
+        });
+      }
+    }
+    if (typeof katex !== 'undefined') {
+      section.querySelectorAll('.math-block[data-math]').forEach(function(el) {
+        if (el.childNodes.length === 0) {
+          try { katex.render(el.getAttribute('data-math'), el, {displayMode: true, throwOnError: false}); }
+          catch(e) { el.textContent = el.getAttribute('data-math'); }
+        }
+      });
+      section.querySelectorAll('.math-inline[data-math]').forEach(function(el) {
+        if (el.childNodes.length === 0) {
+          try { katex.render(el.getAttribute('data-math'), el, {displayMode: false, throwOnError: false}); }
+          catch(e) { el.textContent = el.getAttribute('data-math'); }
+        }
+      });
+    }
+    if (typeof functionPlot !== 'undefined') {
+      section.querySelectorAll('.functionplot[data-plot]').forEach(function(el) {
+        if (el.childNodes.length > 0) return;
+        try {
+          var spec = el.getAttribute('data-plot');
+          var opts = parseFunctionPlotSpec(spec);
+          opts.target = el;
+          functionPlot(opts);
+        } catch(e) {
+          el.textContent = 'Error rendering plot: ' + e.message;
+          el.style.color = 'red';
+        }
+      });
+    }
+  }
+
+  // Parse functionplot spec: lines of "y = expr" and "key: value" options
+  function parseFunctionPlotSpec(spec) {
+    var lines = spec.split('\n');
+    var fns = [];
+    var opts = {width: 600, height: 400};
+    lines.forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      // Option lines: key: value
+      var optMatch = line.match(/^(xrange|yrange|range|width|height|title|grid)\s*:\s*(.+)$/i);
+      if (optMatch) {
+        var key = optMatch[1].toLowerCase();
+        var val = optMatch[2].trim();
+        if (key === 'range' || key === 'xrange') {
+          opts.xAxis = {domain: parseRange(val)};
+        } else if (key === 'yrange') {
+          opts.yAxis = {domain: parseRange(val)};
+        } else if (key === 'width') {
+          opts.width = parseInt(val, 10);
+        } else if (key === 'height') {
+          opts.height = parseInt(val, 10);
+        } else if (key === 'title') {
+          opts.title = val;
+        } else if (key === 'grid') {
+          opts.grid = val === 'true';
+        }
+        return;
+      }
+      // Function lines: y = expr, r = expr (polar), x = expr (implicit), or bare expr
+      var fnMatch = line.match(/^y\s*=\s*(.+)$/);
+      if (fnMatch) { fns.push({fn: fnMatch[1].trim()}); return; }
+      var polarMatch = line.match(/^r\s*=\s*(.+)$/);
+      if (polarMatch) { fns.push({r: polarMatch[1].trim(), fnType: 'polar', graphType: 'polyline'}); return; }
+      var paramMatch = line.match(/^parametric\s*:\s*(.+?)\s*,\s*(.+)$/);
+      if (paramMatch) { fns.push({x: paramMatch[1].trim(), y: paramMatch[2].trim(), fnType: 'parametric', graphType: 'polyline'}); return; }
+      // Bare expression treated as y = expr
+      fns.push({fn: line});
+    });
+    opts.data = fns;
+    return opts;
+  }
+
+  function parseRange(str) {
+    var m = str.match(/\[?\s*(-?[\d.eE+piPI*\/]+)\s*,\s*(-?[\d.eE+piPI*\/]+)\s*\]?/);
+    if (!m) return [-10, 10];
+    return [evalRangeNum(m[1]), evalRangeNum(m[2])];
+  }
+
+  function evalRangeNum(s) {
+    s = s.replace(/pi/gi, String(Math.PI));
+    try { return Function('"use strict"; return (' + s + ')')(); }
+    catch(e) { return parseFloat(s) || 0; }
+  }
+
+  function showChapterAndScroll(slug, headingId) {
+    showChapter(slug, headingId);
+    setTimeout(function() {
+      var target = document.getElementById(headingId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        highlightElement(target);
+        highlightTocHeading(target);
+      }
+    }, 50);
+  }
+
+  function highlightElement(el) {
+    var prev = document.querySelector('.ligarb-highlight');
+    if (prev) prev.classList.remove('ligarb-highlight');
+    el.classList.add('ligarb-highlight');
+  }
+
+  // Navigate to chapter/heading based on current URL hash
+  function handleHash() {
+    navigating = true;
+    var hash = location.hash.replace('#', '');
+    if (!hash) {
+      if (chapters.length > 0) showChapter(chapters[0]);
+      navigating = false;
+      return;
+    }
+
+
+    // Check if hash matches a chapter slug directly
+    if (chapters.indexOf(hash) !== -1) {
+      showChapter(hash);
+      navigating = false;
+      return;
+    }
+
+    // Check for bibliography entry (bib-KEY)
+    var bibMatch = hash.match(/^bib-(.+)/);
+    if (bibMatch) {
+      showChapter('__bibliography__', hash);
+      setTimeout(function() {
+        var target = document.getElementById(hash);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
+      navigating = false;
+      return;
+    }
+
+    // Check for footnote links (fn: or fnref:)
+    var fnMatch = hash.match(/^(?:fn|fnref):(.+?)--/);
+    if (fnMatch) {
+      var fnChSlug = fnMatch[1];
+      if (chapters.indexOf(fnChSlug) !== -1) {
+        if (currentChapter !== fnChSlug) showChapter(fnChSlug, hash);
+        var fnTarget = document.getElementById(hash);
+        if (fnTarget) fnTarget.scrollIntoView({ behavior: 'smooth' });
+        navigating = false;
+        return;
+      }
+    }
+
+    // Check for deep link (chapter--heading)
+    var parts = hash.split('--');
+    if (parts.length >= 2) {
+      var chSlug = parts[0];
+      if (chapters.indexOf(chSlug) !== -1) {
+        showChapterAndScroll(chSlug, hash);
+        navigating = false;
+        return;
+      }
+    }
+
+    // Fallback
+    if (chapters.length > 0) showChapter(chapters[0]);
+    navigating = false;
+  }
+
+  // TOC search + content highlight
+  var searchInput = document.getElementById('toc-search');
+  var clearBtn = document.getElementById('search-clear');
+
+  // Build text cache for full-text search (lazy, built on first search)
+  var chapterTextCache = null;
+  function buildTextCache() {
+    if (chapterTextCache) return;
+    chapterTextCache = {};
+    chapters.forEach(function(slug) {
+      var section = document.getElementById('chapter-' + slug);
+      if (section) {
+        chapterTextCache[slug] = section.textContent.toLowerCase();
+      }
+    });
+  }
+
+  function countMatches(text, query) {
+    var count = 0;
+    var idx = text.indexOf(query);
+    while (idx !== -1) {
+      count++;
+      idx = text.indexOf(query, idx + query.length);
+    }
+    return count;
+  }
+
+  function updateSearch() {
+    var query = searchInput.value.toLowerCase();
+    clearBtn.style.display = query ? 'block' : 'none';
+
+    // Remove existing match count badges
+    document.querySelectorAll('.search-match-count').forEach(function(el) { el.remove(); });
+
+    var items = document.querySelectorAll('.toc-chapter');
+    var partItems = document.querySelectorAll('.toc-part, .toc-appendix');
+
+    if (!query || query.length < 2) {
+      // Show all items when query is too short
+      items.forEach(function(item) { item.style.display = ''; });
+      partItems.forEach(function(item) { item.style.display = ''; });
+      highlightContent('');
+      return;
+    }
+
+    buildTextCache();
+
+    // Track which chapters match (content or TOC text)
+    var matchingSlugs = {};
+    items.forEach(function(item) {
+      var slug = item.dataset.chapter;
+      var tocText = item.textContent.toLowerCase();
+      var contentText = chapterTextCache[slug] || '';
+      var tocMatch = tocText.indexOf(query) !== -1;
+      var contentMatch = contentText.indexOf(query) !== -1;
+
+      if (tocMatch || contentMatch) {
+        item.style.display = '';
+        matchingSlugs[slug] = true;
+        // Show match count badge for content matches
+        if (contentMatch) {
+          var count = countMatches(contentText, query);
+          var badge = document.createElement('span');
+          badge.className = 'search-match-count';
+          badge.textContent = count;
+          var link = item.querySelector('a');
+          if (link) link.appendChild(badge);
+        }
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    // Show/hide part and appendix headers based on whether they have visible children
+    partItems.forEach(function(item) {
+      var children = item.querySelectorAll('.toc-chapter');
+      var hasVisible = Array.prototype.some.call(children, function(ch) {
+        return ch.style.display !== 'none';
+      });
+      item.style.display = hasVisible ? '' : 'none';
+    });
+
+    highlightContent(searchInput.value);
+  }
+
+  searchInput.addEventListener('input', updateSearch);
+
+  clearBtn.addEventListener('click', function() {
+    searchInput.value = '';
+    updateSearch();
+    searchInput.focus();
+  });
+
+  // Content highlight
+  function highlightContent(query) {
+    // Remove existing highlights
+    var marks = document.querySelectorAll('mark.search-highlight');
+    marks.forEach(function(mark) {
+      var parent = mark.parentNode;
+      parent.replaceChild(document.createTextNode(mark.textContent), mark);
+      parent.normalize();
+    });
+
+    if (!query || query.length < 2) return;
+
+    // Highlight in current chapter
+    if (!currentChapter) return;
+    var section = document.getElementById('chapter-' + currentChapter);
+    if (!section) return;
+
+    highlightInNode(section, query.toLowerCase());
+  }
+
+  function highlightInNode(node, query) {
+    if (node.nodeType === 3) { // Text node
+      var text = node.textContent;
+      var lower = text.toLowerCase();
+      var idx = lower.indexOf(query);
+      if (idx === -1) return;
+
+      var frag = document.createDocumentFragment();
+      var lastIdx = 0;
+      while (idx !== -1) {
+        frag.appendChild(document.createTextNode(text.substring(lastIdx, idx)));
+        var mark = document.createElement('mark');
+        mark.className = 'search-highlight';
+        mark.textContent = text.substring(idx, idx + query.length);
+        frag.appendChild(mark);
+        lastIdx = idx + query.length;
+        idx = lower.indexOf(query, lastIdx);
+      }
+      frag.appendChild(document.createTextNode(text.substring(lastIdx)));
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === 1 && node.tagName !== 'SCRIPT' && node.tagName !== 'STYLE' && node.tagName !== 'MARK' && node.tagName !== 'PRE') {
+      // Collect children into array first (live NodeList changes during iteration)
+      var children = Array.prototype.slice.call(node.childNodes);
+      children.forEach(function(child) { highlightInNode(child, query); });
+    }
+  }
+
+  // Sidebar toggle for mobile
+  var toggle = document.getElementById('sidebar-toggle');
+  var sidebar = document.getElementById('sidebar');
+  toggle.addEventListener('click', function() {
+    sidebar.classList.toggle('open');
+  });
+
+  // Close sidebar when clicking a link on mobile
+  var tocLinks = document.querySelectorAll('.toc a');
+  tocLinks.forEach(function(link) {
+    link.addEventListener('click', function() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+
+  // Dark mode toggle
+  var themeToggle = document.getElementById('theme-toggle');
+  var savedTheme = localStorage.getItem('ligarb-theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }
+  themeToggle.addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ligarb-theme', next);
+  });
+
+  // Footnote link click handler — scroll within current chapter without triggering chapter switch
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href^="#fn:"], a[href^="#fnref:"]');
+    if (!link) return;
+    var targetId = link.getAttribute('href').substring(1);
+    var target = document.getElementById(targetId);
+    if (target) {
+      e.preventDefault();
+      history.replaceState(null, '', '#' + targetId);
+      target.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  // Add title attribute to footnote references for hover preview
+  document.querySelectorAll('sup a[href^="#fn:"]').forEach(function(link) {
+    var targetId = link.getAttribute('href').substring(1);
+    var footnoteLi = document.getElementById(targetId);
+    if (footnoteLi) {
+      // Clone to strip the back-reference link, then get text
+      var clone = footnoteLi.cloneNode(true);
+      var backlinks = clone.querySelectorAll('a[href^="#fnref:"]');
+      backlinks.forEach(function(bl) { bl.remove(); });
+      link.title = clone.textContent.trim();
+    }
+  });
+
+  // Expose to onclick handlers and external scripts
+  window.showChapter = showChapter;
+  window.showChapterAndScroll = showChapterAndScroll;
+  window.renderSpecialBlocks = function() { if (currentChapter) renderSpecialBlocks(currentChapter); };
+
+  // Initialize (replace initial entry so first back goes to previous page, not same page)
+  navigating = true;
+  handleHash();
+  history.replaceState(null, '', location.hash || '#' + (chapters[0] || ''));
+  navigating = false;
+  window.addEventListener('popstate', handleHash);
+})();
+</script>
+<script src="js/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<script src="js/mermaid.min.js"></script>
+<script>
+mermaid.initialize({startOnLoad: false});
+renderSpecialBlocks();
+</script>
+<script src="js/katex.min.js"></script>
+<script>renderSpecialBlocks();</script>
+<script src="js/d3.min.js"></script>
+<script src="js/function-plot.min.js"></script>
+<script>renderSpecialBlocks();</script>
+</body>
+</html>

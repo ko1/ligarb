@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+  <!-- 装飾フレーム -->
+  <rect x="100" y="30" width="200" height="140" fill="none" stroke="#1e293b" stroke-width="2"/>
+  <rect x="106" y="36" width="188" height="128" fill="none" stroke="#1e293b" stroke-width="1"/>
+  <!-- 上部装飾 -->
+  <line x1="130" y1="55" x2="170" y2="55" stroke="#1e293b" stroke-width="1"/>
+  <circle cx="200" cy="55" r="3" fill="#1e293b"/>
+  <line x1="230" y1="55" x2="270" y2="55" stroke="#1e293b" stroke-width="1"/>
+  <!-- メインタイトル -->
+  <text x="200" y="100" text-anchor="middle" font-family="Georgia, 'Palatino Linotype', serif" font-size="40" font-weight="bold" fill="#1e293b">ligarb</text>
+  <!-- サブタイトル -->
+  <text x="200" y="125" text-anchor="middle" font-family="Georgia, 'Palatino Linotype', serif" font-size="11" fill="#64748b" letter-spacing="3">BOOK GENERATOR</text>
+  <!-- 下部装飾 -->
+  <line x1="130" y1="140" x2="170" y2="140" stroke="#1e293b" stroke-width="1"/>
+  <circle cx="200" cy="140" r="3" fill="#1e293b"/>
+  <line x1="230" y1="140" x2="270" y2="140" stroke="#1e293b" stroke-width="1"/>
+</svg>

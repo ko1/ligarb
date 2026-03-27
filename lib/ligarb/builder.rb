@@ -8,11 +8,17 @@ require_relative "asset_manager"
 
 module Ligarb
   class Builder
-    def initialize(config_path)
-      @config = Config.new(config_path)
+    def initialize(config_path, parent_data: nil)
+      @config = Config.new(config_path, parent_data: parent_data)
+      @config_path = File.expand_path(config_path)
     end
 
     def build
+      if @config.translations_hub?
+        build_multilang
+        return
+      end
+
       structure = load_structure
 
       all_chapters = collect_all_chapters(structure)
@@ -49,30 +55,96 @@ module Ligarb
 
     private
 
+    def build_multilang
+      hub_data = @config.instance_variable_get(:@translations_data)
+      hub_base = File.dirname(@config_path)
+      output_dir = hub_data.fetch("output_dir", "build")
+      output_path = File.join(hub_base, output_dir)
+
+      langs = []
+      all_lang_chapters = []
+
+      @config.translations.each do |trans|
+        child_config = Config.new(trans.config_path, parent_data: hub_data)
+        prefix = "#{trans.lang}--"
+        lang_data = build_language_data(trans.lang, child_config, prefix)
+        langs << lang_data
+        all_lang_chapters.concat(lang_data[:chapters])
+      end
+
+      assets = AssetManager.new(output_path)
+      assets.detect(all_lang_chapters)
+      assets.provision!
+
+      html = Template.new.render_multilang(langs: langs, assets: assets,
+                                           hub_data: hub_data)
+
+      FileUtils.mkdir_p(output_path)
+      output_file = File.join(output_path, "index.html")
+      File.write(output_file, html)
+
+      # Copy images from hub base dir
+      images_dir = File.join(hub_base, "images")
+      if Dir.exist?(images_dir)
+        dest = File.join(output_path, "images")
+        FileUtils.mkdir_p(dest)
+        Dir.glob(File.join(images_dir, "*")).each { |img| FileUtils.cp(img, dest) }
+      end
+
+      puts "Built #{output_file}"
+      langs.each { |ld| puts "  #{ld[:lang]}: #{ld[:chapters].size} chapter(s)" }
+    end
+
+    def build_language_data(lang, config, slug_prefix)
+      @config = config
+      structure = load_structure(slug_prefix: slug_prefix)
+      all_chapters = collect_all_chapters(structure)
+      resolve_cross_references(all_chapters)
+      assign_relative_paths(all_chapters) if config.repository
+
+      index_entries = all_chapters.flat_map { |ch|
+        ch.index_entries.map { |e|
+          e.class.new(term: e.term, display_text: e.display_text,
+                      chapter_slug: e.chapter_slug, anchor_id: e.anchor_id)
+        }
+      }
+
+      bibliography = resolve_citations!(all_chapters)
+
+      {
+        lang: lang,
+        config: config,
+        chapters: all_chapters,
+        structure: structure,
+        index_entries: index_entries,
+        bibliography: bibliography,
+      }
+    end
+
     # StructNode mirrors Config::StructEntry but holds loaded Chapter objects
     StructNode = Struct.new(:type, :chapter, :children, keyword_init: true)
 
-    def load_structure
+    def load_structure(slug_prefix: nil)
       chapter_num = 0
       appendix_num = 0
 
       @config.structure.map do |entry|
         case entry.type
         when :cover
-          ch = load_chapter(entry.path)
+          ch = load_chapter(entry.path, slug_prefix: slug_prefix)
           ch.cover = true
           StructNode.new(type: :cover, chapter: ch)
         when :chapter
           chapter_num += 1
-          ch = load_chapter(entry.path)
+          ch = load_chapter(entry.path, slug_prefix: slug_prefix)
           ch.number = chapter_num if @config.chapter_numbers
           StructNode.new(type: :chapter, chapter: ch)
         when :part
-          part_ch = load_chapter(entry.path)
+          part_ch = load_chapter(entry.path, slug_prefix: slug_prefix)
           part_ch.part_title = true
           children = (entry.children || []).map do |child|
             chapter_num += 1
-            ch = load_chapter(child.path)
+            ch = load_chapter(child.path, slug_prefix: slug_prefix)
             ch.number = chapter_num if @config.chapter_numbers
             StructNode.new(type: :chapter, chapter: ch)
           end
@@ -80,7 +152,7 @@ module Ligarb
         when :appendix_group
           children = (entry.children || []).map do |child|
             appendix_num += 1
-            ch = load_chapter(child.path)
+            ch = load_chapter(child.path, slug_prefix: slug_prefix)
             letter = ("A".ord + appendix_num - 1).chr
             ch.appendix_letter = letter if @config.chapter_numbers
             StructNode.new(type: :chapter, chapter: ch)
@@ -90,11 +162,11 @@ module Ligarb
       end
     end
 
-    def load_chapter(path)
+    def load_chapter(path, slug_prefix: nil)
       unless File.exist?(path)
         abort "Error: chapter not found: #{path}"
       end
-      Chapter.new(path, @config.base_dir)
+      Chapter.new(path, @config.base_dir, slug_prefix: slug_prefix)
     end
 
     def collect_all_chapters(structure)

@@ -14,7 +14,7 @@ module Ligarb
     IndexEntry = Struct.new(:term, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
     CiteEntry = Struct.new(:key, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
 
-    def initialize(path, base_dir)
+    def initialize(path, base_dir, slug_prefix: nil)
       @path     = path
       @base_dir = base_dir
       @source   = File.read(path)
@@ -24,7 +24,8 @@ module Ligarb
       @cover = false
 
       @relative_path = nil
-      @slug = File.basename(path, ".md").gsub(/[^a-zA-Z0-9_-]/, "-")
+      base_slug = File.basename(path, ".md").gsub(/[^a-zA-Z0-9_-]/, "-")
+      @slug = slug_prefix ? "#{slug_prefix}#{base_slug}" : base_slug
       parse!
     end
 

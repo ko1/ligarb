@@ -29,6 +29,8 @@ chapters:
 | [footer](#index:book.yml/footer) | いいえ | — | 各章の末尾に表示するテキスト（`ai_generated` のデフォルト免責を上書き可） |
 | [bibliography](#index:book.yml/bibliography) | いいえ | — | 参考文献データファイルのパス（`.yml` または `.bib`） |
 | [sources](#index:book.yml/sources) | いいえ | — | AI 執筆時の参照ファイル一覧 |
+| [translations](#index:book.yml/translations) | いいえ | — | 多言語対応（言語コード → 設定ファイルパス） |
+| [inherit](#index:book.yml/inherit) | いいえ | — | 親設定ファイルのパス（共通設定の継承） |
 | [chapters](#index:book.yml/chapters) | はい | — | 章・パート・付録の構成（下記参照） |
 
 ## chapters の指定
@@ -147,11 +149,11 @@ footer: "© 2025 著者名. All rights reserved."
 bibliography: references.bib
 ```
 
-詳しい使い方は [Markdown の書き方](04-markdown.md#参考文献（Bibliography）) を参照してください。
+詳しい使い方は [Markdown の書き方](markdown.md#参考文献（Bibliography）) を参照してください。
 
 ## 参照ファイル（sources）
 
-`sources` フィールドは、[AI 執筆](07-ai.md)（`ligarb write`）時に AI が参照するファイルを指定します。指定されたファイルの内容が AI へのコンテキストとして渡されます:
+`sources` フィールドは、[AI 執筆](ai.md)（`ligarb write`）時に AI が参照するファイルを指定します。指定されたファイルの内容が AI へのコンテキストとして渡されます:
 
 ```yaml
 sources:
@@ -161,3 +163,26 @@ sources:
 ```
 
 文字列で指定するとファイル名がそのままラベルになります。`path` と `label` を個別に指定することもできます。
+
+## 多言語対応（translations / inherit）
+
+`translations` フィールドで同じ本の複数言語版を管理できます。`inherit` フィールドで親設定の共通項目を継承できます。
+
+```yaml
+# book.yml（ハブ）
+repository: "https://github.com/user/repo"
+translations:
+  ja: book.ja.yml
+  en: book.en.yml
+```
+
+```yaml
+# book.ja.yml（子）
+inherit: book.yml
+title: "マニュアル"
+language: "ja"
+chapters:
+  - intro.md
+```
+
+詳しくは [](translations.md) を参照してください。

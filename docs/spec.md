@@ -20,6 +20,7 @@ ligarb は、複数の Markdown ファイルを単一の HTML ファイル（`in
 | `ai_generated` | Boolean | いいえ | `false` | AI 生成コンテンツとしてマーク |
 | `footer` | String | いいえ | — | 各章の末尾に表示するテキスト |
 | `bibliography` | String | いいえ | — | 参考文献データファイルのパス |
+| `translations` | Hash | いいえ | — | 多言語対応（言語コード → 設定ファイルパス） |
 | `chapters` | Array | はい | — | 本の構成（章・パート・付録） |
 
 ### パスの解決
@@ -758,3 +759,49 @@ AI（Claude CLI）を使って、企画書（`brief.yml`）から本を自動生
 #### 前提条件
 
 [Claude Code](https://claude.com/claude-code) の CLI（`claude` コマンド）がインストールされている必要がある。
+
+## 多言語対応（Translations）
+
+同じ本を複数の言語で提供するための仕組み。親設定ファイル（ハブ）が共通設定を持ち、言語ごとの設定ファイルを参照する。
+
+### ハブ設定ファイル
+
+`translations` フィールドに言語コードと設定ファイルパスのマッピングを記述する。`chapters` がない場合はハブ専用として扱われる。
+
+```yaml
+# book.yml（ハブ）
+repository: "https://github.com/user/repo"
+ai_generated: true
+translations:
+  ja: book.ja.yml
+  en: book.en.yml
+```
+
+### 言語別設定ファイル
+
+通常の `book.yml` と同じ形式。`title`、`language`、`chapters` は言語ごとに必須。
+
+```yaml
+# book.ja.yml
+title: "マニュアル"
+language: "ja"
+chapters:
+  - chapters/ja/01-intro.md
+```
+
+### 設定の継承
+
+ハブの設定は言語別ファイルにデフォルト値として継承される。言語別ファイルで明示的に指定した場合はそちらが優先。
+
+継承可能なフィールド: `author`, `language`, `output_dir`, `chapter_numbers`, `style`, `repository`, `ai_generated`, `footer`, `bibliography`
+
+### ビルド
+
+```bash
+ligarb build book.yml        # ハブ → 全言語をビルド
+ligarb build book.ja.yml     # 単一言語のみ（従来通り）
+```
+
+### 言語切り替え UI
+
+ハブ経由でビルドした場合、サイドバーのヘッダーに言語切り替えリンク（例: `[JA | EN]`）が表示される。現在の言語はハイライト、他の言語はクリックで遷移可能。リンクは出力ディレクトリ間の相対パスで生成される。

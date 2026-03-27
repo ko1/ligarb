@@ -90,6 +90,7 @@ module Ligarb
           repository       (optional) GitHub repository URL for "Edit on GitHub" links
           ai_generated     (optional) Mark as AI-generated (badge + meta tags, default: false)
           footer           (optional) Custom text at bottom of each chapter
+          translations     (optional) Map of lang => config path for multi-language builds
 
         Example:
           ligarb build
@@ -194,6 +195,8 @@ module Ligarb
         footer:          (optional) Custom text displayed at the bottom of each chapter.
                          Overrides the default ai_generated disclaimer if both are set.
                          Useful for copyright notices, disclaimers, or other per-chapter text.
+        translations:    (optional) A mapping of language codes to config file paths.
+                         Enables multi-language support. See "Translations" section below.
         chapters:        (required) Book structure. An array that can contain:
                          - A cover: the landing page shown when the book is opened
                          - A string: a chapter Markdown file path (relative to book.yml)
@@ -670,6 +673,56 @@ module Ligarb
         Example: 'ligarb write ruby_book/brief.yml' creates files in ruby_book/.
 
         Requires the 'claude' CLI to be installed.
+
+        == Translations (Multi-Language) ==
+
+        ligarb supports building the same book in multiple languages. A parent
+        config file (hub) defines shared settings and points to per-language
+        config files.
+
+        Hub config (book.yml):
+
+            repository: "https://github.com/user/repo"
+            ai_generated: true
+            translations:
+              ja: book.ja.yml
+              en: book.en.yml
+
+        Per-language config (book.ja.yml):
+
+            title: "マニュアル"
+            language: "ja"
+            chapters:
+              - chapters/ja/01-intro.md
+
+        Per-language config (book.en.yml):
+
+            title: "Manual"
+            language: "en"
+            chapters:
+              - chapters/en/01-intro.md
+
+        Building the hub builds all translations:
+
+            ligarb build book.yml        # Builds all languages
+            ligarb build book.ja.yml     # Builds only Japanese (standalone)
+
+        Inheritance rules:
+        - The hub's settings (repository, style, ai_generated, etc.) are
+          inherited by each per-language config as defaults.
+        - Per-language configs can override any inherited setting.
+        - title, language, and chapters are always per-language (required in
+          each per-language config).
+
+        The hub config does not need 'title' or 'chapters' fields — it only
+        needs 'translations'. If the hub has no 'chapters', it is treated
+        purely as a translations hub.
+
+        Language switcher:
+        - When built via the hub, each output HTML includes a language switcher
+          in the sidebar header (e.g. [JA | EN]).
+        - Links use relative paths between output directories.
+        - The current language is highlighted; others are clickable links.
       SPEC
     end
 

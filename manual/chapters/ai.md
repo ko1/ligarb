@@ -143,6 +143,40 @@ book.yml にも登録してください。
 03-api.md の内容を見直して、シーケンス図（mermaid）を追加してください。
 ```
 
+### 既存の本に翻訳を追加する
+
+すでに日本語で書いた本を海外の読者にも届けたい、あるいは英語の技術ドキュメントに日本語版を追加したい場合があります。ligarb の多言語対応機能（[](translations.md) 参照）を使えば、1 つの HTML に複数言語を収めて言語切り替えで読み分けられます。
+
+AI にこの作業を依頼するときは、既存の `book.yml` をハブに変換し、全章を翻訳するという手順を伝えてください。`ligarb help` に仕様が含まれているため、AI は `translations`、`inherit` などの設定を正しく扱えます。
+
+日本語の本に英語版を追加する例:
+
+```
+ligarb help を読んで、この日本語の本に英語版を追加してください。
+
+手順:
+1. 既存の book.yml を translations ハブに変換
+   - 共通設定（repository, bibliography 等）をハブに残す
+   - 日本語固有の設定を book.ja.yml に分離（inherit: book.yml を付ける）
+2. chapters/en/ に全章を英語に翻訳
+3. book.en.yml を作成（inherit: book.yml）
+4. ligarb build book.yml で統合ビルドして確認
+```
+
+英語の本に日本語版を追加する場合も同様です:
+
+```
+ligarb help を読んで、この英語の本に日本語版を追加してください。
+
+手順:
+1. 既存の book.yml を translations ハブに変換
+   - 共通設定をハブに残す
+   - 英語固有の設定を book.en.yml に分離（inherit: book.yml を付ける）
+2. chapters/ja/ に全章を日本語に翻訳
+3. book.ja.yml を作成（inherit: book.yml）
+4. ligarb build book.yml で統合ビルドして確認
+```
+
 #### ビルドと確認
 
 ```
