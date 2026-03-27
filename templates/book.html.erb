@@ -58,9 +58,17 @@
     <p class="book-author"><%= h(author) %></p>
     <%- end -%>
 <%- end -%>
+<%- if multilang -%>
+  <%- if ai_generated -%>
+    <%- langs.each do |ld| -%>
+    <span class="ai-badge lang-content" data-lang="<%= ld[:lang] %>"><%= ld[:language] == 'ja' ? 'AI 生成' : 'AI Generated' %></span>
+    <%- end -%>
+  <%- end -%>
+<%- else -%>
     <%- if ai_generated -%>
     <span class="ai-badge"><%= language == 'ja' ? 'AI 生成' : 'AI Generated' %></span>
     <%- end -%>
+<%- end -%>
 <%- if multilang -%>
     <div class="lang-switcher">
     <%- langs.each do |ld| -%>
