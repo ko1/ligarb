@@ -475,7 +475,8 @@
 <%- if multilang -%>
   var langChapters = {
   <%- langs.each do |ld| -%>
-    "<%= ld[:lang] %>": ["<%= ld[:lang] %>--__toc__", <%= ld[:chapters].map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ", \"#{ld[:lang]}--__bibliography__\"" unless ld[:bibliography].empty? %><%= ", \"#{ld[:lang]}--__index__\"" unless ld[:index_tree].empty? %>],
+    <%- ld_cover = ld[:chapters].find(&:cover?) -%>
+    "<%= ld[:lang] %>": [<%= "\"#{ld_cover.slug}\", " if ld_cover %>"<%= ld[:lang] %>--__toc__", <%= ld[:chapters].reject(&:cover?).map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ", \"#{ld[:lang]}--__bibliography__\"" unless ld[:bibliography].empty? %><%= ", \"#{ld[:lang]}--__index__\"" unless ld[:index_tree].empty? %>],
   <%- end -%>
   };
   var allLangs = [<%= langs.map { |ld| "\"#{ld[:lang]}\"" }.join(", ") %>];
@@ -483,7 +484,8 @@
   if (allLangs.indexOf(currentLang) === -1) currentLang = allLangs[0];
   var chapters = langChapters[currentLang];
 <%- else -%>
-  var chapters = ["__toc__", <%= chapters.map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
+  <%- cover_ch = chapters.find(&:cover?) -%>
+  var chapters = [<%= "\"#{cover_ch.slug}\", " if cover_ch %>"__toc__", <%= chapters.reject(&:cover?).map { |c| "\"#{c.slug}\"" }.join(", ") %><%= ', "__bibliography__"' unless bibliography.empty? %><%= ', "__index__"' unless index_tree.empty? %>];
 <%- end -%>
   var currentChapter = null;
 
