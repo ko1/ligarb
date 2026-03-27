@@ -247,6 +247,11 @@
 <main class="content" id="content">
 <%- if multilang -%>
   <%- langs.each do |ld| -%>
+  <%- ld[:chapters].select(&:cover?).each do |chapter| -%>
+  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
+    <%= chapter.html %>
+  </section>
+  <%- end -%>
   <section class="chapter toc-page" id="chapter-<%= ld[:lang] %>--__toc__" data-lang="<%= ld[:lang] %>" style="display: none;">
     <h1><%= ld[:language] == 'ja' ? '目次' : 'Contents' %></h1>
     <nav class="toc-full">
@@ -297,8 +302,8 @@
     <%- end -%>
     </nav>
   </section>
-  <%- ld[:chapters].each_with_index do |chapter, idx| -%>
-  <section class="<%= chapter.cover? ? 'chapter cover-page' : 'chapter' %>" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
+  <%- ld[:chapters].reject(&:cover?).each_with_index do |chapter, idx| -%>
+  <section class="chapter" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
     <%= chapter.html %>
     <%- if ld[:repository] && !chapter.part_title? && !chapter.cover? -%>
     <div class="edit-link">
@@ -358,6 +363,11 @@
   <%- end -%>
   <%- end -%>
 <%- else -%>
+  <%- chapters.select(&:cover?).each do |chapter| -%>
+  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>" style="display: none;">
+    <%= chapter.html %>
+  </section>
+  <%- end -%>
   <section class="chapter toc-page" id="chapter-__toc__" style="display: none;">
     <h1><%= language == 'ja' ? '目次' : 'Contents' %></h1>
     <nav class="toc-full">
@@ -408,8 +418,8 @@
     <%- end -%>
     </nav>
   </section>
-  <%- chapters.each_with_index do |chapter, idx| -%>
-  <section class="<%= chapter.cover? ? 'chapter cover-page' : 'chapter' %>" id="chapter-<%= chapter.slug %>" style="display: none;">
+  <%- chapters.reject(&:cover?).each_with_index do |chapter, idx| -%>
+  <section class="chapter" id="chapter-<%= chapter.slug %>" style="display: none;">
     <%= chapter.html %>
     <%- if repository && !chapter.part_title? && !chapter.cover? -%>
     <div class="edit-link">
