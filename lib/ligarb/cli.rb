@@ -101,7 +101,7 @@ module Ligarb
     HELP_PATH = File.expand_path("../../../docs/help.md", __FILE__)
 
     def spec_text
-      File.read(HELP_PATH).gsub("{{VERSION}}", VERSION)
+      "ligarb #{VERSION}\n\n#{File.read(HELP_PATH)}"
     end
 
     def print_spec

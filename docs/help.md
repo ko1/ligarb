@@ -1,7 +1,5 @@
 # ligarb - Generate a single-page HTML book from Markdown files
 
-Version: {{VERSION}}
-
 ## Overview
 
 ligarb converts multiple Markdown files into a self-contained index.html.
@@ -46,8 +44,9 @@ Aborts if book.yml already exists.
 Build the HTML book.
 CONFIG defaults to 'book.yml' in the current directory.
 
-The generated index.html is a fully self-contained HTML file (CSS and JS
-are embedded). Open it directly in a browser — no web server needed.
+The output directory contains index.html plus js/ and css/ subdirectories
+for auto-downloaded libraries (highlight.js, mermaid, KaTeX, etc.).
+Open index.html directly in a browser — no web server needed.
 
 ### `ligarb serve [CONFIG...]`
 
@@ -140,6 +139,8 @@ The configuration file is a YAML file with the following fields:
 
 ### chapters array
 
+All paths in the chapters array are relative to book.yml.
+
 The chapters array supports four element types:
 
 **1. Cover** (object with 'cover' key):
@@ -161,11 +162,14 @@ chapters:
 
 ```yaml
 chapters:
-  - part: part1.md           # Markdown file: h1 = part title, body = opening text
+  - part: part1.md
     chapters:
       - 01-introduction.md
       - 02-getting-started.md
 ```
+
+The part file's h1 becomes the part title, and the body text (if any)
+is shown as the part's opening page.
 
 **4. Appendix** (object with 'appendix' key, value is array of chapter files):
 
@@ -297,10 +301,10 @@ purely as a translations hub.
 
 ### Language switcher
 
-- When built via the hub, each output HTML includes a language switcher
-  in the sidebar header (e.g. [JA | EN]).
-- Links use relative paths between output directories.
-- The current language is highlighted; others are clickable links.
+- Hub build produces a single index.html containing all languages.
+  A language switcher in the sidebar header (e.g. `[JA | EN]`) toggles
+  visibility via JavaScript.
+- The current language button is highlighted; others switch the display.
 
 ## Directory Structure
 
@@ -341,7 +345,8 @@ Markdown (GFM) via kramdown. Supported syntax includes:
 - Tables, task lists, strikethrough, and other GFM extensions
 - Inline HTML
 
-The first heading (h1) in each file becomes the chapter title in the TOC.
+Each file must start with an h1 heading (`#`). This becomes the chapter
+title in the TOC. Use h2 (`##`) and h3 (`###`) for sections within the chapter.
 
 ### Images
 
@@ -526,7 +531,8 @@ author and year.
 
 A warning is printed and the citation is rendered as [key?] (highlighted in
 red) if a cite key is not found in the bibliography file.
-If no bibliography file is configured, cite markers are left as-is.
+If no bibliography file is configured, `#cite:` links are converted to
+plain text spans (the link text is preserved but no citation label is added).
 
 ## Fenced Code Blocks
 
