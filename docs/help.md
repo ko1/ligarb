@@ -19,6 +19,11 @@ The generated HTML includes:
 - "Edit on GitHub" links (optional)
 - Footnotes (kramdown syntax)
 
+**Security note:** ligarb is designed for trusted local authoring. It assumes
+that Markdown source files, bibliography data, and configuration files are
+written or reviewed by the author. It is not intended to safely process
+untrusted third-party content without additional sanitization and validation.
+
 ## Commands
 
 ### `ligarb init [DIRECTORY]`
@@ -34,6 +39,9 @@ Aborts if book.yml already exists.
 
 Build the HTML book.
 CONFIG defaults to 'book.yml' in the current directory.
+
+The generated index.html is a fully self-contained HTML file (CSS and JS
+are embedded). Open it directly in a browser — no web server needed.
 
 ### `ligarb serve [CONFIG...]`
 
@@ -75,6 +83,22 @@ Equivalent to: `ligarb serve --multi */book.yml`
 Options:
 - `--port PORT` — Server port (default: 3000)
 
+### `ligarb write [BRIEF]`
+
+Generate a complete book using AI (Claude).
+BRIEF defaults to 'brief.yml' in the current directory.
+Reads the brief, sends a prompt to Claude, and builds
+the generated book. Files are created in the same
+directory as brief.yml.
+
+- `ligarb write --init [DIR]` — Create a brief.yml template.
+  If DIR is given, creates DIR/brief.yml (mkdir as needed).
+  If omitted, creates brief.yml in the current directory.
+- `ligarb write --no-build` — Generate files only, skip the build step.
+
+Requires the 'claude' CLI to be installed.
+See the "Write Command" section below for brief.yml details.
+
 ### `ligarb help`
 
 Show this detailed specification.
@@ -99,10 +123,13 @@ The configuration file is a YAML file with the following fields:
 | `output_dir` | optional | `"build"` | Output directory relative to book.yml. |
 | `chapter_numbers` | optional | `true` | Show chapter/section numbers (e.g. "1.", "1.1", "1.1.1"). |
 | `style` | optional | — | Path to a custom CSS file relative to book.yml. Loaded after the default styles, so it can override any rule. |
-| `repository` | optional | — | GitHub repository URL (e.g. "https://github.com/user/repo"). When set, each chapter shows a "View on GitHub" link. The link points to `{repository}/blob/HEAD/{path-from-git-root}`. The chapter path is resolved relative to the Git repository root. |
-| `ai_generated` | optional | `false` | Mark the book as AI-generated content. When true: adds an "AI Generated" badge in the sidebar header, adds a default disclaimer footer to each chapter, and adds noindex/noai meta tags to prevent search indexing and AI training. The footer text can be overridden with the 'footer' field. |
-| `footer` | optional | — | Custom text displayed at the bottom of each chapter. Overrides the default ai_generated disclaimer if both are set. Useful for copyright notices, disclaimers, or other per-chapter text. |
-| `translations` | optional | — | A mapping of language codes to config file paths. Enables multi-language support. See "Translations" section below. |
+| `repository` | optional | — | GitHub repository URL (e.g. "https://github.com/user/repo"). When set, each chapter shows a "View on GitHub" link pointing to `{repository}/blob/HEAD/{path-from-git-root}`. |
+| `ai_generated` | optional | `false` | Mark the book as AI-generated content. When true: adds an "AI Generated" badge in the sidebar header, adds a default disclaimer footer to each chapter, and adds noindex/noai meta tags. The footer text can be overridden with the `footer` field. |
+| `footer` | optional | — | Custom text displayed at the bottom of each chapter. Overrides the default ai_generated disclaimer if both are set. |
+| `bibliography` | optional | — | Path to a bibliography file (.yml or .bib) relative to book.yml. See "Bibliography" section. |
+| `sources` | optional | — | Reference files for AI context. Array of strings or `{path:, label:}` objects. Used by the `write` command and review AI. |
+| `translations` | optional | — | A mapping of language codes to config file paths. Enables multi-language support. See "Translations" section. |
+| `inherit` | optional | — | Path to a parent config file. Inheritable settings (author, language, style, etc.) are loaded as defaults. Used by per-language configs for standalone builds. |
 | `chapters` | required | — | Book structure. An array that can contain: a cover, chapter strings, parts, and appendix. |
 
 ### chapters array
@@ -193,6 +220,74 @@ chapters:
     - a1-config-reference.md
 ```
 
+## Translations (Multi-Language)
+
+ligarb supports building the same book in multiple languages. A parent
+config file (hub) defines shared settings and points to per-language
+config files.
+
+### Hub config (book.yml)
+
+```yaml
+repository: "https://github.com/user/repo"
+ai_generated: true
+translations:
+  ja: book.ja.yml
+  en: book.en.yml
+```
+
+### Per-language config (book.ja.yml)
+
+```yaml
+title: "マニュアル"
+language: "ja"
+inherit: book.yml
+chapters:
+  - chapters/ja/01-intro.md
+```
+
+### Per-language config (book.en.yml)
+
+```yaml
+title: "Manual"
+language: "en"
+inherit: book.yml
+chapters:
+  - chapters/en/01-intro.md
+```
+
+### Building
+
+```
+ligarb build book.yml        # Builds all languages
+ligarb build book.ja.yml     # Builds only Japanese (standalone)
+```
+
+When building a per-language config standalone, the `inherit` field loads
+the hub's inheritable settings (repository, style, ai_generated, etc.)
+as defaults.
+
+### Inheritance rules
+
+- The hub's settings (repository, style, ai_generated, etc.) are
+  inherited by each per-language config as defaults.
+- Per-language configs can override any inherited setting.
+- title, language, and chapters are always per-language (required in
+  each per-language config).
+- output_dir is NOT inherited — it always comes from the config file
+  passed directly to `ligarb build`.
+
+The hub config does not need 'title' or 'chapters' fields — it only
+needs 'translations'. If the hub has no 'chapters', it is treated
+purely as a translations hub.
+
+### Language switcher
+
+- When built via the hub, each output HTML includes a language switcher
+  in the sidebar header (e.g. [JA | EN]).
+- Links use relative paths between output directories.
+- The current language is highlighted; others are clickable links.
+
 ## Directory Structure
 
 A typical book project has this structure:
@@ -220,7 +315,9 @@ my-book/
     └── images/           # Copied image files
 ```
 
-## Markdown Files
+## Markdown Authoring
+
+### Basics
 
 Each Markdown file represents one chapter. ligarb uses GitHub Flavored
 Markdown (GFM) via kramdown. Supported syntax includes:
@@ -231,6 +328,183 @@ Markdown (GFM) via kramdown. Supported syntax includes:
 - Inline HTML
 
 The first heading (h1) in each file becomes the chapter title in the TOC.
+
+### Images
+
+Place image files in the `images/` directory next to book.yml.
+Reference them from Markdown with relative paths:
+
+```markdown
+![Screenshot](images/screenshot.png)
+```
+
+ligarb rewrites image paths to `images/filename` in the output and copies
+all files from the images/ directory to the output.
+
+### Footnotes
+
+Footnotes use kramdown syntax:
+
+```markdown
+This is a sentence with a footnote[^1].
+
+[^1]: This is the footnote content.
+```
+
+Footnote IDs are scoped per chapter to avoid collisions in the single-page
+output.
+
+### Admonitions
+
+GFM-style blockquote alerts are converted to styled admonition boxes.
+Five types are supported: NOTE, TIP, WARNING, CAUTION, IMPORTANT.
+
+Syntax:
+
+```markdown
+> [!NOTE]
+> This is a note.
+
+> [!TIP]
+> Helpful advice here.
+
+> [!WARNING]
+> Be careful about this.
+
+> [!CAUTION]
+> Dangerous operation.
+
+> [!IMPORTANT]
+> Critical information.
+```
+
+Each type renders with a distinct color and icon:
+
+| Type | Color | Icon |
+|------|-------|------|
+| NOTE | blue | info |
+| TIP | green | lightbulb |
+| WARNING | yellow | warning |
+| CAUTION | red | stop |
+| IMPORTANT | purple | exclamation |
+
+### Cross-References
+
+Link to other chapters or headings using standard Markdown relative links.
+ligarb resolves .md file references to internal anchors in the single-page
+output.
+
+Syntax:
+
+```markdown
+[link text](other-chapter.md)            Link to a chapter
+[link text](other-chapter.md#Heading)    Link to a specific heading
+[](other-chapter.md)                     Auto-fill with chapter title
+[](other-chapter.md#Heading)             Auto-fill with heading text
+```
+
+The .md path is resolved relative to the current Markdown file's directory.
+The heading fragment is matched against heading IDs (case-insensitive,
+normalized the same way heading slugs are generated).
+
+When the link text is empty, ligarb fills it with the target's display text:
+- Chapter link: the chapter's display title (e.g. "3. Config Guide")
+- Heading link: the heading's display text (e.g. "3.2 Setup")
+
+If a referenced chapter or heading does not exist, the build fails with an
+error message indicating the broken reference and its source file.
+
+External URLs ending in .md (e.g. https://example.com/README.md) are not
+affected — only relative paths are resolved.
+
+### Index
+
+Mark terms for the book index using Markdown link syntax with `#index`:
+
+```markdown
+[Ruby](#index)                           Index the link text as-is
+[dynamic typing](#index:動的型付け)       Index under a specific term
+[Ruby](#index:Ruby,Languages/Ruby)       Multiple index entries (comma-separated)
+[Ruby](#index:Languages/Ruby)            Hierarchical: Languages > Ruby
+```
+
+The link is rendered as plain text in the output (no link styling).
+An "Index" section is automatically appended at the end of the book,
+with terms sorted alphabetically and grouped by first character.
+
+Clicking an index entry navigates to the exact location in the chapter.
+
+### Bibliography
+
+Cite references in the text using Markdown link syntax with `#cite`:
+
+```markdown
+[Ruby](#cite:matz1995)       Cite by key; rendered as Ruby[Matsumoto, 1995]
+```
+
+Define a bibliography data file in book.yml:
+
+```yaml
+bibliography: references.yml   # YAML format
+bibliography: references.bib   # BibTeX format
+```
+
+The format is auto-detected by file extension (.bib = BibTeX, otherwise YAML).
+
+**YAML format** — maps keys to reference data:
+
+```yaml
+matz1995:
+  author: "Yukihiro Matsumoto"
+  title: "The Ruby Programming Language"
+  year: 1995
+  url: "https://www.ruby-lang.org"
+  publisher: "O'Reilly"
+  doi: "10.1234/example"
+```
+
+**BibTeX format:**
+
+```bibtex
+@book{matz1995,
+  author = {Yukihiro Matsumoto},
+  title = {The Ruby Programming Language},
+  year = {1995},
+  publisher = {O'Reilly},
+  url = {https://www.ruby-lang.org}
+}
+```
+
+BibTeX notes:
+- Entry types (@book, @article, etc.) are preserved for formatting
+- Field values can use {braces} or "quotes"
+- Nested braces are supported one level deep (`{The {Ruby} Language}`)
+- Lines starting with `%` are comments
+
+Supported fields (YAML and BibTeX):
+author, title, year, url, publisher, journal, booktitle, volume,
+number, pages, edition, doi, editor, note.
+
+Formatting by type:
+
+| Type | Format |
+|------|--------|
+| book | Author. *Title*. Edition. Publisher, Year. |
+| article | Author. "Title". Journal, Volume(Number), Pages, Year. |
+| inproceedings | Author. "Title". In Booktitle, Pages, Year. |
+| other/YAML | Author. Title. Publisher/Journal, Volume, Pages, Year. |
+
+If url is present, the title becomes a link. If doi is present, a DOI link
+is appended.
+
+The citation is rendered as a superscript [author, year] link that navigates
+to the "Bibliography" section at the end of the book. Hovering the link shows
+the full reference. The bibliography section lists all cited entries sorted by
+author and year.
+
+A warning is printed and the citation is rendered as [key?] (highlighted in
+red) if a cite key is not found in the bibliography file.
+If no bibliography file is configured, cite markers are left as-is.
 
 ## Fenced Code Blocks
 
@@ -384,141 +658,9 @@ Options (one per line):
 - `title: <text>` — Plot title
 - `grid: true` — Show grid lines
 
-## Images
+## Output Customization
 
-Place image files in the `images/` directory next to book.yml.
-Reference them from Markdown with relative paths:
-
-```markdown
-![Screenshot](images/screenshot.png)
-```
-
-ligarb rewrites image paths to `images/filename` in the output and copies
-all files from the images/ directory to the output.
-
-## Build
-
-Run from the directory containing book.yml:
-
-```
-ligarb build
-```
-
-Or specify a path to book.yml:
-
-```
-ligarb build path/to/book.yml
-```
-
-The generated index.html is a fully self-contained HTML file (CSS and JS
-are embedded). Open it directly in a browser — no web server needed.
-
-## Footnotes
-
-Footnotes use kramdown syntax:
-
-```markdown
-This is a sentence with a footnote[^1].
-
-[^1]: This is the footnote content.
-```
-
-Footnote IDs are scoped per chapter to avoid collisions in the single-page
-output.
-
-## Index
-
-Mark terms for the book index using Markdown link syntax with `#index`:
-
-```markdown
-[Ruby](#index)                           Index the link text as-is
-[dynamic typing](#index:動的型付け)       Index under a specific term
-[Ruby](#index:Ruby,Languages/Ruby)       Multiple index entries (comma-separated)
-[Ruby](#index:Languages/Ruby)            Hierarchical: Languages > Ruby
-```
-
-The link is rendered as plain text in the output (no link styling).
-An "Index" section is automatically appended at the end of the book,
-with terms sorted alphabetically and grouped by first character.
-
-Clicking an index entry navigates to the exact location in the chapter.
-
-## Bibliography
-
-Cite references in the text using Markdown link syntax with `#cite`:
-
-```markdown
-[Ruby](#cite:matz1995)       Cite by key; rendered as Ruby[Matsumoto, 1995]
-```
-
-Define a bibliography data file in book.yml:
-
-```yaml
-bibliography: references.yml   # YAML format
-bibliography: references.bib   # BibTeX format
-```
-
-The format is auto-detected by file extension (.bib = BibTeX, otherwise YAML).
-
-### YAML format
-
-Maps keys to reference data:
-
-```yaml
-matz1995:
-  author: "Yukihiro Matsumoto"
-  title: "The Ruby Programming Language"
-  year: 1995
-  url: "https://www.ruby-lang.org"
-  publisher: "O'Reilly"
-  doi: "10.1234/example"
-```
-
-### BibTeX format
-
-```bibtex
-@book{matz1995,
-  author = {Yukihiro Matsumoto},
-  title = {The Ruby Programming Language},
-  year = {1995},
-  publisher = {O'Reilly},
-  url = {https://www.ruby-lang.org}
-}
-```
-
-BibTeX notes:
-- Entry types (@book, @article, etc.) are preserved for formatting
-- Field values can use {braces} or "quotes"
-- Nested braces are supported one level deep (`{The {Ruby} Language}`)
-- Lines starting with `%` are comments
-
-### Supported fields
-
-author, title, year, url, publisher, journal, booktitle, volume,
-number, pages, edition, doi, editor, note.
-
-### Formatting by type
-
-| Type | Format |
-|------|--------|
-| book | Author. *Title*. Edition. Publisher, Year. |
-| article | Author. "Title". Journal, Volume(Number), Pages, Year. |
-| inproceedings | Author. "Title". In Booktitle, Pages, Year. |
-| other/YAML | Author. Title. Publisher/Journal, Volume, Pages, Year. |
-
-If url is present, the title becomes a link. If doi is present, a DOI link
-is appended.
-
-The citation is rendered as a superscript [author, year] link that navigates
-to the "Bibliography" section at the end of the book. Hovering the link shows
-the full reference. The bibliography section lists all cited entries sorted by
-author and year.
-
-A warning is printed and the citation is rendered as [key?] (highlighted in
-red) if a cite key is not found in the bibliography file.
-If no bibliography file is configured, cite markers are left as-is.
-
-## Custom CSS
+### Custom CSS
 
 Add a `style` field to book.yml to inject custom CSS:
 
@@ -538,7 +680,7 @@ Example custom.css:
 }
 ```
 
-## Dark Mode
+### Dark Mode
 
 The generated HTML includes a dark mode toggle button (moon icon) in the
 sidebar header. The user's preference is saved to localStorage and persists
@@ -547,7 +689,7 @@ across page reloads.
 Custom CSS can override dark mode colors using the `[data-theme="dark"]`
 selector.
 
-## Edit on GitHub
+### Edit on GitHub
 
 Add a `repository` field to book.yml:
 
@@ -558,70 +700,9 @@ repository: "https://github.com/user/repo"
 Each chapter will show a "View on GitHub" link pointing to:
 `{repository}/blob/HEAD/{path-from-git-root}`
 
-## Admonitions
+The chapter path is resolved relative to the Git repository root.
 
-GFM-style blockquote alerts are converted to styled admonition boxes.
-Five types are supported: NOTE, TIP, WARNING, CAUTION, IMPORTANT.
-
-Syntax:
-
-```markdown
-> [!NOTE]
-> This is a note.
-
-> [!TIP]
-> Helpful advice here.
-
-> [!WARNING]
-> Be careful about this.
-
-> [!CAUTION]
-> Dangerous operation.
-
-> [!IMPORTANT]
-> Critical information.
-```
-
-Each type renders with a distinct color and icon:
-
-| Type | Color | Icon |
-|------|-------|------|
-| NOTE | blue | info |
-| TIP | green | lightbulb |
-| WARNING | yellow | warning |
-| CAUTION | red | stop |
-| IMPORTANT | purple | exclamation |
-
-## Cross-References
-
-Link to other chapters or headings using standard Markdown relative links.
-ligarb resolves .md file references to internal anchors in the single-page
-output.
-
-Syntax:
-
-```markdown
-[link text](other-chapter.md)            Link to a chapter
-[link text](other-chapter.md#Heading)    Link to a specific heading
-[](other-chapter.md)                     Auto-fill with chapter title
-[](other-chapter.md#Heading)             Auto-fill with heading text
-```
-
-The .md path is resolved relative to the current Markdown file's directory.
-The heading fragment is matched against heading IDs (case-insensitive,
-normalized the same way heading slugs are generated).
-
-When the link text is empty, ligarb fills it with the target's display text:
-- Chapter link: the chapter's display title (e.g. "3. Config Guide")
-- Heading link: the heading's display text (e.g. "3.2 Setup")
-
-If a referenced chapter or heading does not exist, the build fails with an
-error message indicating the broken reference and its source file.
-
-External URLs ending in .md (e.g. https://example.com/README.md) are not
-affected — only relative paths are resolved.
-
-## Previous/Next Navigation
+### Previous/Next Navigation
 
 Each chapter displays Previous and Next navigation links at the bottom.
 These follow the flat chapter order (including across parts and appendix).
@@ -629,23 +710,7 @@ Cover pages do not show navigation.
 
 ## Write Command
 
-### `ligarb write [BRIEF]`
-
-Generate a complete book using AI (Claude).
-BRIEF defaults to 'brief.yml' in the current directory.
-Reads the brief, sends a prompt to Claude, and builds
-the generated book. Files are created in the same
-directory as brief.yml.
-
-### `ligarb write --init [DIR]`
-
-Create a brief.yml template.
-If DIR is given, creates DIR/brief.yml (mkdir as needed).
-If omitted, creates brief.yml in the current directory.
-
-### `ligarb write --no-build`
-
-Generate files only, skip the build step.
+The `write` command generates a complete book using AI (Claude CLI).
 
 ### brief.yml fields
 
@@ -664,65 +729,3 @@ Generate files only, skip the build step.
 
 The book is generated in the directory containing brief.yml.
 Example: `ligarb write ruby_book/brief.yml` creates files in ruby_book/.
-
-Requires the 'claude' CLI to be installed.
-
-## Translations (Multi-Language)
-
-ligarb supports building the same book in multiple languages. A parent
-config file (hub) defines shared settings and points to per-language
-config files.
-
-### Hub config (book.yml)
-
-```yaml
-repository: "https://github.com/user/repo"
-ai_generated: true
-translations:
-  ja: book.ja.yml
-  en: book.en.yml
-```
-
-### Per-language config (book.ja.yml)
-
-```yaml
-title: "マニュアル"
-language: "ja"
-chapters:
-  - chapters/ja/01-intro.md
-```
-
-### Per-language config (book.en.yml)
-
-```yaml
-title: "Manual"
-language: "en"
-chapters:
-  - chapters/en/01-intro.md
-```
-
-### Building
-
-```
-ligarb build book.yml        # Builds all languages
-ligarb build book.ja.yml     # Builds only Japanese (standalone)
-```
-
-### Inheritance rules
-
-- The hub's settings (repository, style, ai_generated, etc.) are
-  inherited by each per-language config as defaults.
-- Per-language configs can override any inherited setting.
-- title, language, and chapters are always per-language (required in
-  each per-language config).
-
-The hub config does not need 'title' or 'chapters' fields — it only
-needs 'translations'. If the hub has no 'chapters', it is treated
-purely as a translations hub.
-
-### Language switcher
-
-- When built via the hub, each output HTML includes a language switcher
-  in the sidebar header (e.g. [JA | EN]).
-- Links use relative paths between output directories.
-- The current language is highlighted; others are clickable links.

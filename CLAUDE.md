@@ -15,7 +15,12 @@ Markdown ファイルから単一ページの HTML 本を生成する CLI ツー
 - `templates/book.html.erb` - 出力 HTML のテンプレート（JS 含む）
 - `assets/style.css` - 出力 HTML のスタイル（ダークモード含む）
 - `test/` - minitest テスト
-- `manual/` - マニュアル本（ligarb 自身で作成）
+- `manual/` - マニュアル本（ligarb 自身で作成、日英多言語対応）
+  - `book.yml` - 翻訳ハブ（共通設定 + translations）
+  - `book.ja.yml` / `book.en.yml` - 日本語・英語の章構成
+  - `chapters/` - 日本語マニュアルの Markdown ソース
+  - `chapters/en/` - 英語マニュアルの Markdown ソース
+  - `references.bib` - 参考文献（BibTeX）
 - `docs/help.md` - `ligarb help` の出力内容（Markdown 形式の仕様書）
 - `docs/todo.md` - 未実装機能の TODO
 
