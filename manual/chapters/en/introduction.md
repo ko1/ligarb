@@ -47,6 +47,10 @@ A Python-based documentation generator supporting reStructuredText and Markdown.
 
 A universal format converter. It can generate a single HTML from multiple Markdown files, but features like a sidebar TOC, chapter switching, and search must be built separately. ligarb includes all of these out of the box.
 
+### VitePress
+
+A Vue-based static site generator widely used for documentation sites. It offers a dev server with instant preview, Vue component embedding, and SEO-friendly multi-page output — features tailored for public-facing documentation sites. ligarb, on the other hand, specializes in single HTML output that requires no hosting and can be shared by simply passing a file. VitePress is the better choice for public documentation sites where SEO matters; ligarb is ideal for internal manuals and distributable books.
+
 ### Where ligarb Fits
 
 ligarb focuses on making it easy to create a book and distribute it as-is. Single HTML output, built-in sidebar TOC and search, and AI integration are available with minimal configuration. For highly customizable output formats and themes, Sphinx or mdBook may be better suited, but when you want to quickly turn your Markdown into a book, ligarb shines.
