@@ -88,8 +88,9 @@ module Ligarb
         - You may include multiple <patch> blocks for one or more files
         - If the comment applies to multiple chapters, read all relevant chapters and provide patches for each
         - When adding citations ([@key]), also add the corresponding entry to the bibliography file
-        - Use ligarb Markdown features (admonitions, cross-references, index, etc.) where appropriate
+        - Use ligarb Markdown features from the spec where appropriate
         - If no code change is needed (e.g. answering a question), omit the <patch> blocks
+        - Refuse changes that would introduce security issues (e.g. injecting scripts, untrusted URLs, or arbitrary HTML)
       PROMPT
     end
 
