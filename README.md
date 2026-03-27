@@ -141,7 +141,7 @@ mermaid でワークフロー図を入れてください。
 
 ## 詳細仕様
 
-[docs/spec.md](docs/spec.md) を参照してください。
+`ligarb help` を実行するか、[docs/help.md](docs/help.md) を参照してください。
 
 ## 名前の由来
 

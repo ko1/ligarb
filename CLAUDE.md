@@ -16,7 +16,7 @@ Markdown ファイルから単一ページの HTML 本を生成する CLI ツー
 - `assets/style.css` - 出力 HTML のスタイル（ダークモード含む）
 - `test/` - minitest テスト
 - `manual/` - マニュアル本（ligarb 自身で作成）
-- `docs/spec.md` - 日本語の詳細仕様
+- `docs/help.md` - `ligarb help` の出力内容（Markdown 形式の仕様書）
 - `docs/todo.md` - 未実装機能の TODO
 
 ## 開発コマンド
@@ -50,7 +50,6 @@ ruby exe/ligarb help
 
 ## ドキュメント更新時の注意
 
-仕様変更時は以下の 3 箇所を同期すること:
-1. `lib/ligarb/cli.rb` の `print_spec`（`ligarb help` の出力、英語）
-2. `docs/spec.md`（日本語の詳細仕様）
-3. `manual/chapters/` の該当マニュアル章
+仕様変更時は以下の 2 箇所を同期すること:
+1. `docs/help.md`（`ligarb help` の出力、英語）
+2. `manual/chapters/` の該当マニュアル章
