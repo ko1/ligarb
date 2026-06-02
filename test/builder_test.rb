@@ -50,6 +50,15 @@ class BuilderTest < Minitest::Test
     end
   end
 
+  def test_sidebar_has_ligarb_credit
+    build_book({"title" => "Test", "chapters" => ["ch1.md"]}, files: {"ch1.md" => "# Ch"}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, 'class="ligarb-credit"'
+      assert_includes html, "https://github.com/ko1/ligarb"
+      assert_includes html, "Built with ligarb"
+    end
+  end
+
   def test_chapter_nav_skips_cover
     # Regression: with a cover, prev/next nav must index into the cover-excluded
     # list, not the full list. Otherwise chapter 1's "next" self-references and
