@@ -65,7 +65,6 @@
   color: var(--color-text-muted);
 }
 
-#ligarb-fb-type,
 #ligarb-fb-details {
   width: 100%;
   padding: 7px 9px;
@@ -75,11 +74,10 @@
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 6px;
+  resize: vertical;
+  min-height: 60px;
 }
 
-#ligarb-fb-details { resize: vertical; min-height: 60px; }
-
-#ligarb-fb-type:focus,
 #ligarb-fb-details:focus {
   outline: none;
   border-color: var(--color-accent);

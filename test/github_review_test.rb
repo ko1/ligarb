@@ -136,6 +136,28 @@ class GithubReviewTest < Minitest::Test
     end
   end
 
+  def test_issue_form_has_no_type_dropdown
+    with_project do |dir|
+      Ligarb::GithubReview.new(dir).generate
+      form = File.read(File.join(dir, ".github/ISSUE_TEMPLATE/book-feedback.yml"))
+      # Readers no longer classify the feedback; Claude decides.
+      refute_includes form, "id: type"
+      refute_includes form, "type: dropdown"
+      assert_includes form, "id: details"
+    end
+  end
+
+  def test_feedback_workflow_handles_issue_comments
+    with_project do |dir|
+      Ligarb::GithubReview.new(dir).generate
+      wf = File.read(File.join(dir, ".github/workflows/claude-feedback.yml"))
+      # Follow-up conversation on issues must be picked up, not just opened/labeled.
+      assert_includes wf, "issue_comment"
+      # The prompt reads the whole thread (comments), not just title/body/labels.
+      assert_includes wf, "title,body,labels,comments"
+    end
+  end
+
   def test_does_not_expand_github_actions_expressions
     with_project(book_data: {"title" => "T", "chapters" => ["a.md"],
                              "repository" => "https://github.com/alice/mybook"}) do |dir|

@@ -16,15 +16,6 @@
   var MAX_QUOTE = 1200;
   var MAX_URL = 7000;
 
-  // Short label -> value stored in the issue (the form keeps its own dropdown;
-  // we fold the reader's choice into `details` since dropdown prefill is flaky).
-  var TYPES = [
-    { value: '', label: '種類を選択 / Type…' },
-    { value: '誤り (error)', label: '誤り / Error' },
-    { value: 'わかりにくい (unclear)', label: 'わかりにくい / Unclear' },
-    { value: '疑問 (question)', label: '疑問 / Question' }
-  ];
-
   function enc(s) { return encodeURIComponent(s == null ? '' : s); }
 
   function escapeHTML(str) {
@@ -107,16 +98,11 @@
     if (panel) return;
     panel = document.createElement('div');
     panel.id = 'ligarb-fb-panel';
-    var options = TYPES.map(function(t) {
-      return '<option value="' + escapeHTML(t.value) + '">' + escapeHTML(t.label) + '</option>';
-    }).join('');
     panel.innerHTML =
       '<div class="ligarb-fb-title">Report as issue</div>' +
       '<div class="ligarb-fb-quote"></div>' +
-      '<label class="ligarb-fb-label" for="ligarb-fb-type">種類 / Type</label>' +
-      '<select id="ligarb-fb-type">' + options + '</select>' +
       '<label class="ligarb-fb-label" for="ligarb-fb-details">コメント / Comment</label>' +
-      '<textarea id="ligarb-fb-details" placeholder="何が問題か、どう直すとよいか…"></textarea>' +
+      '<textarea id="ligarb-fb-details" placeholder="気づいた点を自由に（誤り・わかりにくい点・疑問など）…"></textarea>' +
       '<div class="ligarb-fb-actions">' +
         '<button type="button" class="ligarb-fb-cancel">Cancel</button>' +
         '<button type="button" class="ligarb-fb-submit">Report as issue</button>' +
@@ -131,7 +117,6 @@
     buildPanel();
     panel._ctx = ctx;
     panel.querySelector('.ligarb-fb-quote').textContent = ctx.quote;
-    panel.querySelector('#ligarb-fb-type').value = '';
     panel.querySelector('#ligarb-fb-details').value = '';
 
     // Center-ish, then clamp into the viewport.
@@ -151,7 +136,6 @@
   function submit() {
     var ctx = panel._ctx;
     if (!ctx) return;
-    var type = panel.querySelector('#ligarb-fb-type').value;
     var comment = panel.querySelector('#ligarb-fb-details').value.trim();
 
     var locationLines = [];
@@ -161,7 +145,6 @@
     locationLines.push('URL: ' + window.location.href);
 
     var detailsLines = [];
-    if (type) detailsLines.push('種類: ' + type);
     if (comment) detailsLines.push(comment);
 
     var quote = ctx.quote;
