@@ -97,7 +97,11 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          claude_args: "--model ${{ needs.gate.outputs.model }} --max-turns 30"
+          claude_args: "--model ${{ needs.gate.outputs.model }} --max-turns 40"
+          # Claude が git/gh/ligarb の実行や編集をできるようツールを許可する。
+          # これが無いと既定では任意 Bash 等が拒否され、修正も PR も作れない。
+          settings: |
+            {"permissions": {"allow": ["Bash", "Edit", "Write", "Read", "Glob", "Grep", "WebFetch", "WebSearch", "TodoWrite"]}}
           prompt: |
             あなたは技術書（教科書）のリポジトリで動く編集アシスタントです。
             対象の issue は #${{ github.event.issue.number }} です。
