@@ -307,7 +307,8 @@
     <%- end -%>
     </nav>
   </section>
-  <%- ld[:chapters].reject(&:cover?).each_with_index do |chapter, idx| -%>
+  <%- nav_chapters = ld[:chapters].reject(&:cover?) -%>
+  <%- nav_chapters.each_with_index do |chapter, idx| -%>
   <section class="chapter" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
     <%- if ld[:repository] && !chapter.part_title? && !chapter.cover? -%>
@@ -321,12 +322,12 @@
     <%- unless chapter.cover? -%>
     <nav class="chapter-nav">
       <%- if idx > 0 -%>
-      <a href="#" class="nav-prev" onclick="showChapter('<%= ld[:chapters][idx-1].slug %>'); return false;">&larr; <%= h(ld[:chapters][idx-1].display_title) %></a>
+      <a href="#" class="nav-prev" onclick="showChapter('<%= nav_chapters[idx-1].slug %>'); return false;">&larr; <%= h(nav_chapters[idx-1].display_title) %></a>
       <%- else -%>
       <span></span>
       <%- end -%>
-      <%- if idx < ld[:chapters].size - 1 -%>
-      <a href="#" class="nav-next" onclick="showChapter('<%= ld[:chapters][idx+1].slug %>'); return false;"><%= h(ld[:chapters][idx+1].display_title) %> &rarr;</a>
+      <%- if idx < nav_chapters.size - 1 -%>
+      <a href="#" class="nav-next" onclick="showChapter('<%= nav_chapters[idx+1].slug %>'); return false;"><%= h(nav_chapters[idx+1].display_title) %> &rarr;</a>
       <%- end -%>
     </nav>
     <%- end -%>
@@ -423,7 +424,8 @@
     <%- end -%>
     </nav>
   </section>
-  <%- chapters.reject(&:cover?).each_with_index do |chapter, idx| -%>
+  <%- nav_chapters = chapters.reject(&:cover?) -%>
+  <%- nav_chapters.each_with_index do |chapter, idx| -%>
   <section class="chapter" id="chapter-<%= chapter.slug %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
     <%- if repository && !chapter.part_title? && !chapter.cover? -%>
@@ -437,12 +439,12 @@
     <%- unless chapter.cover? -%>
     <nav class="chapter-nav">
       <%- if idx > 0 -%>
-      <a href="#" class="nav-prev" onclick="showChapter('<%= chapters[idx-1].slug %>'); return false;">&larr; <%= h(chapters[idx-1].display_title) %></a>
+      <a href="#" class="nav-prev" onclick="showChapter('<%= nav_chapters[idx-1].slug %>'); return false;">&larr; <%= h(nav_chapters[idx-1].display_title) %></a>
       <%- else -%>
       <span></span>
       <%- end -%>
-      <%- if idx < chapters.size - 1 -%>
-      <a href="#" class="nav-next" onclick="showChapter('<%= chapters[idx+1].slug %>'); return false;"><%= h(chapters[idx+1].display_title) %> &rarr;</a>
+      <%- if idx < nav_chapters.size - 1 -%>
+      <a href="#" class="nav-next" onclick="showChapter('<%= nav_chapters[idx+1].slug %>'); return false;"><%= h(nav_chapters[idx+1].display_title) %> &rarr;</a>
       <%- end -%>
     </nav>
     <%- end -%>

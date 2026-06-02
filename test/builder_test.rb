@@ -50,6 +50,28 @@ class BuilderTest < Minitest::Test
     end
   end
 
+  def test_chapter_nav_skips_cover
+    # Regression: with a cover, prev/next nav must index into the cover-excluded
+    # list, not the full list. Otherwise chapter 1's "next" self-references and
+    # chapter 2's "prev" points at the cover.
+    data = {"title" => "Test", "chapters" => [{"cover" => "cover.md"}, "ch1.md", "ch2.md"]}
+    files = {"cover.md" => "# Cover", "ch1.md" => "# One", "ch2.md" => "# Two"}
+    build_book(data, files: files) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+
+      ch1 = html[/<section class="chapter" id="chapter-ch1".*?<\/section>/m]
+      ch2 = html[/<section class="chapter" id="chapter-ch2".*?<\/section>/m]
+
+      # ch1's "next" -> ch2 (not itself), ch2's "prev" -> ch1 (not the cover).
+      assert_match(/class="nav-next" onclick="showChapter\('ch2'\)/, ch1)
+      refute_match(/class="nav-next" onclick="showChapter\('ch1'\)/, ch1)
+      assert_match(/class="nav-prev" onclick="showChapter\('ch1'\)/, ch2)
+
+      # The cover must never be a prev/next navigation target.
+      refute_match(/class="nav-(?:prev|next)" onclick="showChapter\('cover'\)/, html)
+    end
+  end
+
   def test_appendix_build
     data = {"title" => "Test", "chapters" => [
       "ch1.md", {"appendix" => ["ap.md"]},
