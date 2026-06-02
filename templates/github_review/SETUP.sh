@@ -39,6 +39,9 @@ gh api -X PUT "repos/$OWNER/$REPO/actions/permissions/workflow" \
   -f default_workflow_permissions=write \
   -F can_approve_pull_request_reviews=true
 
+echo "==> merge 済み PR の head ブランチを自動削除（fix/issue-N が残らないように）"
+gh api -X PATCH "repos/$OWNER/$REPO" -F delete_branch_on_merge=true >/dev/null
+
 echo "==> ワークフローが使うラベルを作成（既存なら更新）"
 for L in feedback approved needs-triage needs-human answered claude-generated strong-model; do
   gh label create "$L" --force
