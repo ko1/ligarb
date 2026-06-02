@@ -16,6 +16,11 @@
 <%= custom_css %>
 </style>
 <%- end -%>
+<%- if feedback -%>
+<style>
+<%= feedback[:css] %>
+</style>
+<%- end -%>
 <%- if assets.need?(:highlight) -%>
 <link rel="stylesheet" href="css/highlight.css">
 <%- end -%>
@@ -303,7 +308,7 @@
     </nav>
   </section>
   <%- ld[:chapters].reject(&:cover?).each_with_index do |chapter, idx| -%>
-  <section class="chapter" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
+  <section class="chapter" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
     <%- if ld[:repository] && !chapter.part_title? && !chapter.cover? -%>
     <div class="edit-link">
@@ -419,7 +424,7 @@
     </nav>
   </section>
   <%- chapters.reject(&:cover?).each_with_index do |chapter, idx| -%>
-  <section class="chapter" id="chapter-<%= chapter.slug %>" style="display: none;">
+  <section class="chapter" id="chapter-<%= chapter.slug %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
     <%- if repository && !chapter.part_title? && !chapter.cover? -%>
     <div class="edit-link">
@@ -1122,6 +1127,12 @@ renderSpecialBlocks();
 <script src="js/d3.min.js"></script>
 <script src="js/function-plot.min.js"></script>
 <script>renderSpecialBlocks();</script>
+<%- end -%>
+<%- if feedback -%>
+<script>window._ligarbReview = <%= feedback[:config_json] %>;</script>
+<script>
+<%= feedback[:js] %>
+</script>
 <%- end -%>
 </body>
 </html>

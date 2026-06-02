@@ -10,7 +10,8 @@ module Ligarb
     # output_dir is intentionally excluded — it always comes from the
     # config file that was directly passed to `ligarb build`.
     INHERITABLE_KEYS = %w[author language chapter_numbers style
-                          repository ai_generated footer bibliography].freeze
+                          repository ai_generated footer bibliography
+                          github_review].freeze
 
     # Represents a structural entry in the book
     StructEntry = Struct.new(:type, :path, :children, keyword_init: true)
@@ -25,7 +26,7 @@ module Ligarb
     attr_reader :title, :author, :language, :output_dir, :base_dir,
                 :chapter_numbers, :structure, :style, :repository,
                 :ai_generated, :footer, :bibliography, :sources,
-                :translations
+                :translations, :github_review
 
     def initialize(path, parent_data: nil)
       @base_dir = File.dirname(File.expand_path(path))
@@ -68,6 +69,7 @@ module Ligarb
       @ai_generated    = data.fetch("ai_generated", false)
       @footer          = data.fetch("footer", nil)
       @bibliography    = data.fetch("bibliography", nil)
+      @github_review   = data.fetch("github_review", nil)
       @sources         = parse_sources(data.fetch("sources", []))
       @structure       = parse_structure(data["chapters"])
       @translations    = []
@@ -93,6 +95,23 @@ module Ligarb
 
     def appendix_label
       @language == "ja" ? "付録" : "Appendix"
+    end
+
+    # Whether the reader's "Report as issue" feedback UI is requested in book.yml.
+    # This reflects intent only; actual injection also requires `repository`
+    # (the issues/new base) — the builder warns and skips when it is missing.
+    def github_review_enabled?
+      @github_review.is_a?(Hash) && @github_review.fetch("enabled", false) == true
+    end
+
+    def github_review_issue_template
+      tmpl = @github_review.is_a?(Hash) ? @github_review["issue_template"] : nil
+      tmpl && !tmpl.to_s.empty? ? tmpl.to_s : "book-feedback.yml"
+    end
+
+    def github_review_labels
+      labels = @github_review.is_a?(Hash) ? @github_review["labels"] : nil
+      Array(labels || ["feedback"]).map(&:to_s)
     end
 
     def effective_footer
@@ -253,6 +272,10 @@ module Ligarb
 
       unless data["chapters"].is_a?(Array) && !data["chapters"].empty?
         abort "Error: 'chapters' must be a non-empty array"
+      end
+
+      if data.key?("github_review") && !data["github_review"].is_a?(Hash)
+        abort "Error: 'github_review' must be a mapping (e.g. { enabled: true })"
       end
     end
   end

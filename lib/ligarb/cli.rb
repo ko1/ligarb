@@ -17,6 +17,10 @@ module Ligarb
         Builder.new(config_path).build
       when "init"
         Initializer.new(args.first).run
+      when "setup-github-review"
+        require_relative "github_review"
+        directory = args.reject { |a| a.start_with?("--") }.first
+        GithubReview.run(directory)
       when "serve"
         config_paths = args.reject { |a| a.start_with?("--") }
         config_paths = ["book.yml"] if config_paths.empty?
@@ -67,6 +71,8 @@ module Ligarb
 
         Usage:
           ligarb init [DIRECTORY]  Create a new book project
+          ligarb setup-github-review [DIRECTORY]
+                                  Set up (or update) GitHub Pages + review workflows
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
           ligarb serve [CONFIG]   Serve the book with live reload and review UI
           ligarb librarium       Serve all */book.yml as a multi-book library
@@ -90,6 +96,7 @@ module Ligarb
           repository       (optional) GitHub repository URL for "Edit on GitHub" links
           ai_generated     (optional) Mark as AI-generated (badge + meta tags, default: false)
           footer           (optional) Custom text at bottom of each chapter
+          github_review    (optional) Enable the "Report as issue" reader feedback UI ({enabled: true}, needs repository)
           translations     (optional) Map of lang => config path for multi-language builds
 
         Example:

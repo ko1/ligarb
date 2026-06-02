@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "erb"
+require "json"
 
 module Ligarb
   class Template
@@ -12,7 +13,7 @@ module Ligarb
       @css_path      = File.join(ASSETS_DIR, "style.css")
     end
 
-    def render(config:, chapters:, structure:, assets:, index_entries: [], bibliography: [])
+    def render(config:, chapters:, structure:, assets:, index_entries: [], bibliography: [], github_review: nil)
       css = File.read(@css_path)
       template = File.read(@template_path)
 
@@ -37,12 +38,13 @@ module Ligarb
       b.local_variable_set(:bibliography, bibliography)
       b.local_variable_set(:multilang, false)
       b.local_variable_set(:langs, [])
+      b.local_variable_set(:feedback, load_feedback(github_review))
 
       ERB.new(template, trim_mode: "-").result(b)
     end
 
     # Render a single HTML with all languages, switchable via JS
-    def render_multilang(langs:, assets:, hub_data:)
+    def render_multilang(langs:, assets:, hub_data:, github_review: nil)
       css = File.read(@css_path)
       template = File.read(@template_path)
 
@@ -90,11 +92,40 @@ module Ligarb
       b.local_variable_set(:bibliography, first[:bibliography])
       b.local_variable_set(:multilang, true)
       b.local_variable_set(:langs, lang_data)
+      b.local_variable_set(:feedback, load_feedback(github_review))
 
       ERB.new(template, trim_mode: "-").result(b)
     end
 
     private
+
+    # When github_review (a hash with :base/:issue_template/:labels) is given,
+    # returns the inlined feedback assets + a JSON config blob for the template
+    # to embed; otherwise nil (the UI is not injected). Inlining keeps the build
+    # output self-contained, like the main style.css.
+    def load_feedback(github_review)
+      return nil unless github_review
+
+      config_json = JSON.generate(
+        base: github_review[:base],
+        issueTemplate: github_review[:issue_template],
+        labels: github_review[:labels]
+      ).gsub("</", '<\/')
+
+      {
+        css: File.read(File.join(ASSETS_DIR, "feedback.css")),
+        js: File.read(File.join(ASSETS_DIR, "feedback.js")),
+        config_json: config_json,
+      }
+    end
+
+    # data-src-* attributes for a chapter <section>, used by the feedback UI to
+    # locate the source Markdown. Empty unless the UI is active and the chapter
+    # has a resolved source path (set when `repository` is configured).
+    def src_attrs(chapter, feedback)
+      return "" unless feedback && chapter.relative_path
+      %( data-src-file="#{h(chapter.relative_path)}" data-src-title="#{h(chapter.display_title)}")
+    end
 
     # HTML-escape helper for ERB templates (available via binding)
     def h(s)

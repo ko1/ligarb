@@ -39,6 +39,37 @@ Generates book.yml, 01-introduction.md, and images/.
 If .md files already exist, registers them as chapters.
 Aborts if book.yml already exists.
 
+### `ligarb setup-github-review [DIRECTORY]`
+
+Set up a GitHub-based review workflow in an existing project (book.yml must
+exist). DIRECTORY defaults to the current directory. Composable: run it after
+`ligarb init` or `ligarb write`, or on any hand-made project.
+
+It generates `.github/`, `SETUP.md`, and `SETUP.sh` — GitHub Actions workflows
+for publishing the book to GitHub Pages, checking that PRs still build, and
+(opt-in) letting Claude triage reader-filed issues into pull requests — plus
+issue forms for structured feedback and a gh CLI one-shot script (`SETUP.sh`)
+that does the repo creation / secret / Pages / labels setup. It also:
+- adds `github_review.enabled: true` to book.yml (the reader feedback UI) if
+  absent;
+- seeds a default `repository:` (`https://github.com/<os-user>/<dir>`) if absent,
+  so the templates and SETUP.sh get concrete values — edit it if the guess is
+  wrong and re-run;
+- creates a project `README.md` linking to the GitHub Pages site, unless one
+  already exists (your README is never overwritten).
+
+Re-run it any time to update the scaffolding to the latest templates (e.g. after
+upgrading ligarb): existing generated files are **overwritten**, so review the
+changes with `git diff` and revert any local edits you want to keep. Your
+book.yml is never overwritten. `__OWNER__` / `__REPO__` placeholders in the
+templates are filled from book.yml's `repository:`; if it is unset the
+placeholders are left as-is (and the Discussions link in
+`.github/ISSUE_TEMPLATE/config.yml` is commented out). The generated files are
+the only thing that depends on Claude or GitHub Actions — ligarb itself never
+calls either at runtime. Read the generated `SETUP.md` for the manual steps
+(token registration, repository settings) that cannot be generated; it includes
+a gh CLI quickstart.
+
 ### `ligarb build [CONFIG]`
 
 Build the HTML book.
@@ -47,6 +78,15 @@ CONFIG defaults to 'book.yml' in the current directory.
 The output directory contains index.html plus js/ and css/ subdirectories
 for auto-downloaded libraries (highlight.js, mermaid, KaTeX, etc.).
 Open index.html directly in a browser — no web server needed.
+
+When `github_review.enabled` is true and `repository` is set (see
+Configuration below), the build also injects a static "Report as issue"
+feedback UI: readers select text, pick a type and add a comment, and a
+prefilled GitHub Issue form opens in a new tab (chapter/section, quoted text,
+source path, and current page URL are filled in). It is pure client-side JS
+with no backend or tokens — it only builds a URL and opens it. If
+`github_review.enabled` is true but `repository` is unset, build prints a
+warning and skips the UI. Without `github_review`, nothing is injected.
 
 ### `ligarb serve [CONFIG...]`
 
@@ -133,6 +173,7 @@ The configuration file is a YAML file with the following fields:
 | `footer` | optional | — | Custom text displayed at the bottom of each chapter. Overrides the default ai_generated disclaimer if both are set. |
 | `bibliography` | optional | — | Path to a bibliography file (.yml or .bib) relative to book.yml. See "Bibliography" section. |
 | `sources` | optional | — | Reference files for AI context. Array of strings or `{path:, label:}` objects. Used by the `write` command and review AI. |
+| `github_review` | optional | — | A mapping enabling the static reader feedback UI. `enabled: true` injects a "Report as issue" UI into `build` output (requires `repository`). Optional sub-keys: `issue_template` (default `book-feedback.yml`) and `labels` (default `[feedback]`) prefilled into the GitHub Issue URL. Usually set by `ligarb setup-github-review`. |
 | `translations` | optional | — | A mapping of language codes to config file paths. Enables multi-language support. See "Translations" section. |
 | `inherit` | optional | — | Path to a parent config file. Inheritable settings (author, language, style, etc.) are loaded as defaults. Used by per-language configs for standalone builds. |
 | `chapters` | required | — | Book structure. An array that can contain: a cover, chapter strings, parts, and appendix. |

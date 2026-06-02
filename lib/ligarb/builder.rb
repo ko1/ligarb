@@ -41,7 +41,8 @@ module Ligarb
       html = Template.new.render(config: @config, chapters: all_chapters,
                                  structure: structure, assets: assets,
                                  index_entries: index_entries,
-                                 bibliography: bibliography)
+                                 bibliography: bibliography,
+                                 github_review: github_review_data(@config))
 
       FileUtils.mkdir_p(@config.output_path)
       output_file = File.join(@config.output_path, "index.html")
@@ -76,8 +77,10 @@ module Ligarb
       assets.detect(all_lang_chapters)
       assets.provision!
 
+      gr_config = langs.first && langs.first[:config]
       html = Template.new.render_multilang(langs: langs, assets: assets,
-                                           hub_data: hub_data)
+                                           hub_data: hub_data,
+                                           github_review: gr_config && github_review_data(gr_config))
 
       FileUtils.mkdir_p(output_path)
       output_file = File.join(output_path, "index.html")
@@ -196,6 +199,24 @@ module Ligarb
       all_chapters.each do |ch|
         ch.resolve_cross_references!(chapter_map)
       end
+    end
+
+    # Builds the data passed to the template for the reader feedback UI, or nil
+    # when it should not be injected. Requires `repository` (the issues/new base);
+    # warns and skips if the UI was requested but no repository is set.
+    def github_review_data(config)
+      return nil unless config.github_review_enabled?
+
+      unless config.repository
+        warn "Warning: github_review.enabled is true but 'repository' is not set; skipping the reader feedback UI"
+        return nil
+      end
+
+      {
+        base: config.repository.chomp("/"),
+        issue_template: config.github_review_issue_template,
+        labels: config.github_review_labels,
+      }
     end
 
     def assign_relative_paths(chapters)

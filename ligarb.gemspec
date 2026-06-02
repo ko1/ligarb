@@ -12,7 +12,12 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0"
 
-  spec.files         = Dir["lib/**/*.rb", "exe/*", "templates/*", "assets/*"]
+  # FNM_DOTMATCH is needed so the generated .github/ templates (a dot-directory)
+  # are packaged; reject directory entries (incl. "." / "..") so only files ship.
+  spec.files         = (
+    Dir["lib/**/*.rb", "exe/*", "templates/*", "assets/*"] +
+    Dir.glob("templates/github_review/**/*", File::FNM_DOTMATCH)
+  ).reject { |f| File.directory?(f) }.uniq
   spec.bindir        = "exe"
   spec.executables   = ["ligarb"]
 
