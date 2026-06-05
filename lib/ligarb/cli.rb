@@ -79,8 +79,10 @@ module Ligarb
                                   Set up (or update) GitHub Pages + review workflows
                                   (--owner/--user seeds repository: owner when unset)
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
-          ligarb serve [CONFIG]   Serve the book with live reload and review UI
-          ligarb librarium       Serve all */book.yml as a multi-book library
+          ligarb serve [CONFIG] [--port N]
+                                  Serve the book with live reload and review UI
+          ligarb librarium [--port N]
+                                  Serve all */book.yml as a multi-book library
           ligarb write [BRIEF]         Generate a book with AI from brief.yml
           ligarb write --init [DIR]    Create DIR/brief.yml template
           ligarb help              Show detailed specification (for AI integration)
