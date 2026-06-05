@@ -26,20 +26,19 @@ module Ligarb
         directory = positional.map { |i| args[i] }.first
         GithubReview.run(directory, owner: owner)
       when "serve"
-        config_paths = args.reject { |a| a.start_with?("--") }
+        port, port_idx = parse_port(args)
+        # Drop flags and the --port value so they aren't mistaken for CONFIG paths.
+        config_paths = args.each_index
+                           .reject { |i| args[i].start_with?("--") || i == port_idx&.+(1) }
+                           .map { |i| args[i] }
         config_paths = ["book.yml"] if config_paths.empty?
-        port_idx = args.index("--port")
-        port = port_idx ? args[port_idx + 1].to_i : 3000
-        abort "Error: port must be 1-65535" unless (1..65535).include?(port)
         multi = args.include?("--multi")
         require_relative "server"
         Server.new(config_paths, port: port, multi: multi).start
       when "librarium"
         config_paths = Dir.glob("*/book.yml").sort
         abort "Error: no */book.yml found in current directory" if config_paths.empty?
-        port_idx = args.index("--port")
-        port = port_idx ? args[port_idx + 1].to_i : 3000
-        abort "Error: port must be 1-65535" unless (1..65535).include?(port)
+        port, = parse_port(args)
         require_relative "server"
         Server.new(config_paths, port: port, multi: true).start
       when "write"
@@ -67,6 +66,20 @@ module Ligarb
         $stderr.puts "Run 'ligarb --help' for usage information."
         exit 1
       end
+    end
+
+    # Parses `--port N` from args. Returns [port, flag_index]; port defaults to
+    # 3000 when --port is absent (flag_index is then nil). Aborts on a missing
+    # or out-of-range value.
+    def parse_port(args)
+      idx = args.index("--port")
+      return [3000, nil] unless idx
+
+      value = args[idx + 1]
+      abort "Error: --port requires a value (e.g. --port 8080)" if value.nil? || value.start_with?("--")
+      port = value.to_i
+      abort "Error: port must be 1-65535" unless (1..65535).include?(port)
+      [port, idx]
     end
 
     def print_usage
