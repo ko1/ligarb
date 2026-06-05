@@ -43,7 +43,7 @@ module Ligarb
     # feedback UI in book.yml, and prints the remaining manual-setup steps.
     # Safe to re-run to pull in updated templates (generated files are
     # overwritten; book.yml is not).
-    def self.run(directory = nil)
+    def self.run(directory = nil, owner: nil)
       target = File.expand_path(directory || ".")
       unless File.exist?(File.join(target, "book.yml"))
         $stderr.puts "Error: book.yml not found in #{target}"
@@ -51,7 +51,7 @@ module Ligarb
         exit 1
       end
 
-      reviewer = new(target)
+      reviewer = new(target, owner: owner)
       # book.yml edits must run BEFORE generate so the templates (SETUP.sh,
       # issue forms, README) are substituted with the resolved repository.
       repository = reviewer.ensure_repository_in_book_yml
@@ -61,8 +61,9 @@ module Ligarb
       reviewer.print_notice(result, repository: repository, enabled: enabled, readme: readme)
     end
 
-    def initialize(target)
+    def initialize(target, owner: nil)
       @target = File.expand_path(target)
+      @owner = owner
     end
 
     # Writes all template files into the project, substituting __OWNER__ /
@@ -110,18 +111,28 @@ module Ligarb
     end
 
     # Seeds a default `repository:` in book.yml when it has none, guessing
-    # https://github.com/<os-user>/<dir-name>. This drives __OWNER__/__REPO__
-    # substitution and the GH Pages link; the user edits it if the guess is
-    # wrong. Returns :added, :present, or :unsupported. (@default_repository is
-    # set to the guessed URL when :added, for the notice.)
+    # https://github.com/<owner>/<dir-name>. <owner> is the --owner/--user flag
+    # when given, else $USER. This drives __OWNER__/__REPO__ substitution and
+    # the GH Pages link; the user edits it if the guess is wrong. Returns
+    # :added, :present, or :unsupported. (@default_repository is set to the
+    # guessed URL when :added, for the notice.)
+    #
+    # Aborts if --owner was given but book.yml already has a `repository:`, since
+    # we never rewrite an existing repository — the user edits it themselves.
     def ensure_repository_in_book_yml
       book_yml = File.join(@target, "book.yml")
       data = YAML.safe_load_file(book_yml)
       return :unsupported unless data.is_a?(Hash)
-      return :present if data.key?("repository")
+      if data.key?("repository")
+        if @owner
+          abort "Error: --owner was given but book.yml already has 'repository: #{data["repository"]}'.\n" \
+                "Edit 'repository:' in book.yml directly to change the owner, then re-run setup-github-review."
+        end
+        return :present
+      end
 
-      user = ENV["USER"] || ENV["USERNAME"] || "your-github-account"
-      @default_repository = "https://github.com/#{user}/#{File.basename(@target)}"
+      owner = @owner || ENV["USER"] || ENV["USERNAME"] || "your-github-account"
+      @default_repository = "https://github.com/#{owner}/#{File.basename(@target)}"
       content = File.read(book_yml).rstrip
       File.write(book_yml, %(#{content}\n\nrepository: "#{@default_repository}"\n))
       :added

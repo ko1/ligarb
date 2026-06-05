@@ -210,6 +210,25 @@ class GithubReviewTest < Minitest::Test
     end
   end
 
+  def test_ensure_repository_uses_owner_option_when_absent
+    with_project do |dir|
+      assert_equal :added, Ligarb::GithubReview.new(dir, owner: "my-org").ensure_repository_in_book_yml
+      data = YAML.safe_load_file(File.join(dir, "book.yml"))
+      assert_equal "https://github.com/my-org/#{File.basename(dir)}", data["repository"]
+    end
+  end
+
+  def test_ensure_repository_aborts_when_owner_given_but_present
+    book = {"title" => "T", "chapters" => ["a.md"], "repository" => "https://github.com/me/mine"}
+    with_project(book_data: book) do |dir|
+      assert_raises(SystemExit) do
+        Ligarb::GithubReview.new(dir, owner: "my-org").ensure_repository_in_book_yml
+      end
+      # book.yml is left untouched
+      assert_equal "https://github.com/me/mine", YAML.safe_load_file(File.join(dir, "book.yml"))["repository"]
+    end
+  end
+
   # --- create_readme_if_absent ---
 
   def test_creates_readme_with_pages_link

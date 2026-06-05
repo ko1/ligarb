@@ -39,7 +39,7 @@ Generates book.yml, 01-introduction.md, and images/.
 If .md files already exist, registers them as chapters.
 Aborts if book.yml already exists.
 
-### `ligarb setup-github-review [DIRECTORY]`
+### `ligarb setup-github-review [DIRECTORY] [--owner NAME]`
 
 Set up a GitHub-based review workflow in an existing project (book.yml must
 exist). DIRECTORY defaults to the current directory. Composable: run it after
@@ -52,9 +52,11 @@ issue forms for structured feedback and a gh CLI one-shot script (`SETUP.sh`)
 that does the repo creation / secret / Pages / labels setup. It also:
 - adds `github_review.enabled: true` to book.yml (the reader feedback UI) if
   absent;
-- seeds a default `repository:` (`https://github.com/<os-user>/<dir>`) if absent,
+- seeds a default `repository:` (`https://github.com/<owner>/<dir>`) if absent,
   so the templates and SETUP.sh get concrete values — edit it if the guess is
-  wrong and re-run;
+  wrong and re-run. `<owner>` is the `--owner` (alias `--user`) flag when given
+  — useful for an organization — otherwise `$USER`. If `repository:` is already
+  set, passing `--owner` is an error (edit `repository:` in book.yml directly);
 - creates a project `README.md` linking to the GitHub Pages site, unless one
   already exists (your README is never overwritten).
 

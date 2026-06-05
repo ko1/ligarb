@@ -19,8 +19,12 @@ module Ligarb
         Initializer.new(args.first).run
       when "setup-github-review"
         require_relative "github_review"
-        directory = args.reject { |a| a.start_with?("--") }.first
-        GithubReview.run(directory)
+        owner_idx = args.index("--owner") || args.index("--user")
+        owner = owner_idx ? args[owner_idx + 1] : nil
+        abort "Error: --owner requires a value (e.g. --owner my-org)" if owner_idx && (owner.nil? || owner.start_with?("--"))
+        positional = args.each_index.reject { |i| args[i].start_with?("--") || i == owner_idx&.+(1) }
+        directory = positional.map { |i| args[i] }.first
+        GithubReview.run(directory, owner: owner)
       when "serve"
         config_paths = args.reject { |a| a.start_with?("--") }
         config_paths = ["book.yml"] if config_paths.empty?
@@ -71,8 +75,9 @@ module Ligarb
 
         Usage:
           ligarb init [DIRECTORY]  Create a new book project
-          ligarb setup-github-review [DIRECTORY]
+          ligarb setup-github-review [DIRECTORY] [--owner NAME]
                                   Set up (or update) GitHub Pages + review workflows
+                                  (--owner/--user seeds repository: owner when unset)
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
           ligarb serve [CONFIG]   Serve the book with live reload and review UI
           ligarb librarium       Serve all */book.yml as a multi-book library

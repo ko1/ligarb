@@ -64,6 +64,28 @@ body {
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Subtle build credit pinned to the bottom of the sidebar */
+.ligarb-credit {
+  flex-shrink: 0;
+  padding: 0.5rem 1rem 0.7rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.ligarb-credit a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  opacity: 0.85;
+}
+
+.ligarb-credit a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  opacity: 1;
+}
+
 .book-title {
   font-size: 1.1rem;
   font-weight: 700;
@@ -1152,6 +1174,20 @@ details.mermaid-source pre {
               </li>
             </ul>
           </li>
+          <li class="toc-chapter" data-chapter="github-review">
+            <a href="#github-review" class="toc-h1" onclick="showChapter('github-review')">9. GitHub で公開・レビュー</a>
+            <ul>
+              <li>
+                <a href="#github-review--何が生成されるか" class="toc-h2" onclick="showChapterAndScroll('github-review', 'github-review--何が生成されるか')">9.1 何が生成されるか</a>
+              </li>
+              <li>
+                <a href="#github-review--repository-と-owner" class="toc-h2" onclick="showChapterAndScroll('github-review', 'github-review--repository-と-owner')">9.2 repository と owner</a>
+              </li>
+              <li>
+                <a href="#github-review--再実行について" class="toc-h2" onclick="showChapterAndScroll('github-review', 'github-review--再実行について')">9.3 再実行について</a>
+              </li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li class="toc-appendix">
@@ -1178,11 +1214,22 @@ details.mermaid-source pre {
       </li>
     </ul>
   </nav>
+  <div class="ligarb-credit">
+    <a href="https://github.com/ko1/ligarb" target="_blank" rel="noopener">Built with ligarb</a>
+  </div>
 </div>
 
 <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">&#9776;</button>
 
 <main class="content" id="content">
+  <section class="chapter cover-page" id="chapter-cover" style="display: none;">
+    <h1 id="cover--ligarb-マニュアル">ligarb マニュアル</h1>
+
+<p><img src="images/logo.svg" alt="ligarb" /></p>
+
+<p>Markdown ファイルから本を作る、シンプルな CLI ツールの完全解説。</p>
+
+  </section>
   <section class="chapter toc-page" id="chapter-__toc__" style="display: none;">
     <h1>目次</h1>
     <nav class="toc-full">
@@ -1318,6 +1365,13 @@ details.mermaid-source pre {
             <li class="toc-full-h2"><a href="#ai--ポイント" onclick="showChapterAndScroll('ai', 'ai--ポイント'); return false;">8.4 ポイント</a></li>
 </ul>
         </div>
+        <div class="toc-full-chapter">
+          <a href="#github-review" onclick="showChapter('github-review'); return false;">9. GitHub で公開・レビュー</a>
+          <ul>            <li class="toc-full-h2"><a href="#github-review--何が生成されるか" onclick="showChapterAndScroll('github-review', 'github-review--何が生成されるか'); return false;">9.1 何が生成されるか</a></li>
+            <li class="toc-full-h2"><a href="#github-review--repository-と-owner" onclick="showChapterAndScroll('github-review', 'github-review--repository-と-owner'); return false;">9.2 repository と owner</a></li>
+            <li class="toc-full-h2"><a href="#github-review--再実行について" onclick="showChapterAndScroll('github-review', 'github-review--再実行について'); return false;">9.3 再実行について</a></li>
+</ul>
+        </div>
       </div>
       <div class="toc-full-part">
         <span class="toc-full-part-title">付録</span>
@@ -1333,21 +1387,13 @@ details.mermaid-source pre {
       </div>
     </nav>
   </section>
-  <section class="chapter cover-page" id="chapter-cover" style="display: none;">
-    <h1 id="cover--ligarb-マニュアル">ligarb マニュアル</h1>
-
-<p><img src="images/logo.svg" alt="ligarb" /></p>
-
-<p>Markdown ファイルから本を作る、シンプルな CLI ツールの完全解説。</p>
-
-  </section>
   <section class="chapter" id="chapter-part1" style="display: none;">
     <h1 id="part1--基礎編">基礎編</h1>
 
 <p>この Part ではインストールからプロジェクトの設定、Markdown での執筆方法、そしてビルドして確認するまで、ligarb で本を作るための基本をひと通り学びます。</p>
 
     <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('cover'); return false;">&larr; ligarb マニュアル</a>
+      <span></span>
       <a href="#" class="nav-next" onclick="showChapter('introduction'); return false;">1. はじめに &rarr;</a>
     </nav>
   </section>
@@ -1443,17 +1489,17 @@ details.mermaid-source pre {
 
 <p>ligarb のリポジトリをクローンし、依存ライブラリをインストールします:</p>
 
-<pre><code class="language-bash">git clone https://github.com/ko1/ligarb.git
-cd ligarb
-bundle install
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/ko1/ligarb.git
+<span class="nb">cd </span>ligarb
+bundle <span class="nb">install</span>
+</code></pre></div></div>
 
 <h2 id="install--ヘルプの確認">2.3 ヘルプの確認</h2>
 
 <p>インストールできたら、まず <span id="install--idx-2"><code>ligarb help</code></span> コマンドで使い方を確認してみましょう:</p>
 
-<pre><code class="language-bash">ligarb help
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb <span class="nb">help</span>
+</code></pre></div></div>
 
 <p>ligarb のすべてのコマンドと設定項目が表示されます。困ったときはまずこのコマンドを参照してください。</p>
 
@@ -1488,14 +1534,14 @@ bundle install
 
 <p><span id="book-yml--idx-0"><code>book.yml</code></span> は <span id="book-yml--idx-1">YAML</span> 形式の設定ファイルです。以下が基本的な構造です:</p>
 
-<pre><code class="language-yaml">title: "本のタイトル"
-author: "著者名"
-language: "ja"
-output_dir: "build"
-chapters:
-  - 01-introduction.md
-  - 02-details.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">本のタイトル"</span>
+<span class="na">author</span><span class="pi">:</span> <span class="s2">"</span><span class="s">著者名"</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s2">"</span><span class="s">ja"</span>
+<span class="na">output_dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">build"</span>
+<span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">01-introduction.md</span>
+  <span class="pi">-</span> <span class="s">02-details.md</span>
+</code></pre></div></div>
 
 <h2 id="book-yml--フィールド一覧">3.2 フィールド一覧</h2>
 
@@ -1604,35 +1650,35 @@ chapters:
 
 <p>本の冒頭に<span id="book-yml--idx-16">表紙</span>ページを追加できます。表紙は目次には表示されず、本を開いたときに最初に表示されるページになります:</p>
 
-<pre><code class="language-yaml">chapters:
-  - cover: cover.md
-  - 01-introduction.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">cover</span><span class="pi">:</span> <span class="s">cover.md</span>
+  <span class="pi">-</span> <span class="s">01-introduction.md</span>
+</code></pre></div></div>
 
 <h3 id="book-yml--シンプルな構成">3.3.2 シンプルな構成</h3>
 
 <p>章をフラットに並べるだけの最もシンプルな形式です:</p>
 
-<pre><code class="language-yaml">chapters:
-  - 01-introduction.md
-  - 02-getting-started.md
-  - 03-advanced.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">01-introduction.md</span>
+  <span class="pi">-</span> <span class="s">02-getting-started.md</span>
+  <span class="pi">-</span> <span class="s">03-advanced.md</span>
+</code></pre></div></div>
 
 <h3 id="book-yml--パート部で分ける">3.3.3 パート（部）で分ける</h3>
 
 <p>章が多い本では、<span id="book-yml--idx-17">パート</span>でグループ化できます:</p>
 
-<pre><code class="language-yaml">chapters:
-  - part: part1.md
-    chapters:
-      - 01-introduction.md
-      - 02-getting-started.md
-  - part: part2.md
-    chapters:
-      - 03-advanced.md
-      - 04-tips.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
+    <span class="na">chapters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">01-introduction.md</span>
+      <span class="pi">-</span> <span class="s">02-getting-started.md</span>
+  <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part2.md</span>
+    <span class="na">chapters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">03-advanced.md</span>
+      <span class="pi">-</span> <span class="s">04-tips.md</span>
+</code></pre></div></div>
 
 <p><code>part</code> には Markdown ファイルを指定します。
 そのファイルの h1 がパートのタイトルになり、本文が扉ページとして表示されます。</p>
@@ -1641,14 +1687,14 @@ chapters:
 
 <p>巻末に<span id="book-yml--idx-18">付録</span>を追加できます。付録の章にはアルファベット（A, B, C, …）で番号が付きます:</p>
 
-<pre><code class="language-yaml">chapters:
-  - part: part1.md
-    chapters:
-      - 01-introduction.md
-  - appendix:
-    - a1-references.md
-    - a2-glossary.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
+    <span class="na">chapters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">01-introduction.md</span>
+  <span class="pi">-</span> <span class="na">appendix</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">a1-references.md</span>
+    <span class="pi">-</span> <span class="s">a2-glossary.md</span>
+</code></pre></div></div>
 
 <h3 id="book-yml--ファイル名の規約">3.3.5 ファイル名の規約</h3>
 
@@ -1659,23 +1705,23 @@ chapters:
 
 <p><code>style</code> フィールドで <span id="book-yml--idx-20">CSS</span> ファイルを指定すると、デフォルトスタイルの後に読み込まれます:</p>
 
-<pre><code class="language-yaml">style: "custom.css"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">style</span><span class="pi">:</span> <span class="s2">"</span><span class="s">custom.css"</span>
+</code></pre></div></div>
 
 <p>CSS カスタムプロパティを上書きすることで、色やフォントなどを変更できます:</p>
 
-<pre><code class="language-css">:root {
-  --color-accent: #e63946;
-  --sidebar-width: 320px;
-}
-</code></pre>
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">:root</span> <span class="p">{</span>
+  <span class="py">--color-accent</span><span class="p">:</span> <span class="nx">#e63946</span><span class="p">;</span>
+  <span class="py">--sidebar-width</span><span class="p">:</span> <span class="m">320px</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <h2 id="book-yml--github-編集リンク">3.5 GitHub 編集リンク</h2>
 
 <p><code>repository</code> フィールドを指定すると、各章の末尾に「View on GitHub」リンクが表示されます（<span id="book-yml--idx-21">GitHub 編集リンク</span>）:</p>
 
-<pre><code class="language-yaml">repository: "https://github.com/user/my-book"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/my-book"</span>
+</code></pre></div></div>
 
 <h2 id="book-yml--ai-生成マーク">3.6 AI 生成マーク</h2>
 
@@ -1687,22 +1733,22 @@ chapters:
   <li><code>noindex</code> / <code>noai</code> メタタグを追加（検索エンジンのインデックスと AI 学習を抑制）</li>
 </ul>
 
-<pre><code class="language-yaml">ai_generated: true
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">ai_generated</span><span class="pi">:</span> <span class="kc">true</span>
+</code></pre></div></div>
 
 <h2 id="book-yml--フッター">3.7 フッター</h2>
 
 <p><code>footer</code> フィールドで各章の末尾に表示するテキストを指定できます。<code>ai_generated: true</code> のデフォルト免責文を上書きすることもできます:</p>
 
-<pre><code class="language-yaml">footer: "© 2025 著者名. All rights reserved."
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">footer</span><span class="pi">:</span> <span class="s2">"</span><span class="s">©</span><span class="nv"> </span><span class="s">2025</span><span class="nv"> </span><span class="s">著者名.</span><span class="nv"> </span><span class="s">All</span><span class="nv"> </span><span class="s">rights</span><span class="nv"> </span><span class="s">reserved."</span>
+</code></pre></div></div>
 
 <h2 id="book-yml--参考文献">3.8 参考文献</h2>
 
 <p><code>bibliography</code> フィールドで参考文献データファイルを指定します。YAML（<code>.yml</code>）と BibTeX（<code>.bib</code>）の両形式に対応しています:</p>
 
-<pre><code class="language-yaml">bibliography: references.bib
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">bibliography</span><span class="pi">:</span> <span class="s">references.bib</span>
+</code></pre></div></div>
 
 <p>詳しい使い方は <a href="#markdown--参考文献bibliography">Markdown の書き方</a> を参照してください。</p>
 
@@ -1710,11 +1756,11 @@ chapters:
 
 <p><code>sources</code> フィールドは、<a href="#ai">AI 執筆</a>（<code>ligarb write</code>）時に AI が参照するファイルを指定します。指定されたファイルの内容が AI へのコンテキストとして渡されます:</p>
 
-<pre><code class="language-yaml">sources:
-  - notes.md
-  - path: data/research.pdf
-    label: "調査レポート"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">sources</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">notes.md</span>
+  <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">data/research.pdf</span>
+    <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">調査レポート"</span>
+</code></pre></div></div>
 
 <p>文字列で指定するとファイル名がそのままラベルになります。<code>path</code> と <code>label</code> を個別に指定することもできます。</p>
 
@@ -1722,20 +1768,20 @@ chapters:
 
 <p><code>translations</code> フィールドで同じ本の複数言語版を管理できます。<code>inherit</code> フィールドで親設定の共通項目を継承できます。</p>
 
-<pre><code class="language-yaml"># book.yml（ハブ）
-repository: "https://github.com/user/repo"
-translations:
-  ja: book.ja.yml
-  en: book.en.yml
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># book.yml（ハブ）</span>
+<span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/repo"</span>
+<span class="na">translations</span><span class="pi">:</span>
+  <span class="na">ja</span><span class="pi">:</span> <span class="s">book.ja.yml</span>
+  <span class="na">en</span><span class="pi">:</span> <span class="s">book.en.yml</span>
+</code></pre></div></div>
 
-<pre><code class="language-yaml"># book.ja.yml（子）
-inherit: book.yml
-title: "マニュアル"
-language: "ja"
-chapters:
-  - intro.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># book.ja.yml（子）</span>
+<span class="na">inherit</span><span class="pi">:</span> <span class="s">book.yml</span>
+<span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">マニュアル"</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s2">"</span><span class="s">ja"</span>
+<span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">intro.md</span>
+</code></pre></div></div>
 
 <p>詳しくは <a href="#translations">6. 多言語対応（Translations）</a> を参照してください。</p>
 
@@ -1759,10 +1805,10 @@ chapters:
 
 <p><span id="markdown--idx-1">見出し</span>は <code>#</code> で記述します。<code>h1</code>〜<code>h3</code> が目次に表示されます:</p>
 
-<pre><code class="language-markdown"># 章タイトル（h1）
-## セクション（h2）
-### サブセクション（h3）
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># 章タイトル（h1）</span>
+<span class="gu">## セクション（h2）</span>
+<span class="gu">### サブセクション（h3）</span>
+</code></pre></div></div>
 
 <blockquote>
   <p>各章の最初の <code>h1</code> がその章のタイトルとして目次に表示されます。</p>
@@ -1773,23 +1819,23 @@ chapters:
 <p>バッククォート3つで囲むと、<span id="markdown--idx-2">コードブロック</span>になります。
 言語名を指定すると、自動的に<span id="markdown--idx-3">シンタックスハイライト</span>が適用されます:</p>
 
-<pre><code class="language-ruby">def greet(name)
-  puts "Hello, #{name}!"
-end
-</code></pre>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="nb">name</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="s2">"Hello, </span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">!"</span>
+<span class="k">end</span>
+</code></pre></div></div>
 
-<pre><code class="language-python">def fibonacci(n):
-    a, b = 0, 1
-    for _ in range(n):
-        a, b = b, a + b
-    return a
-</code></pre>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">fibonacci</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+    <span class="k">return</span> <span class="n">a</span>
+</code></pre></div></div>
 
-<pre><code class="language-javascript">const fetchData = async (url) =&gt; {
-  const response = await fetch(url);
-  return response.json();
-};
-</code></pre>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">fetchData</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">url</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">response</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">fetch</span><span class="p">(</span><span class="nx">url</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nx">response</span><span class="p">.</span><span class="nf">json</span><span class="p">();</span>
+<span class="p">};</span>
+</code></pre></div></div>
 
 <blockquote>
   <p>シンタックスハイライトには <span id="markdown--cite-2">highlight.js<sup class="cite-ref"><a href="#bib-highlightjs2011" title="Ivan Sagalaev. highlight.js. 2011." onclick="showChapterAndScroll('__bibliography__', 'bib-highlightjs2011'); return false;">[Ivan, 2011]</a></sup></span> が使われます。
@@ -2016,8 +2062,8 @@ height: 400
 
 <p>文中に数式を埋め込むには <code>$...$</code> で囲みます。例えば、有名な式 <span class="math-inline" data-math="E = mc^2"></span> はこのように書けます:</p>
 
-<pre><code class="language-markdown">有名な式 $E = mc^2$ はこのように書けます。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>有名な式 $E = mc^2$ はこのように書けます。
+</code></pre></div></div>
 
 <p>二次方程式の解 <span class="math-inline" data-math="x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}"></span> のような複雑な式もインラインで書けます。</p>
 
@@ -2070,9 +2116,9 @@ height: 400
 
 <h3 id="markdown--引用">4.1.9 引用</h3>
 
-<pre><code class="language-markdown">&gt; これは引用です。
-&gt; 複数行に渡ることもできます。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gt">&gt; これは引用です。</span>
+<span class="gt">&gt; 複数行に渡ることもできます。</span>
+</code></pre></div></div>
 
 <h3 id="markdown--admonition注意書きボックス">4.1.10 Admonition（注意書きボックス）</h3>
 
@@ -2105,21 +2151,21 @@ height: 400
 
 <p>記法は以下の通りです:</p>
 
-<pre><code class="language-markdown">&gt; [!NOTE]
-&gt; ここに補足情報を書きます。
-
-&gt; [!TIP]
-&gt; ここにアドバイスを書きます。
-
-&gt; [!WARNING]
-&gt; ここに注意事項を書きます。
-
-&gt; [!CAUTION]
-&gt; ここに危険な操作についての警告を書きます。
-
-&gt; [!IMPORTANT]
-&gt; ここに重要な情報を書きます。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gt">&gt; [!NOTE]</span>
+<span class="gt">&gt; ここに補足情報を書きます。</span>
+<span class="gt">
+&gt; [!TIP]</span>
+<span class="gt">&gt; ここにアドバイスを書きます。</span>
+<span class="gt">
+&gt; [!WARNING]</span>
+<span class="gt">&gt; ここに注意事項を書きます。</span>
+<span class="gt">
+&gt; [!CAUTION]</span>
+<span class="gt">&gt; ここに危険な操作についての警告を書きます。</span>
+<span class="gt">
+&gt; [!IMPORTANT]</span>
+<span class="gt">&gt; ここに重要な情報を書きます。</span>
+</code></pre></div></div>
 
 <p>対応するタイプは <code>NOTE</code>、<code>TIP</code>、<code>WARNING</code>、<code>CAUTION</code>、<code>IMPORTANT</code> の 5 種類です。</p>
 
@@ -2127,10 +2173,10 @@ height: 400
 
 <p>テキスト中に<span id="markdown--idx-4">脚注</span>を挿入できます<sup id="fnref:markdown--1"><a href="#fn:markdown--1" class="footnote" rel="footnote" role="doc-noteref">1</a></sup>。複数の脚注も使えます<sup id="fnref:markdown--2"><a href="#fn:markdown--2" class="footnote" rel="footnote" role="doc-noteref">2</a></sup>。</p>
 
-<pre><code class="language-markdown">テキスト中に脚注を挿入できます[^1]。
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>テキスト中に脚注を挿入できます[^1]。
 
-[^1]: これが脚注の内容です。
-</code></pre>
+<span class="p">[</span><span class="ss">^1</span><span class="p">]:</span> <span class="sx">これが脚注の内容です。</span>
+</code></pre></div></div>
 
 <p>脚注の ID は章ごとにスコープされるため、異なる章で同じ番号を使っても衝突しません。</p>
 
@@ -2153,8 +2199,8 @@ height: 400
 
 <p>Markdown 内では相対パスで画像を参照します:</p>
 
-<pre><code class="language-markdown">![スクリーンショット](images/screenshot.png)
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">![</span><span class="nv">スクリーンショット</span><span class="p">](</span><span class="sx">images/screenshot.png</span><span class="p">)</span>
+</code></pre></div></div>
 
 <p>ligarb はビルド時に画像パスを <code>images/ファイル名</code> に書き換え、
 <code>images/</code> ディレクトリの中身を出力先にコピーします。</p>
@@ -2172,20 +2218,20 @@ height: 400
 
 <p>リンク先に <code>#index</code> を指定すると、リンクテキストがそのまま索引語になります:</p>
 
-<pre><code class="language-markdown">[Ruby](#index) は動的型付け言語です。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">Ruby</span><span class="p">](</span><span class="sx">#index</span><span class="p">)</span> は動的型付け言語です。
+</code></pre></div></div>
 
 <p>表示テキストと索引語を別にしたい場合は <code>#index:索引語</code> とします:</p>
 
-<pre><code class="language-markdown">[動的型付け言語](#index:動的型付け)
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">動的型付け言語</span><span class="p">](</span><span class="sx">#index:動的型付け</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h3 id="markdown--複数の索引語">4.3.2 複数の索引語</h3>
 
 <p>カンマ区切りで一箇所に複数の索引語を登録できます:</p>
 
-<pre><code class="language-markdown">[Ruby](#index:Ruby,プログラミング言語/Ruby)
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">Ruby</span><span class="p">](</span><span class="sx">#index:Ruby,プログラミング言語/Ruby</span><span class="p">)</span>
+</code></pre></div></div>
 
 <h3 id="markdown--階層化">4.3.3 階層化</h3>
 
@@ -2219,44 +2265,44 @@ height: 400
 
 <p><code>book.yml</code> に参考文献データファイルを指定します。拡張子で形式が自動判定されます:</p>
 
-<pre><code class="language-yaml">bibliography: references.yml   # YAML 形式
-bibliography: references.bib   # BibTeX 形式
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">bibliography</span><span class="pi">:</span> <span class="s">references.yml</span>   <span class="c1"># YAML 形式</span>
+<span class="na">bibliography</span><span class="pi">:</span> <span class="s">references.bib</span>   <span class="c1"># BibTeX 形式</span>
+</code></pre></div></div>
 
 <h4 id="yaml-形式">YAML 形式</h4>
 
 <p>キーと文献情報のマッピングです:</p>
 
-<pre><code class="language-yaml">matz1995:
-  author: "Yukihiro Matsumoto"
-  title: "The Ruby Programming Language"
-  year: 1995
-  url: "https://www.ruby-lang.org"
-  publisher: "O'Reilly"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">matz1995</span><span class="pi">:</span>
+  <span class="na">author</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Yukihiro</span><span class="nv"> </span><span class="s">Matsumoto"</span>
+  <span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">The</span><span class="nv"> </span><span class="s">Ruby</span><span class="nv"> </span><span class="s">Programming</span><span class="nv"> </span><span class="s">Language"</span>
+  <span class="na">year</span><span class="pi">:</span> <span class="m">1995</span>
+  <span class="na">url</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://www.ruby-lang.org"</span>
+  <span class="na">publisher</span><span class="pi">:</span> <span class="s2">"</span><span class="s">O'Reilly"</span>
+</code></pre></div></div>
 
 <h4 id="bibtex-形式bib">BibTeX 形式（.bib）</h4>
 
 <p>標準的な BibTeX 記法で記述できます:</p>
 
-<pre><code class="language-bibtex">@book{matz1995,
-  author = {Yukihiro Matsumoto},
-  title = {The Ruby Programming Language},
-  year = {1995},
-  publisher = {O'Reilly},
-  url = {https://www.ruby-lang.org}
-}
+<div class="language-bibtex highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">@book</span><span class="p">{</span><span class="nl">matz1995</span><span class="p">,</span>
+  <span class="na">author</span> <span class="p">=</span> <span class="s">{Yukihiro Matsumoto}</span><span class="p">,</span>
+  <span class="na">title</span> <span class="p">=</span> <span class="s">{The Ruby Programming Language}</span><span class="p">,</span>
+  <span class="na">year</span> <span class="p">=</span> <span class="s">{1995}</span><span class="p">,</span>
+  <span class="na">publisher</span> <span class="p">=</span> <span class="s">{O'Reilly}</span><span class="p">,</span>
+  <span class="na">url</span> <span class="p">=</span> <span class="s">{https://www.ruby-lang.org}</span>
+<span class="p">}</span>
 
-@article{knuth1984,
-  author = {Donald Knuth},
-  title = {Literate Programming},
-  year = {1984},
-  journal = {The Computer Journal},
-  volume = {27},
-  number = {2},
-  pages = {97-111}
-}
-</code></pre>
+<span class="nc">@article</span><span class="p">{</span><span class="nl">knuth1984</span><span class="p">,</span>
+  <span class="na">author</span> <span class="p">=</span> <span class="s">{Donald Knuth}</span><span class="p">,</span>
+  <span class="na">title</span> <span class="p">=</span> <span class="s">{Literate Programming}</span><span class="p">,</span>
+  <span class="na">year</span> <span class="p">=</span> <span class="s">{1984}</span><span class="p">,</span>
+  <span class="na">journal</span> <span class="p">=</span> <span class="s">{The Computer Journal}</span><span class="p">,</span>
+  <span class="na">volume</span> <span class="p">=</span> <span class="s">{27}</span><span class="p">,</span>
+  <span class="na">number</span> <span class="p">=</span> <span class="s">{2}</span><span class="p">,</span>
+  <span class="na">pages</span> <span class="p">=</span> <span class="s">{97-111}</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <p>BibTeX の注意事項:</p>
 
@@ -2353,8 +2399,8 @@ bibliography: references.bib   # BibTeX 形式
 
 <p>リンク先に <code>#cite:キー</code> を指定します:</p>
 
-<pre><code class="language-markdown">[Ruby](#cite:matz1995) は素晴らしい言語です。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">Ruby</span><span class="p">](</span><span class="sx">#cite:matz1995</span><span class="p">)</span> は素晴らしい言語です。
+</code></pre></div></div>
 
 <p>これは「Ruby<sup>[Yukihiro, 1995]</sup> は素晴らしい言語です。」のように表示されます。上付きの <code>[著者姓, 年]</code> は参考文献セクションへのリンクになっており、hover すると文献の完全な情報が表示されます。</p>
 
@@ -2372,10 +2418,10 @@ bibliography: references.bib   # BibTeX 形式
 
 <p>上の例のソースは以下のようになっています:</p>
 
-<pre><code class="language-markdown">[Markdown](#cite:gruber2004) は 2004 年に発表された...
-[Knuth の Literate Programming](#cite:knuth1984) の影響を...
-[Berners-Lee らの WWW](#cite:berners-lee1992) の基本概念です。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">Markdown</span><span class="p">](</span><span class="sx">#cite:gruber2004</span><span class="p">)</span> は 2004 年に発表された...
+<span class="p">[</span><span class="nv">Knuth の Literate Programming</span><span class="p">](</span><span class="sx">#cite:knuth1984</span><span class="p">)</span> の影響を...
+<span class="p">[</span><span class="nv">Berners-Lee らの WWW</span><span class="p">](</span><span class="sx">#cite:berners-lee1992</span><span class="p">)</span> の基本概念です。
+</code></pre></div></div>
 
 <h3 id="markdown--動作の詳細">4.4.6 動作の詳細</h3>
 
@@ -2397,21 +2443,21 @@ bibliography: references.bib   # BibTeX 形式
 
 <p><span id="markdown--idx-10">相互参照</span>は通常の Markdown リンクとして記述します。リンク先に <code>.md</code> ファイルを指定すると、ビルド時に自動的に解決されます:</p>
 
-<pre><code class="language-markdown">[設定の詳細](03-book-yml.md)
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">設定の詳細</span><span class="p">](</span><span class="sx">03-book-yml.md</span><span class="p">)</span>
+</code></pre></div></div>
 
 <p>特定の見出しへリンクするには <code>#</code> でフラグメントを指定します:</p>
 
-<pre><code class="language-markdown">[chapters フィールド](03-book-yml.md#chapters フィールド)
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">[</span><span class="nv">chapters フィールド</span><span class="p">](</span><span class="sx">03-book-yml.md#chapters</span> フィールド)
+</code></pre></div></div>
 
 <h3 id="markdown--リンクテキストの自動挿入">4.5.2 リンクテキストの自動挿入</h3>
 
 <p>リンクテキストを空にすると、リンク先の章タイトルや見出しテキスト（番号付き）が自動的に挿入されます:</p>
 
-<pre><code class="language-markdown">詳しくは [](03-book-yml.md) を参照してください。
-設定項目は [](03-book-yml.md#chapters フィールド) で説明しています。
-</code></pre>
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>詳しくは <span class="p">[](</span><span class="sx">03-book-yml.md</span><span class="p">)</span> を参照してください。
+設定項目は <span class="p">[](</span><span class="sx">03-book-yml.md#chapters</span> フィールド) で説明しています。
+</code></pre></div></div>
 
 <p>上の例では、リンクテキストがそれぞれ「3. book.yml の設定」「3.1 chapters フィールド」のように章番号・セクション番号付きで表示されます。</p>
 
@@ -2459,13 +2505,13 @@ GitHub でソースを閲覧する際にもリンクが有効です。</p>
 
 <p>本のプロジェクトディレクトリで以下を実行します（<span id="build--idx-0"><code>ligarb build</code></span>）:</p>
 
-<pre><code class="language-bash">ligarb build
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb build
+</code></pre></div></div>
 
 <p><code>book.yml</code> が別の場所にある場合は、パスを指定できます:</p>
 
-<pre><code class="language-bash">ligarb build path/to/book.yml
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb build path/to/book.yml
+</code></pre></div></div>
 
 <h2 id="build--出力結果">5.2 出力結果</h2>
 
@@ -2481,12 +2527,12 @@ GitHub でソースを閲覧する際にもリンクが有効です。</p>
 <p>生成された <span id="build--idx-1"><code>index.html</code></span> をブラウザで直接開くだけで閲覧できます。
 Web サーバーは不要です:</p>
 
-<pre><code class="language-bash"># macOS の場合
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># macOS の場合</span>
 open build/index.html
 
-# Linux の場合
+<span class="c"># Linux の場合</span>
 xdg-open build/index.html
-</code></pre>
+</code></pre></div></div>
 
 <h2 id="build--動作確認のポイント">5.4 動作確認のポイント</h2>
 
@@ -2538,14 +2584,14 @@ xdg-open build/index.html
 
 <p>プロジェクトのルートに置く <code>book.yml</code> が<span id="translations--idx-1">ハブ</span>の役割を果たします。ここに <span id="translations--idx-2"><code>translations</code></span> フィールドを記述し、言語コードと子設定ファイルのパスを対応付けます。</p>
 
-<pre><code class="language-yaml">repository: "https://github.com/user/repo"
-ai_generated: true
-bibliography: references.bib
-output_dir: "build"
-translations:
-  ja: book.ja.yml
-  en: book.en.yml
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/repo"</span>
+<span class="na">ai_generated</span><span class="pi">:</span> <span class="kc">true</span>
+<span class="na">bibliography</span><span class="pi">:</span> <span class="s">references.bib</span>
+<span class="na">output_dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">build"</span>
+<span class="na">translations</span><span class="pi">:</span>
+  <span class="na">ja</span><span class="pi">:</span> <span class="s">book.ja.yml</span>
+  <span class="na">en</span><span class="pi">:</span> <span class="s">book.en.yml</span>
+</code></pre></div></div>
 
 <p><code>translations</code> の各キーは IETF 言語タグ（<code>ja</code>, <code>en</code> など）で、値は子設定ファイルへの相対パスです。</p>
 
@@ -2555,23 +2601,23 @@ translations:
 
 <p>日本語版（<code>book.ja.yml</code>）:</p>
 
-<pre><code class="language-yaml">inherit: book.yml
-title: "マニュアル"
-language: "ja"
-output_dir: "build/ja"
-chapters:
-  - chapters/intro.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">inherit</span><span class="pi">:</span> <span class="s">book.yml</span>
+<span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">マニュアル"</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s2">"</span><span class="s">ja"</span>
+<span class="na">output_dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">build/ja"</span>
+<span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">chapters/intro.md</span>
+</code></pre></div></div>
 
 <p>英語版（<code>book.en.yml</code>）:</p>
 
-<pre><code class="language-yaml">inherit: book.yml
-title: "Manual"
-language: "en"
-output_dir: "build/en"
-chapters:
-  - chapters/en/intro.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">inherit</span><span class="pi">:</span> <span class="s">book.yml</span>
+<span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Manual"</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s2">"</span><span class="s">en"</span>
+<span class="na">output_dir</span><span class="pi">:</span> <span class="s2">"</span><span class="s">build/en"</span>
+<span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">chapters/en/intro.md</span>
+</code></pre></div></div>
 
 <h3 id="translations--継承のルール">6.2.1 継承のルール</h3>
 
@@ -2593,17 +2639,17 @@ chapters:
 
 <p><code>ligarb build</code> に渡すファイルによって、統合ビルドと単体ビルドを使い分けられます。</p>
 
-<pre><code class="language-bash">ligarb build book.yml       # ハブ → 全言語を1ファイルに統合
-ligarb build book.ja.yml    # 日本語版のみ
-ligarb build book.en.yml    # 英語版のみ
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb build book.yml       <span class="c"># ハブ → 全言語を1ファイルに統合</span>
+ligarb build book.ja.yml    <span class="c"># 日本語版のみ</span>
+ligarb build book.en.yml    <span class="c"># 英語版のみ</span>
+</code></pre></div></div>
 
 <p>たとえば以下の設定の場合:</p>
 
-<pre><code class="language-yaml"># book.yml       → output_dir: "build"
-# book.ja.yml    → output_dir: "build/ja"
-# book.en.yml    → output_dir: "build/en"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># book.yml       → output_dir: "build"</span>
+<span class="c1"># book.ja.yml    → output_dir: "build/ja"</span>
+<span class="c1"># book.en.yml    → output_dir: "build/en"</span>
+</code></pre></div></div>
 
 <p>3 つすべてをビルドすると、次のように出力されます:</p>
 
@@ -2662,10 +2708,10 @@ ligarb build book.en.yml    # 英語版のみ
 <p><span id="serve--idx-0"><code>ligarb serve</code></span> コマンドで、ビルド済みの本をローカル Web サーバーで配信できます。
 起動時に自動でビルドが実行されるため、事前に <code>ligarb build</code> を実行する必要はありません。</p>
 
-<pre><code class="language-bash">ligarb serve                    # http://localhost:3000 で配信
-ligarb serve --port 8080        # ポート指定
-ligarb serve path/to/book.yml   # book.yml のパスを指定
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb serve                    <span class="c"># http://localhost:3000 で配信</span>
+ligarb serve <span class="nt">--port</span> 8080        <span class="c"># ポート指定</span>
+ligarb serve path/to/book.yml   <span class="c"># book.yml のパスを指定</span>
+</code></pre></div></div>
 
 <h2 id="serve--ライブリロード">7.2 ライブリロード</h2>
 
@@ -2777,30 +2823,30 @@ ligarb serve path/to/book.yml   # book.yml のパスを指定
 
 <h3 id="ai--ワークフロー">8.1.1 ワークフロー</h3>
 
-<pre><code class="language-bash">ligarb write --init ruby_book    # ruby_book/brief.yml を生成
-vi ruby_book/brief.yml           # 企画を編集
-ligarb write ruby_book/brief.yml # ruby_book/ に本を生成 + ビルド
-ligarb write --no-build          # 生成のみ（ビルドしない）
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb write <span class="nt">--init</span> ruby_book    <span class="c"># ruby_book/brief.yml を生成</span>
+vi ruby_book/brief.yml           <span class="c"># 企画を編集</span>
+ligarb write ruby_book/brief.yml <span class="c"># ruby_book/ に本を生成 + ビルド</span>
+ligarb write <span class="nt">--no-build</span>          <span class="c"># 生成のみ（ビルドしない）</span>
+</code></pre></div></div>
 
 <h3 id="ai--briefyml-の書き方">8.1.2 brief.yml の書き方</h3>
 
 <p>最小限はタイトルだけです:</p>
 
-<pre><code class="language-yaml">title: "Git入門ガイド"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Git入門ガイド"</span>
+</code></pre></div></div>
 
 <p>詳しく指定することもできます:</p>
 
-<pre><code class="language-yaml"># brief.yml - 本の企画書
-title: "Ruby入門"
-language: ja
-audience: "プログラミング初心者"
-notes: |
-  5章くらいで。
-  コード例を多めにしてください。
-  Railsには触れず、純粋なRubyに絞ってください。
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># brief.yml - 本の企画書</span>
+<span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Ruby入門"</span>
+<span class="na">language</span><span class="pi">:</span> <span class="s">ja</span>
+<span class="na">audience</span><span class="pi">:</span> <span class="s2">"</span><span class="s">プログラミング初心者"</span>
+<span class="na">notes</span><span class="pi">:</span> <span class="pi">|</span>
+  <span class="s">5章くらいで。</span>
+  <span class="s">コード例を多めにしてください。</span>
+  <span class="s">Railsには触れず、純粋なRubyに絞ってください。</span>
+</code></pre></div></div>
 
 <table>
   <thead>
@@ -2870,12 +2916,12 @@ notes: |
 
 <p><code>sources</code> を指定すると、AI がそのファイルを読んだ上で本を執筆します。既存の資料やメモをもとに本を書かせたいときに便利です:</p>
 
-<pre><code class="language-yaml">title: "社内システム解説"
-sources:
-  - architecture.md
-  - path: notes/meeting-2025-03.md
-    label: "3月会議メモ"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">title</span><span class="pi">:</span> <span class="s2">"</span><span class="s">社内システム解説"</span>
+<span class="na">sources</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">architecture.md</span>
+  <span class="pi">-</span> <span class="na">path</span><span class="pi">:</span> <span class="s">notes/meeting-2025-03.md</span>
+    <span class="na">label</span><span class="pi">:</span> <span class="s2">"</span><span class="s">3月会議メモ"</span>
+</code></pre></div></div>
 
 <p>文字列で指定するとファイル名がそのままラベルになります。<code>path</code> と <code>label</code> を個別に指定することもできます。パスは <code>brief.yml</code> からの相対パスです。</p>
 
@@ -2891,9 +2937,9 @@ sources:
 
 <p>フッターのテキストは <code>footer</code> フィールドでカスタマイズできます:</p>
 
-<pre><code class="language-yaml">ai_generated: true
-footer: "AI生成コンテンツです。内容を鵜呑みにしないでください。"
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">ai_generated</span><span class="pi">:</span> <span class="kc">true</span>
+<span class="na">footer</span><span class="pi">:</span> <span class="s2">"</span><span class="s">AI生成コンテンツです。内容を鵜呑みにしないでください。"</span>
+</code></pre></div></div>
 
 <p><code>footer</code> は <code>ai_generated</code> とは独立して使うこともできます（著作権表示など）。</p>
 
@@ -2906,8 +2952,8 @@ footer: "AI生成コンテンツです。内容を鵜呑みにしないでくだ
 <p><code>ligarb write</code> を使わずに、手動で AI に指示することもできます。
 <code>ligarb help</code> の出力を AI に渡してください:</p>
 
-<pre><code class="language-bash">ligarb help
-</code></pre>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb <span class="nb">help</span>
+</code></pre></div></div>
 
 <p>この出力には設定ファイルの仕様、対応する Markdown 記法、利用可能なコードブロックの種類など、
 AI が本を作るために必要な情報がすべて含まれています。</p>
@@ -3012,6 +3058,119 @@ book.yml にも登録してください。
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
       <a href="#" class="nav-prev" onclick="showChapter('serve'); return false;">&larr; 7. プレビューとレビュー</a>
+      <a href="#" class="nav-next" onclick="showChapter('github-review'); return false;">9. GitHub で公開・レビュー &rarr;</a>
+    </nav>
+  </section>
+  <section class="chapter" id="chapter-github-review" style="display: none;">
+    <h1 id="github-review--github-で公開レビュー">9. GitHub で公開・レビュー</h1>
+
+<p><span id="github-review--idx-0"><code>ligarb serve</code></span> のレビュー UI がローカルでの執筆支援なら、こちらは
+<strong>公開した本を読者からレビューしてもらう</strong>ための仕組みです。
+<span id="github-review--idx-1"><code>ligarb setup-github-review</code></span> は、本を GitHub Pages に公開し、
+読者が GitHub Issue でフィードバックを送り、必要に応じて <span id="github-review--idx-2">Claude</span> が
+Pull Request を返す——という一連のワークフローを既存プロジェクトに生成します。</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb setup-github-review                 <span class="c"># カレントディレクトリにセットアップ</span>
+ligarb setup-github-review path/to/book    <span class="c"># ディレクトリを指定</span>
+ligarb setup-github-review <span class="nt">--owner</span> my-org  <span class="c"># repository の owner を指定</span>
+</code></pre></div></div>
+
+<p><code>book.yml</code> が存在するプロジェクトであれば、<span id="github-review--idx-3"><code>ligarb init</code></span> や
+<span id="github-review--idx-4"><code>ligarb write</code></span> で作ったものでも、手作りのものでも実行できます。</p>
+
+<h2 id="github-review--何が生成されるか">9.1 何が生成されるか</h2>
+
+<p><code>.github/</code> 以下のワークフローと、セットアップ手順を記した <code>SETUP.md</code> / <code>SETUP.sh</code> が生成されます。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>ファイル</th>
+      <th>役割</th>
+      <th>Claude 依存</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>.github/workflows/deploy-book.yml</code></td>
+      <td>push で本をビルドし GitHub Pages に公開</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><code>.github/workflows/build-check.yml</code></td>
+      <td>PR で <code>ligarb build</code> が通るか検証</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><code>.github/ISSUE_TEMPLATE/book-feedback.yml</code></td>
+      <td>読者向けフィードバックフォーム</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><code>.github/workflows/claude-feedback.yml</code></td>
+      <td>Issue を Claude が処理し PR/コメントを返す</td>
+      <td>あり</td>
+    </tr>
+    <tr>
+      <td><code>.github/workflows/claude-pr-mention.yml</code></td>
+      <td>PR コメントに Claude が応答</td>
+      <td>あり</td>
+    </tr>
+    <tr>
+      <td><code>SETUP.sh</code></td>
+      <td>リポジトリ作成〜公開を一括実行する gh CLI スクリプト</td>
+      <td>あり</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>あわせて <code>book.yml</code> に <span id="github-review--idx-5"><code>github_review</code></span><code>.enabled: true</code> を追記し
+（読者向けの「Report as issue」UI を有効化）、公開ページへのリンク入り <code>README.md</code> を生成します
+（既存の <code>README.md</code> は上書きしません）。</p>
+
+<div class="admonition admonition-note">
+<p class="admonition-title">Note</p>
+<p>生成されるのはテンプレートのコピーだけです。ligarb 自体は実行時に Claude や GitHub を呼びません。
+Claude 連携やワークフローを実際に動かす手順は、生成された <code>SETUP.md</code>（gh CLI のクイックスタート付き）
+を参照してください。</p>
+</div>
+
+<h2 id="github-review--repository-と-owner">9.2 repository と –owner</h2>
+
+<p>各ワークフローやフォームの <code>__OWNER__</code> / <code>__REPO__</code> プレースホルダは、<code>book.yml</code> の
+<span id="github-review--idx-6"><code>repository</code></span> から埋められます。<code>repository</code> が未設定の場合、
+このコマンドはデフォルト値 <code>https://github.com/&lt;owner&gt;/&lt;ディレクトリ名&gt;</code> を <code>book.yml</code> に書き込みます。</p>
+
+<p><code>&lt;owner&gt;</code> は次のように決まります。</p>
+
+<ul>
+  <li><code>--owner</code>（別名 <code>--user</code>）を指定すればその値。<strong>組織（org）に公開したいとき</strong>に使います。</li>
+  <li>指定しなければ環境変数 <code>$USER</code>。</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 例: my-org/my-book として推測値をセット</span>
+ligarb setup-github-review <span class="nt">--owner</span> my-org
+</code></pre></div></div>
+
+<div class="admonition admonition-important">
+<p class="admonition-title">Important</p>
+<p><code>repository</code> が<strong>すでに設定済み</strong>の状態で <code>--owner</code> を渡すとエラーになります。
+勝手に書き換えることはしないので、owner を変えたいときは <code>book.yml</code> の <code>repository</code> を
+直接編集してから、もう一度 <code>ligarb setup-github-review</code> を実行してください
+（プレースホルダが新しい値で再生成されます）。</p>
+</div>
+
+<h2 id="github-review--再実行について">9.3 再実行について</h2>
+
+<p><code>ligarb</code> を更新したあとに同じコマンドを再実行すると、足場ファイルが最新テンプレートに<strong>上書き更新</strong>されます
+（<code>book.yml</code> は対象外）。手を入れた箇所は <code>git diff</code> で確認し、残したい変更は戻してください。</p>
+
+    <div class="edit-link">
+      <a href="https://github.com/ko1/ligarb/blob/HEAD/manual/chapters/github-review.md" target="_blank" rel="noopener">View on GitHub</a>
+    </div>
+    <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
+    <nav class="chapter-nav">
+      <a href="#" class="nav-prev" onclick="showChapter('ai'); return false;">&larr; 8. AI と一緒に使う</a>
       <a href="#" class="nav-next" onclick="showChapter('config-reference'); return false;">A. 設定リファレンス &rarr;</a>
     </nav>
   </section>
@@ -3082,29 +3241,29 @@ book.yml にも登録してください。
 
 <h3 id="config-reference--章文字列">A.2.1 章（文字列）</h3>
 
-<pre><code class="language-yaml">chapters:
-  - 01-introduction.md
-  - 02-getting-started.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">01-introduction.md</span>
+  <span class="pi">-</span> <span class="s">02-getting-started.md</span>
+</code></pre></div></div>
 
 <h3 id="config-reference--パートpart">A.2.2 パート（part）</h3>
 
-<pre><code class="language-yaml">chapters:
-  - part: part1.md
-    chapters:
-      - 01-introduction.md
-      - 02-getting-started.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
+    <span class="na">chapters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">01-introduction.md</span>
+      <span class="pi">-</span> <span class="s">02-getting-started.md</span>
+</code></pre></div></div>
 
 <p><code>part</code> には Markdown ファイルを指定します。そのファイルの <code>h1</code> がパートタイトル、本文が扉ページになります。</p>
 
 <h3 id="config-reference--付録appendix">A.2.3 付録（appendix）</h3>
 
-<pre><code class="language-yaml">chapters:
-  - appendix:
-    - a1-references.md
-    - a2-glossary.md
-</code></pre>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">appendix</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">a1-references.md</span>
+    <span class="pi">-</span> <span class="s">a2-glossary.md</span>
+</code></pre></div></div>
 
 <p>付録の章には数字ではなくアルファベット（A, B, C, …）で番号が付きます。</p>
 
@@ -3113,7 +3272,7 @@ book.yml にも登録してください。
     </div>
     <div class="chapter-footer">この章の内容は AI によって生成されました。正確性は保証されません。</div>
     <nav class="chapter-nav">
-      <a href="#" class="nav-prev" onclick="showChapter('ai'); return false;">&larr; 8. AI と一緒に使う</a>
+      <a href="#" class="nav-prev" onclick="showChapter('github-review'); return false;">&larr; 9. GitHub で公開・レビュー</a>
     </nav>
   </section>
   <section class="chapter bibliography-chapter" id="chapter-__bibliography__" style="display: none;">
@@ -3136,6 +3295,7 @@ book.yml にも登録してください。
         <dt>AI 連携</dt>
         <dd><a href="#serve--idx-2" onclick="showChapterAndScroll('serve', 'serve--idx-2'); return false;">7. プレビューとレビュー</a></dd>
         <dd><a href="#ai--idx-0" onclick="showChapterAndScroll('ai', 'ai--idx-0'); return false;">8. AI と一緒に使う</a></dd>
+        <dd><a href="#github-review--idx-2" onclick="showChapterAndScroll('github-review', 'github-review--idx-2'); return false;">9. GitHub で公開・レビュー</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3161,6 +3321,8 @@ book.yml にも登録してください。
         <dd class="index-sub"><a href="#config-reference--idx-5" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-5'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">footer</dt>
         <dd class="index-sub"><a href="#book-yml--idx-10" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-10'); return false;">3. book.yml の書き方</a></dd>
+        <dt class="index-sub">github_review</dt>
+        <dd class="index-sub"><a href="#github-review--idx-5" onclick="showChapterAndScroll('github-review', 'github-review--idx-5'); return false;">9. GitHub で公開・レビュー</a></dd>
         <dt class="index-sub">inherit</dt>
         <dd class="index-sub"><a href="#book-yml--idx-14" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-14'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">language</dt>
@@ -3171,6 +3333,7 @@ book.yml にも登録してください。
         <dd class="index-sub"><a href="#config-reference--idx-3" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-3'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">repository</dt>
         <dd class="index-sub"><a href="#book-yml--idx-8" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-8'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#github-review--idx-6" onclick="showChapterAndScroll('github-review', 'github-review--idx-6'); return false;">9. GitHub で公開・レビュー</a></dd>
         <dt class="index-sub">sources</dt>
         <dd class="index-sub"><a href="#book-yml--idx-12" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-12'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">style</dt>
@@ -3233,8 +3396,15 @@ book.yml にも登録してください。
         <dd><a href="#build--idx-0" onclick="showChapterAndScroll('build', 'build--idx-0'); return false;">5. ビルドと確認</a></dd>
         <dt>ligarb help</dt>
         <dd><a href="#install--idx-2" onclick="showChapterAndScroll('install', 'install--idx-2'); return false;">2. インストールと準備</a></dd>
+        <dt>ligarb init</dt>
+        <dd><a href="#github-review--idx-3" onclick="showChapterAndScroll('github-review', 'github-review--idx-3'); return false;">9. GitHub で公開・レビュー</a></dd>
         <dt>ligarb serve</dt>
         <dd><a href="#serve--idx-0" onclick="showChapterAndScroll('serve', 'serve--idx-0'); return false;">7. プレビューとレビュー</a></dd>
+        <dd><a href="#github-review--idx-0" onclick="showChapterAndScroll('github-review', 'github-review--idx-0'); return false;">9. GitHub で公開・レビュー</a></dd>
+        <dt>ligarb setup-github-review</dt>
+        <dd><a href="#github-review--idx-1" onclick="showChapterAndScroll('github-review', 'github-review--idx-1'); return false;">9. GitHub で公開・レビュー</a></dd>
+        <dt>ligarb write</dt>
+        <dd><a href="#github-review--idx-4" onclick="showChapterAndScroll('github-review', 'github-review--idx-4'); return false;">9. GitHub で公開・レビュー</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3402,7 +3572,7 @@ book.yml にも登録してください。
 
 <script>
 (function() {
-  var chapters = ["cover", "__toc__", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "config-reference", "__bibliography__", "__index__"];
+  var chapters = ["cover", "__toc__", "part1", "introduction", "install", "book-yml", "markdown", "build", "part2", "translations", "serve", "ai", "github-review", "config-reference", "__bibliography__", "__index__"];
   var currentChapter = null;
 
   var navigating = false; // flag to suppress pushState during popstate/initial load

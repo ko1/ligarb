@@ -16,5 +16,6 @@ chapters:
       - chapters/translations.md
       - chapters/serve.md
       - chapters/ai.md
+      - chapters/github-review.md
   - appendix:
     - chapters/config-reference.md
