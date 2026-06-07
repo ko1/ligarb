@@ -256,7 +256,7 @@
 <%- if multilang -%>
   <%- langs.each do |ld| -%>
   <%- ld[:chapters].select(&:cover?).each do |chapter| -%>
-  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>" style="display: none;">
+  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>" data-lang="<%= ld[:lang] %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
   </section>
   <%- end -%>
@@ -373,7 +373,7 @@
   <%- end -%>
 <%- else -%>
   <%- chapters.select(&:cover?).each do |chapter| -%>
-  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>" style="display: none;">
+  <section class="chapter cover-page" id="chapter-<%= chapter.slug %>"<%= src_attrs(chapter, feedback) %> style="display: none;">
     <%= chapter.html %>
   </section>
   <%- end -%>

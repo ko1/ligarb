@@ -82,6 +82,13 @@ class FeedbackTest < Minitest::Test
     refute_includes html, "window._ligarbReview"
   end
 
+  def test_cover_page_gets_src_attrs
+    data = enabled_book
+    data["chapters"] = [{"cover" => "cover.md"}, "ch1.md"]
+    html, = build_book(data, files: {"cover.md" => "# My Book\n\nWelcome", "ch1.md" => "# Chapter 1\n\nHello"})
+    assert_match(/<section class="chapter cover-page"[^>]* data-src-file="cover\.md"/, html)
+  end
+
   def test_data_src_file_matches_nested_source_path
     data = enabled_book
     data["chapters"] = ["chapters/intro.md"]
