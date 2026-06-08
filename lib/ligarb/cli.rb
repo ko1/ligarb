@@ -27,20 +27,23 @@ module Ligarb
         GithubReview.run(directory, owner: owner)
       when "serve"
         port, port_idx = parse_port(args)
-        # Drop flags and the --port value so they aren't mistaken for CONFIG paths.
+        host, host_idx = parse_host(args)
+        # Drop flags and the --port/--host values so they aren't mistaken for CONFIG paths.
+        value_indices = [port_idx, host_idx].compact.map { |i| i + 1 }
         config_paths = args.each_index
-                           .reject { |i| args[i].start_with?("--") || i == port_idx&.+(1) }
+                           .reject { |i| args[i].start_with?("--") || value_indices.include?(i) }
                            .map { |i| args[i] }
         config_paths = ["book.yml"] if config_paths.empty?
         multi = args.include?("--multi")
         require_relative "server"
-        Server.new(config_paths, port: port, multi: multi).start
+        Server.new(config_paths, port: port, host: host, multi: multi).start
       when "librarium"
         config_paths = Dir.glob("*/book.yml").sort
         abort "Error: no */book.yml found in current directory" if config_paths.empty?
         port, = parse_port(args)
+        host, = parse_host(args)
         require_relative "server"
-        Server.new(config_paths, port: port, multi: true).start
+        Server.new(config_paths, port: port, host: host, multi: true).start
       when "write"
         require_relative "writer"
         begin
@@ -82,6 +85,18 @@ module Ligarb
       [port, idx]
     end
 
+    # Parses `--host ADDR` from args. Returns [host, flag_index]; host defaults
+    # to "127.0.0.1" (loopback only) when --host is absent (flag_index is then
+    # nil). Aborts on a missing value.
+    def parse_host(args)
+      idx = args.index("--host")
+      return ["127.0.0.1", nil] unless idx
+
+      value = args[idx + 1]
+      abort "Error: --host requires a value (e.g. --host 0.0.0.0)" if value.nil? || value.start_with?("--")
+      [value, idx]
+    end
+
     def print_usage
       puts <<~USAGE
         ligarb #{VERSION} - Generate a single-page HTML book from Markdown files
@@ -92,9 +107,11 @@ module Ligarb
                                   Set up (or update) GitHub Pages + review workflows
                                   (--owner/--user seeds repository: owner when unset)
           ligarb build [CONFIG]    Build the HTML book (default CONFIG: book.yml)
-          ligarb serve [CONFIG] [--port N]
+          ligarb serve [CONFIG] [--port N] [--host ADDR]
                                   Serve the book with live reload and review UI
-          ligarb librarium [--port N]
+                                  (--host ADDR binds the interface; default
+                                  127.0.0.1. Use 0.0.0.0 to expose on the LAN)
+          ligarb librarium [--port N] [--host ADDR]
                                   Serve all */book.yml as a multi-book library
           ligarb write [BRIEF]         Generate a book with AI from brief.yml
           ligarb write --init [DIR]    Create DIR/brief.yml template

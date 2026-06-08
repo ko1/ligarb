@@ -11,8 +11,22 @@ A build is automatically run at startup, so there is no need to run `ligarb buil
 ```bash
 ligarb serve                    # Serve at http://localhost:3000
 ligarb serve --port 8080        # Specify port
+ligarb serve --host 0.0.0.0     # Make it reachable from other LAN devices
 ligarb serve path/to/book.yml   # Specify book.yml path
 ```
+
+### Bind address (--host)
+
+By default the server binds to `127.0.0.1` (loopback only), so it is reachable
+only from the same machine. Pass `--host 0.0.0.0` (or a specific LAN IP) to reach
+it from other devices — for example, previewing from the Windows host when
+running under WSL, or checking on a phone on the same network.
+
+> [!WARNING]
+> Binding beyond loopback prints a warning at startup. The review/feedback APIs
+> in `serve` perform file writes and can run Claude, so they become reachable by
+> other hosts on the network. Only do this on a trusted network (POSTs are still
+> protected by a same-origin check).
 
 ## Live Reload
 

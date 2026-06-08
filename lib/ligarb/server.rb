@@ -14,8 +14,9 @@ module Ligarb
 
     BookEntry = Struct.new(:slug, :config, :config_path, :build_dir, :store, :claude, keyword_init: true)
 
-    def initialize(config_paths, port: 3000, multi: false)
+    def initialize(config_paths, port: 3000, host: "127.0.0.1", multi: false)
       @port = port
+      @host = host
       @assets_dir = File.join(File.dirname(__FILE__), "..", "..", "assets")
       @sse_clients = [] # [[slug, queue], ...]
       @sse_mutex = Mutex.new
@@ -51,9 +52,11 @@ module Ligarb
         Builder.new(book.config_path).build
       end
 
+      warn_if_exposed
+
       server = WEBrick::HTTPServer.new(
         Port: @port,
-        BindAddress: "127.0.0.1",
+        BindAddress: @host,
         Logger: WEBrick::Log.new($stderr, WEBrick::Log::INFO),
         AccessLog: [[File.open(File::NULL, "w"), WEBrick::AccessLog::COMMON_LOG_FORMAT]],
         RequestBodyMaxSize: 50 * 1024 * 1024
@@ -67,12 +70,13 @@ module Ligarb
 
       @books.each_value { |book| start_build_watcher(book) }
 
+      base_url = "http://#{display_host}:#{@port}"
       if @multi
-        puts "Serving #{@books.size} books at http://localhost:#{@port}"
+        puts "Serving #{@books.size} books at #{base_url}"
         @books.each_value { |b| puts "  /#{b.slug}/ — #{b.config.title}" }
       else
         book = @books.values.first
-        puts "Serving #{book.config.title} at http://localhost:#{@port}"
+        puts "Serving #{book.config.title} at #{base_url}"
         puts "  Build directory: #{book.build_dir}"
       end
       puts "  Press Ctrl+C to stop"
@@ -81,6 +85,26 @@ module Ligarb
     end
 
     private
+
+    LOOPBACK_HOSTS = %w[127.0.0.1 ::1 localhost].freeze
+
+    # Host to print in URLs. A wildcard or unspecified bind address is reachable
+    # via localhost, so show that; otherwise show the concrete bind address.
+    def display_host
+      return "localhost" if LOOPBACK_HOSTS.include?(@host) || ["0.0.0.0", "::", ""].include?(@host)
+      @host
+    end
+
+    # When binding beyond loopback, the review/feedback APIs (which can run
+    # Claude and write files) become reachable from the network. Warn so this
+    # is never a surprise.
+    def warn_if_exposed
+      return if LOOPBACK_HOSTS.include?(@host)
+
+      warn "Warning: binding to #{@host} exposes ligarb serve on the network."
+      warn "  The review/feedback APIs (file writes, Claude runs) will be reachable by other hosts."
+      warn "  Only do this on a trusted network."
+    end
 
     # ── Operation Queue ──
 
@@ -701,29 +725,41 @@ module Ligarb
 
     # ── API routing ──
 
+    # Same-origin check for state-changing requests. The request's Origin (or
+    # Referer) must match the Host the browser actually connected to, so this
+    # works for any bind address (loopback, a LAN IP, a hostname, 0.0.0.0)
+    # without trusting the bind address itself. A cross-site request carries the
+    # attacker's Origin while Host stays ours, so it is rejected.
     def csrf_safe?(req)
       return true if req.request_method == "GET"
 
+      host = req["Host"]
+      return false if host.nil? || host.empty?
+
       origin = req["Origin"]
-      if origin && !origin.empty?
-        return origin == "http://localhost:#{@port}" ||
-               origin == "http://127.0.0.1:#{@port}"
-      end
+      return same_authority?(origin, host) if origin && !origin.empty?
 
       referer = req["Referer"]
-      if referer && !referer.empty?
-        uri = URI.parse(referer) rescue nil
-        return uri && %w[localhost 127.0.0.1].include?(uri.host) && uri.port == @port
-      end
+      return same_authority?(referer, host) if referer && !referer.empty?
 
       false
+    end
+
+    # True when the URL's authority (host[:port]) equals the Host header.
+    def same_authority?(url, host_header)
+      uri = URI.parse(url) rescue nil
+      return false unless uri&.host
+
+      candidates = [uri.host]
+      candidates << "#{uri.host}:#{uri.port}" if uri.port
+      candidates.include?(host_header)
     end
 
     def handle_api(req, res)
       unless csrf_safe?(req)
         res.status = 403
         res["Content-Type"] = "application/json; charset=utf-8"
-        res.body = JSON.generate({ error: "CSRF check failed: request must originate from localhost" })
+        res.body = JSON.generate({ error: "CSRF check failed: request must be same-origin" })
         return
       end
 
