@@ -5,6 +5,7 @@ require_relative "config"
 require_relative "chapter"
 require_relative "template"
 require_relative "asset_manager"
+require_relative "mermaid_checker"
 
 module Ligarb
   class Builder
@@ -28,6 +29,8 @@ module Ligarb
       assets = AssetManager.new(@config.output_path)
       assets.detect(all_chapters)
       assets.provision!
+
+      check_mermaid_syntax(all_chapters, assets, @config.output_path)
 
       index_entries = all_chapters.flat_map { |ch|
         ch.index_entries.map { |e|
@@ -77,6 +80,8 @@ module Ligarb
       assets.detect(all_lang_chapters)
       assets.provision!
 
+      check_mermaid_syntax(all_lang_chapters, assets, output_path)
+
       gr_config = langs.first && langs.first[:config]
       html = Template.new.render_multilang(langs: langs, assets: assets,
                                            hub_data: hub_data,
@@ -122,6 +127,16 @@ module Ligarb
         index_entries: index_entries,
         bibliography: bibliography,
       }
+    end
+
+    # Validate mermaid block syntax with the downloaded mermaid.min.js under
+    # Node. Warns (with file:line) but never fails the build; skipped when
+    # Node is unavailable.
+    def check_mermaid_syntax(chapters, assets, output_path)
+      return unless assets.need?(:mermaid)
+
+      mermaid_js = File.join(output_path, "js", "mermaid.min.js")
+      MermaidChecker.check(chapters, mermaid_js)
     end
 
     # StructNode mirrors Config::StructEntry but holds loaded Chapter objects

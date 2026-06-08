@@ -78,6 +78,23 @@ class ChapterTest < Minitest::Test
     end
   end
 
+  def test_mermaid_blocks_collected_with_line_numbers
+    content = "# Title\n\nIntro\n\n```mermaid\ngraph TD\n  A-->B\n```\n\nmore\n\n```mermaid\npie\n  \"x\" : 1\n```\n"
+    make_chapter(content) do |ch|
+      assert_equal 2, ch.mermaid_blocks.size
+      assert_includes ch.mermaid_blocks[0].text, "graph TD"
+      assert_equal 6, ch.mermaid_blocks[0].line
+      assert_includes ch.mermaid_blocks[1].text, "pie"
+      assert_equal 13, ch.mermaid_blocks[1].line
+    end
+  end
+
+  def test_mermaid_blocks_empty_without_diagrams
+    make_chapter("# Title\n\nNo diagrams here.") do |ch|
+      assert_empty ch.mermaid_blocks
+    end
+  end
+
   def test_math_conversion
     make_chapter("```math\nE = mc^2\n```") do |ch|
       assert_includes ch.html, '<div class="math-block"'

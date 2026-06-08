@@ -141,6 +141,13 @@ mindmap
 
 > See the [Mermaid documentation](https://mermaid.js.org/intro/) for detailed syntax.
 
+> [!TIP]
+> When Node.js is available at build time, ligarb validates each mermaid block
+> with the bundled mermaid parser. Syntax errors are reported as warnings with
+> their `file:line` location (the build still succeeds, and the output HTML shows
+> an error box for the broken diagram). The check is skipped when Node.js is not
+> installed.
+
 ### Math (KaTeX)
 
 Use ` ```math` for math rendering with [KaTeX](#cite:katex2014).

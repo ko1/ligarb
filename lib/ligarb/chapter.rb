@@ -7,12 +7,14 @@ module Ligarb
   class Chapter
     class CrossReferenceError < StandardError; end
 
-    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries, :cite_entries
+    attr_reader :title, :slug, :html, :headings, :number, :appendix_letter, :index_entries, :cite_entries,
+                :path, :mermaid_blocks
     attr_accessor :part_title, :cover, :relative_path
 
     Heading = Struct.new(:level, :text, :id, :display_text, keyword_init: true)
     IndexEntry = Struct.new(:term, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
     CiteEntry = Struct.new(:key, :display_text, :chapter_slug, :anchor_id, keyword_init: true)
+    MermaidBlock = Struct.new(:text, :line, keyword_init: true)
 
     def initialize(path, base_dir, slug_prefix: nil)
       @path     = path
@@ -167,11 +169,14 @@ module Ligarb
     end
 
     def convert_special_code_blocks(html)
+      @mermaid_blocks = []
+      @mermaid_search_pos = 0
       html.gsub(%r{<pre><code class="language-(mermaid|math|functionplot)">(.*?)</code></pre>}m) do
         lang = $1
         raw = decode_entities($2)
         case lang
         when "mermaid"
+          @mermaid_blocks << MermaidBlock.new(text: raw, line: find_source_line(raw))
           escaped = raw.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;")
           %(<div class="mermaid">\n#{raw}</div>) +
             %(<details class="mermaid-source"><summary>mermaid source</summary><pre>#{escaped}</pre></details>)
@@ -181,6 +186,21 @@ module Ligarb
           %(<div class="functionplot" data-plot="#{encode_attr(raw)}"></div>)
         end
       end
+    end
+
+    # Best-effort: locate the first content line of a mermaid block in the
+    # Markdown source. Scans forward from the previous match so repeated
+    # blocks map to successive locations. Returns a 1-based line number or nil.
+    def find_source_line(block_text)
+      first = block_text.each_line.map(&:chomp).find { |l| !l.strip.empty? }
+      return nil unless first
+
+      lines = @source.lines
+      idx = (@mermaid_search_pos...lines.size).find { |i| lines[i].chomp == first }
+      return nil unless idx
+
+      @mermaid_search_pos = idx + 1
+      idx + 1
     end
 
     def convert_inline_math(html)
