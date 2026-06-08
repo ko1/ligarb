@@ -5,6 +5,8 @@
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
 | [`title`](#index:book.yml/title) | String | Yes | -- | Book title |
+| [`description`](#index:book.yml/description) | String | No | (auto) | Description for the OGP / `meta description` tags. Auto-extracted from the cover (or first) chapter's opening prose when omitted |
+| [`site_url`](#index:book.yml/site_url) | String | No | -- | Canonical published URL. When set, emits `og:url` and `canonical`. `setup-github-review` seeds it from `repository` (the GitHub Pages URL) |
 | [`author`](#index:book.yml/author) | String | No | `""` | Author name |
 | [`language`](#index:book.yml/language) | String | No | `"en"` | HTML `lang` attribute |
 | [`output_dir`](#index:book.yml/output_dir) | String | No | `"build"` | Output directory |

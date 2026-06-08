@@ -5,6 +5,8 @@
 | フィールド | 型 | 必須 | デフォルト | 説明 |
 |-----------|-----|------|-----------|------|
 | [`title`](#index:book.yml/title) | String | はい | — | 本のタイトル |
+| [`description`](#index:book.yml/description) | String | いいえ | （自動） | OGP・`meta description` 用の説明文。省略時は表紙（または先頭章）の本文冒頭から自動抽出 |
+| [`site_url`](#index:book.yml/site_url) | String | いいえ | — | 公開先の正規 URL。設定すると `og:url` と `canonical` を出力。`setup-github-review` が `repository` から GitHub Pages URL を推測して追記 |
 | [`author`](#index:book.yml/author) | String | いいえ | `""` | 著者名 |
 | [`language`](#index:book.yml/language) | String | いいえ | `"en"` | HTML の `lang` 属性 |
 | [`output_dir`](#index:book.yml/output_dir) | String | いいえ | `"build"` | 出力ディレクトリ |

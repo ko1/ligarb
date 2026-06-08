@@ -19,6 +19,8 @@ chapters:
 | フィールド | 必須 | デフォルト | 説明 |
 |-----------|------|-----------|------|
 | [title](#index:book.yml/title) | はい | — | 本のタイトル。ヘッダーと `<title>` に表示 |
+| [description](#index:book.yml/description) | いいえ | （自動） | OGP・`meta description` 用の説明文。省略時は表紙（または先頭章）の冒頭本文から自動抽出 |
+| [site_url](#index:book.yml/site_url) | いいえ | — | 公開先の正規 URL。設定すると `og:url`・`canonical` を出力。`setup-github-review` が `repository` から自動追記 |
 | [author](#index:book.yml/author) | いいえ | （空） | 著者名。ヘッダーに表示 |
 | [language](#index:book.yml/language) | いいえ | "en" | HTML の lang 属性 |
 | [output_dir](#index:book.yml/output_dir) | いいえ | "build" | 出力ディレクトリ（book.yml からの相対パス） |

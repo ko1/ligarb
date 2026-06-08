@@ -130,6 +130,32 @@ class TranslationsTest < Minitest::Test
     end
   end
 
+  def test_translations_hub_emits_og_url_from_inherited_site_url
+    Dir.mktmpdir do |dir|
+      setup_translations(dir,
+        hub: {
+          "site_url" => "https://ko1.github.io/book/",
+          "translations" => {"ja" => "book.ja.yml", "en" => "book.en.yml"},
+        },
+        langs: {
+          "ja" => {
+            config: {"title" => "テスト本", "language" => "ja", "chapters" => ["ja.md"]},
+            files: {"ja.md" => "# はじめに\n\n日本語の内容"},
+          },
+          "en" => {
+            config: {"title" => "Test Book", "language" => "en", "chapters" => ["en.md"]},
+            files: {"en.md" => "# Introduction\n\nEnglish content"},
+          },
+        }
+      )
+
+      capture_io { Ligarb::Builder.new(File.join(dir, "book.yml")).build }
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, '<meta property="og:url" content="https://ko1.github.io/book/">'
+      assert_includes html, '<link rel="canonical" href="https://ko1.github.io/book/">'
+    end
+  end
+
   def test_translations_language_switcher_in_html
     Dir.mktmpdir do |dir|
       setup_translations(dir,

@@ -30,7 +30,9 @@ ligarb setup-github-review --owner my-org  # repository の owner を指定
 
 あわせて `book.yml` に [`github_review`](#index:book.yml/github_review)`.enabled: true` を追記し
 （読者向けの「Report as issue」UI を有効化）、公開ページへのリンク入り `README.md` を生成します
-（既存の `README.md` は上書きしません）。
+（既存の `README.md` は上書きしません）。さらに `repository` から GitHub Pages の URL を導出して
+[`site_url`](#index:book.yml/site_url) を `book.yml` に追記します（ビルド出力に `og:url` と `canonical` が付きます。
+独自ドメインの場合は編集してください）。
 
 > [!NOTE]
 > 生成されるのはテンプレートのコピーだけです。ligarb 自体は実行時に Claude や GitHub を呼びません。

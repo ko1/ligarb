@@ -39,6 +39,9 @@ module Ligarb
       b.local_variable_set(:multilang, false)
       b.local_variable_set(:langs, [])
       b.local_variable_set(:feedback, load_feedback(github_review))
+      b.local_variable_set(:og_description, og_description(config, chapters))
+      b.local_variable_set(:og_locale, og_locale(config.language))
+      b.local_variable_set(:og_url, og_url(config))
 
       ERB.new(template, trim_mode: "-").result(b)
     end
@@ -93,6 +96,9 @@ module Ligarb
       b.local_variable_set(:multilang, true)
       b.local_variable_set(:langs, lang_data)
       b.local_variable_set(:feedback, load_feedback(github_review))
+      b.local_variable_set(:og_description, og_description(first_config, first[:chapters]))
+      b.local_variable_set(:og_locale, og_locale(first_config.language))
+      b.local_variable_set(:og_url, og_url(first_config))
 
       ERB.new(template, trim_mode: "-").result(b)
     end
@@ -130,6 +136,51 @@ module Ligarb
     # HTML-escape helper for ERB templates (available via binding)
     def h(s)
       ERB::Util.html_escape(s.to_s)
+    end
+
+    # og:locale wants ll_CC; ligarb only knows the bare language code, so map
+    # the common ones and fall back to the raw value for anything else.
+    OG_LOCALES = { "ja" => "ja_JP", "en" => "en_US" }.freeze
+
+    def og_locale(language)
+      OG_LOCALES.fetch(language, language)
+    end
+
+    # Canonical URL for og:url, taken verbatim from `site_url` (the published
+    # root of this build). Returns nil when unset so the tag is omitted — a
+    # wrong canonical URL is worse than none.
+    def og_url(config)
+      url = config.site_url.to_s.strip
+      url.empty? ? nil : url
+    end
+
+    # Resolve the OGP description: the configured `description`, or, failing
+    # that, the first real paragraph of prose from the cover (or first) chapter.
+    # Returns nil when nothing usable is found.
+    def og_description(config, chapters)
+      explicit = config.description.to_s.strip
+      return explicit unless explicit.empty?
+
+      auto_description(chapters)
+    end
+
+    DESCRIPTION_LIMIT = 200
+
+    def auto_description(chapters)
+      chapter = chapters.find(&:cover?) || chapters.first
+      return nil unless chapter
+
+      # First <p> with real prose (tags stripped, whitespace collapsed).
+      # Image-only paragraphs (e.g. a cover logo) strip to empty and are skipped.
+      chapter.html.scan(%r{<p[^>]*>(.*?)</p>}m) do |(inner)|
+        text = inner.gsub(/<[^>]+>/, "").gsub(/\s+/, " ").strip
+        text = text.gsub("&amp;", "&").gsub("&lt;", "<").gsub("&gt;", ">").gsub("&quot;", '"').gsub("&#39;", "'")
+        next if text.empty?
+
+        return text.length > DESCRIPTION_LIMIT ? "#{text[0, DESCRIPTION_LIMIT - 1].rstrip}…" : text
+      end
+
+      nil
     end
 
     # Build a sorted tree structure for the index.

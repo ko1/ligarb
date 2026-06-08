@@ -30,7 +30,9 @@ It creates the workflows under `.github/`, plus `SETUP.md` / `SETUP.sh` describi
 
 It also adds [`github_review`](#index:book.yml/github_review)`.enabled: true` to `book.yml`
 (enabling the reader-facing "Report as issue" UI) and generates a `README.md` linking to the
-published page (an existing `README.md` is never overwritten).
+published page (an existing `README.md` is never overwritten). It also derives the GitHub Pages
+URL from `repository` and writes [`site_url`](#index:book.yml/site_url) to `book.yml`, so the
+build output gets `og:url` and `canonical` (edit it if you use a custom domain).
 
 > [!NOTE]
 > Only template copies are generated; ligarb itself never calls Claude or GitHub at runtime.

@@ -1,5 +1,6 @@
 author: "Claude Code (asked by @ko1)"
 repository: "https://github.com/ko1/ligarb"
+site_url: "https://ko1.github.io/ligarb/"
 ai_generated: true
 bibliography: references.bib
 output_dir: "build"

@@ -50,6 +50,58 @@ class BuilderTest < Minitest::Test
     end
   end
 
+  def test_ogp_tags_with_explicit_description
+    data = {"title" => "My Book", "language" => "ja", "author" => "Jane",
+            "description" => "A great book.", "chapters" => ["ch1.md"]}
+    build_book(data, files: {"ch1.md" => "# Ch\n\nBody text."}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, '<meta property="og:type" content="book">'
+      assert_includes html, '<meta property="og:title" content="My Book">'
+      assert_includes html, '<meta property="og:site_name" content="My Book">'
+      assert_includes html, '<meta property="og:locale" content="ja_JP">'
+      assert_includes html, '<meta property="book:author" content="Jane">'
+      assert_includes html, '<meta name="description" content="A great book.">'
+      assert_includes html, '<meta property="og:description" content="A great book.">'
+    end
+  end
+
+  def test_ogp_description_auto_extracted_skips_image_paragraph
+    data = {"title" => "T", "chapters" => [{"cover" => "cover.md"}, "ch1.md"]}
+    cover = "# T\n\n![logo](images/logo.png)\n\nThe real tagline here.\n"
+    build_book(data, files: {"cover.md" => cover, "ch1.md" => "# Ch"}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, '<meta property="og:description" content="The real tagline here.">'
+    end
+  end
+
+  def test_ogp_url_and_canonical_from_site_url
+    data = {"title" => "T", "site_url" => "https://ko1.github.io/book/", "chapters" => ["ch1.md"]}
+    build_book(data, files: {"ch1.md" => "# Ch\n\nBody."}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, '<meta property="og:url" content="https://ko1.github.io/book/">'
+      assert_includes html, '<link rel="canonical" href="https://ko1.github.io/book/">'
+      assert_includes html, '<meta name="twitter:card" content="summary">'
+    end
+  end
+
+  def test_ogp_url_omitted_without_site_url
+    data = {"title" => "T", "chapters" => ["ch1.md"]}
+    build_book(data, files: {"ch1.md" => "# Ch\n\nBody."}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      refute_includes html, 'property="og:url"'
+      refute_includes html, 'rel="canonical"'
+    end
+  end
+
+  def test_ogp_description_omitted_when_none_available
+    data = {"title" => "T", "chapters" => ["ch1.md"]}
+    build_book(data, files: {"ch1.md" => "# Heading only"}) do |dir|
+      html = File.read(File.join(dir, "build", "index.html"))
+      assert_includes html, '<meta property="og:title" content="T">'
+      refute_includes html, 'property="og:description"'
+    end
+  end
+
   def test_sidebar_has_ligarb_credit
     build_book({"title" => "Test", "chapters" => ["ch1.md"]}, files: {"ch1.md" => "# Ch"}) do |dir|
       html = File.read(File.join(dir, "build", "index.html"))

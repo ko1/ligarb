@@ -55,10 +55,12 @@ module Ligarb
       # book.yml edits must run BEFORE generate so the templates (SETUP.sh,
       # issue forms, README) are substituted with the resolved repository.
       repository = reviewer.ensure_repository_in_book_yml
+      site_url = reviewer.ensure_site_url_in_book_yml
       enabled = reviewer.enable_in_book_yml
       readme = reviewer.create_readme_if_absent
       result = reviewer.generate
-      reviewer.print_notice(result, repository: repository, enabled: enabled, readme: readme)
+      reviewer.print_notice(result, repository: repository, site_url: site_url,
+                            enabled: enabled, readme: readme)
     end
 
     def initialize(target, owner: nil)
@@ -138,6 +140,37 @@ module Ligarb
       :added
     end
 
+    # Seeds a default `site_url:` in book.yml when it has none, deriving the
+    # GitHub Pages URL from `repository`. Drives og:url / canonical in the build
+    # output; the user edits it for custom domains or other hosting. Returns
+    # :added, :present, or :skipped (when no GitHub repository to derive from).
+    # (@default_site_url is set to the derived URL when :added, for the notice.)
+    def ensure_site_url_in_book_yml
+      book_yml = File.join(@target, "book.yml")
+      data = YAML.safe_load_file(book_yml)
+      return :skipped unless data.is_a?(Hash)
+      return :present if data.key?("site_url")
+
+      owner, repo = extract_owner_repo
+      return :skipped unless owner && repo
+
+      @default_site_url = pages_url(owner, repo)
+      content = File.read(book_yml).rstrip
+      File.write(book_yml, %(#{content}\n\nsite_url: "#{@default_site_url}"\n))
+      :added
+    end
+
+    # GitHub Pages URL for a repo. A repository named "<owner>.github.io" is the
+    # owner's user/org site served at the domain root; everything else is a
+    # project site served under /<repo>/.
+    def pages_url(owner, repo)
+      if repo.downcase == "#{owner.downcase}.github.io"
+        "https://#{owner}.github.io/"
+      else
+        "https://#{owner}.github.io/#{repo}/"
+      end
+    end
+
     # Creates a project README.md that links to the published GitHub Pages site,
     # but only when one does not already exist (the reader's own README is never
     # overwritten). Returns :created or :present.
@@ -146,7 +179,7 @@ module Ligarb
       return :present if File.exist?(readme)
 
       owner, repo = extract_owner_repo
-      pages  = owner && repo ? "https://#{owner}.github.io/#{repo}/" : "https://__OWNER__.github.io/__REPO__/"
+      pages  = owner && repo ? pages_url(owner, repo) : "https://__OWNER__.github.io/__REPO__/"
       issues = owner && repo ? "https://github.com/#{owner}/#{repo}/issues/new?template=book-feedback.yml" \
                              : "https://github.com/__OWNER__/__REPO__/issues/new?template=book-feedback.yml"
       title = book_title.to_s.empty? ? "Book" : book_title
@@ -175,13 +208,16 @@ module Ligarb
       :created
     end
 
-    def print_notice(result, repository:, enabled:, readme:)
+    def print_notice(result, repository:, site_url:, enabled:, readme:)
       puts "Set up GitHub review scaffolding in #{@target}:"
       result.created.each { |path| puts "  created    #{path}" }
       result.updated.each { |path| puts "  updated    #{path}" }
       puts "  created    README.md (with the GitHub Pages link)" if readme == :created
       case repository
       when :added then puts "  updated    book.yml (repository: #{@default_repository})"
+      end
+      case site_url
+      when :added then puts "  updated    book.yml (site_url: #{@default_site_url})"
       end
       case enabled
       when :added   then puts "  updated    book.yml (github_review.enabled: true)"

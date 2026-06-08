@@ -11,7 +11,9 @@ module Ligarb
     # config file that was directly passed to `ligarb build`.
     INHERITABLE_KEYS = %w[author language chapter_numbers style
                           repository ai_generated footer bibliography
-                          github_review].freeze
+                          github_review site_url].freeze
+    # `description` is intentionally not inheritable: it is usually
+    # language-specific, so each translation should set its own.
 
     # Represents a structural entry in the book
     StructEntry = Struct.new(:type, :path, :children, keyword_init: true)
@@ -26,7 +28,7 @@ module Ligarb
     attr_reader :title, :author, :language, :output_dir, :base_dir,
                 :chapter_numbers, :structure, :style, :repository,
                 :ai_generated, :footer, :bibliography, :sources,
-                :translations, :github_review
+                :translations, :github_review, :description, :site_url
 
     def initialize(path, parent_data: nil)
       @base_dir = File.dirname(File.expand_path(path))
@@ -60,6 +62,8 @@ module Ligarb
       validate!(data)
 
       @title           = data["title"]
+      @description     = data.fetch("description", nil)
+      @site_url        = data.fetch("site_url", nil)
       @author          = data.fetch("author", "")
       @language        = data.fetch("language", "en")
       @output_dir      = data.fetch("output_dir", "build")

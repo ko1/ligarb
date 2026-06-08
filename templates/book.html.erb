@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><%= h(title) %></title>
+<meta property="og:type" content="book">
+<meta property="og:title" content="<%= h(title) %>">
+<meta property="og:site_name" content="<%= h(title) %>">
+<meta property="og:locale" content="<%= h(og_locale) %>">
+<%- if og_url -%>
+<meta property="og:url" content="<%= h(og_url) %>">
+<link rel="canonical" href="<%= h(og_url) %>">
+<%- end -%>
+<%- if og_description && !og_description.empty? -%>
+<meta name="description" content="<%= h(og_description) %>">
+<meta property="og:description" content="<%= h(og_description) %>">
+<%- end -%>
+<meta name="twitter:card" content="summary">
+<%- if author && !author.to_s.empty? -%>
+<meta property="book:author" content="<%= h(author) %>">
+<%- end -%>
 <%- if ai_generated -%>
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="robots" content="noai, noimageai">

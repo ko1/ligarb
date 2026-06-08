@@ -19,6 +19,8 @@ chapters:
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
 | [title](#index:book.yml/title) | Yes | -- | Book title. Shown in the header and `<title>` |
+| [description](#index:book.yml/description) | No | (auto) | Description for the OGP / `meta description` tags. Auto-extracted from the cover (or first) chapter's opening prose when omitted |
+| [site_url](#index:book.yml/site_url) | No | -- | Canonical published URL. When set, emits `og:url` / `canonical`. Auto-seeded from `repository` by `setup-github-review` |
 | [author](#index:book.yml/author) | No | (empty) | Author name. Shown in the header |
 | [language](#index:book.yml/language) | No | "en" | HTML `lang` attribute |
 | [output_dir](#index:book.yml/output_dir) | No | "build" | Output directory (relative to book.yml) |

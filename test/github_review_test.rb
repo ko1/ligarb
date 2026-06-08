@@ -229,6 +229,46 @@ class GithubReviewTest < Minitest::Test
     end
   end
 
+  # --- ensure_site_url_in_book_yml ---
+
+  def test_ensure_site_url_derives_project_pages_url
+    book = {"title" => "T", "chapters" => ["a.md"], "repository" => "https://github.com/alice/mybook"}
+    with_project(book_data: book) do |dir|
+      assert_equal :added, Ligarb::GithubReview.new(dir).ensure_site_url_in_book_yml
+      data = YAML.safe_load_file(File.join(dir, "book.yml"))
+      assert_equal "https://alice.github.io/mybook/", data["site_url"]
+    end
+  end
+
+  def test_ensure_site_url_derives_user_site_without_repo_path
+    book = {"title" => "T", "chapters" => ["a.md"], "repository" => "https://github.com/alice/alice.github.io"}
+    with_project(book_data: book) do |dir|
+      assert_equal :added, Ligarb::GithubReview.new(dir).ensure_site_url_in_book_yml
+      data = YAML.safe_load_file(File.join(dir, "book.yml"))
+      assert_equal "https://alice.github.io/", data["site_url"]
+    end
+  end
+
+  def test_ensure_site_url_kept_when_present
+    book = {"title" => "T", "chapters" => ["a.md"],
+            "repository" => "https://github.com/alice/mybook",
+            "site_url" => "https://example.com/"}
+    with_project(book_data: book) do |dir|
+      assert_equal :present, Ligarb::GithubReview.new(dir).ensure_site_url_in_book_yml
+      content = File.read(File.join(dir, "book.yml"))
+      assert_equal 1, content.scan(/^site_url:/).size
+      assert_equal "https://example.com/", YAML.safe_load_file(File.join(dir, "book.yml"))["site_url"]
+    end
+  end
+
+  def test_ensure_site_url_skipped_without_github_repository
+    book = {"title" => "T", "chapters" => ["a.md"], "repository" => "https://gitlab.com/alice/mybook"}
+    with_project(book_data: book) do |dir|
+      assert_equal :skipped, Ligarb::GithubReview.new(dir).ensure_site_url_in_book_yml
+      refute YAML.safe_load_file(File.join(dir, "book.yml")).key?("site_url")
+    end
+  end
+
   # --- create_readme_if_absent ---
 
   def test_creates_readme_with_pages_link
