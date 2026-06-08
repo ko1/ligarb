@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ligarb マニュアル</title>
+<meta property="og:type" content="book">
+<meta property="og:title" content="ligarb マニュアル">
+<meta property="og:site_name" content="ligarb マニュアル">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://ko1.github.io/ligarb/">
+<link rel="canonical" href="https://ko1.github.io/ligarb/">
+<meta name="description" content="Markdown ファイルから本を作る、シンプルな CLI ツールの完全解説。">
+<meta property="og:description" content="Markdown ファイルから本を作る、シンプルな CLI ツールの完全解説。">
+<meta name="twitter:card" content="summary">
+<meta property="book:author" content="Claude Code (asked by @ko1)">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="robots" content="noai, noimageai">
 <style>
@@ -1562,6 +1572,7 @@ details.mermaid-source pre {
         <div class="toc-full-chapter">
           <a href="#ja--serve" onclick="showChapter('ja--serve'); return false;">7. プレビューとレビュー</a>
           <ul>            <li class="toc-full-h2"><a href="#ja--serve--ligarb-serve-ローカルサーバー" onclick="showChapterAndScroll('ja--serve', 'ja--serve--ligarb-serve-ローカルサーバー'); return false;">7.1 ligarb serve — ローカルサーバー</a></li>
+            <li class="toc-full-h3"><a href="#ja--serve--バインド先host" onclick="showChapterAndScroll('ja--serve', 'ja--serve--バインド先host'); return false;">7.1.1 バインド先（host）</a></li>
             <li class="toc-full-h2"><a href="#ja--serve--ライブリロード" onclick="showChapterAndScroll('ja--serve', 'ja--serve--ライブリロード'); return false;">7.2 ライブリロード</a></li>
             <li class="toc-full-h2"><a href="#ja--serve--レビュー-ui" onclick="showChapterAndScroll('ja--serve', 'ja--serve--レビュー-ui'); return false;">7.3 レビュー UI</a></li>
             <li class="toc-full-h3"><a href="#ja--serve--コメントの流れ" onclick="showChapterAndScroll('ja--serve', 'ja--serve--コメントの流れ'); return false;">7.3.1 コメントの流れ</a></li>
@@ -1783,79 +1794,91 @@ bundle <span class="nb">install</span>
       <td>本のタイトル。ヘッダーと <code>&lt;title&gt;</code> に表示</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-3">author</span></td>
+      <td><span id="ja--book-yml--idx-3">description</span></td>
+      <td>いいえ</td>
+      <td>（自動）</td>
+      <td>OGP・<code>meta description</code> 用の説明文。省略時は表紙（または先頭章）の冒頭本文から自動抽出</td>
+    </tr>
+    <tr>
+      <td><span id="ja--book-yml--idx-4">site_url</span></td>
+      <td>いいえ</td>
+      <td>—</td>
+      <td>公開先の正規 URL。設定すると <code>og:url</code>・<code>canonical</code> を出力。<code>setup-github-review</code> が <code>repository</code> から自動追記</td>
+    </tr>
+    <tr>
+      <td><span id="ja--book-yml--idx-5">author</span></td>
       <td>いいえ</td>
       <td>（空）</td>
       <td>著者名。ヘッダーに表示</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-4">language</span></td>
+      <td><span id="ja--book-yml--idx-6">language</span></td>
       <td>いいえ</td>
       <td>“en”</td>
       <td>HTML の lang 属性</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-5">output_dir</span></td>
+      <td><span id="ja--book-yml--idx-7">output_dir</span></td>
       <td>いいえ</td>
       <td>“build”</td>
       <td>出力ディレクトリ（book.yml からの相対パス）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-6">chapter_numbers</span></td>
+      <td><span id="ja--book-yml--idx-8">chapter_numbers</span></td>
       <td>いいえ</td>
       <td>true</td>
       <td>章番号を表示するか</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-7">style</span></td>
+      <td><span id="ja--book-yml--idx-9">style</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>カスタム CSS ファイルのパス</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-8">repository</span></td>
+      <td><span id="ja--book-yml--idx-10">repository</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>GitHub リポジトリ URL（編集リンク用）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-9">ai_generated</span></td>
+      <td><span id="ja--book-yml--idx-11">ai_generated</span></td>
       <td>いいえ</td>
       <td>false</td>
       <td>AI 生成コンテンツとしてマーク（バッジ・免責表示・noindex メタタグ）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-10">footer</span></td>
+      <td><span id="ja--book-yml--idx-12">footer</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>各章の末尾に表示するテキスト（<code>ai_generated</code> のデフォルト免責を上書き可）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-11">bibliography</span></td>
+      <td><span id="ja--book-yml--idx-13">bibliography</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>参考文献データファイルのパス（<code>.yml</code> または <code>.bib</code>）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-12">sources</span></td>
+      <td><span id="ja--book-yml--idx-14">sources</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>AI 執筆時の参照ファイル一覧</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-13">translations</span></td>
+      <td><span id="ja--book-yml--idx-15">translations</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>多言語対応（言語コード → 設定ファイルパス）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-14">inherit</span></td>
+      <td><span id="ja--book-yml--idx-16">inherit</span></td>
       <td>いいえ</td>
       <td>—</td>
       <td>親設定ファイルのパス（共通設定の継承）</td>
     </tr>
     <tr>
-      <td><span id="ja--book-yml--idx-15">chapters</span></td>
+      <td><span id="ja--book-yml--idx-17">chapters</span></td>
       <td>はい</td>
       <td>—</td>
       <td>章・パート・付録の構成（下記参照）</td>
@@ -1869,7 +1892,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="ja--book-yml--表紙カバーページ">3.3.1 表紙（カバーページ）</h3>
 
-<p>本の冒頭に<span id="ja--book-yml--idx-16">表紙</span>ページを追加できます。表紙は目次には表示されず、本を開いたときに最初に表示されるページになります:</p>
+<p>本の冒頭に<span id="ja--book-yml--idx-18">表紙</span>ページを追加できます。表紙は目次には表示されず、本を開いたときに最初に表示されるページになります:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">cover</span><span class="pi">:</span> <span class="s">cover.md</span>
@@ -1888,7 +1911,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="ja--book-yml--パート部で分ける">3.3.3 パート（部）で分ける</h3>
 
-<p>章が多い本では、<span id="ja--book-yml--idx-17">パート</span>でグループ化できます:</p>
+<p>章が多い本では、<span id="ja--book-yml--idx-19">パート</span>でグループ化できます:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -1906,7 +1929,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="ja--book-yml--付録を追加する">3.3.4 付録を追加する</h3>
 
-<p>巻末に<span id="ja--book-yml--idx-18">付録</span>を追加できます。付録の章にはアルファベット（A, B, C, …）で番号が付きます:</p>
+<p>巻末に<span id="ja--book-yml--idx-20">付録</span>を追加できます。付録の章にはアルファベット（A, B, C, …）で番号が付きます:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -1920,11 +1943,11 @@ bundle <span class="nb">install</span>
 <h3 id="ja--book-yml--ファイル名の規約">3.3.5 ファイル名の規約</h3>
 
 <p>ファイル名に決まりはありませんが、<code>番号-スラッグ.md</code> の形式にすると管理しやすくなります。
-ファイル名の <code>番号-スラッグ</code> 部分がそのまま章の識別子（<span id="ja--book-yml--idx-19">slug</span>）として URL の <code>#</code> に使われます。</p>
+ファイル名の <code>番号-スラッグ</code> 部分がそのまま章の識別子（<span id="ja--book-yml--idx-21">slug</span>）として URL の <code>#</code> に使われます。</p>
 
 <h2 id="ja--book-yml--カスタム-css">3.4 カスタム CSS</h2>
 
-<p><code>style</code> フィールドで <span id="ja--book-yml--idx-20">CSS</span> ファイルを指定すると、デフォルトスタイルの後に読み込まれます:</p>
+<p><code>style</code> フィールドで <span id="ja--book-yml--idx-22">CSS</span> ファイルを指定すると、デフォルトスタイルの後に読み込まれます:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">style</span><span class="pi">:</span> <span class="s2">"</span><span class="s">custom.css"</span>
 </code></pre></div></div>
@@ -1939,7 +1962,7 @@ bundle <span class="nb">install</span>
 
 <h2 id="ja--book-yml--github-編集リンク">3.5 GitHub 編集リンク</h2>
 
-<p><code>repository</code> フィールドを指定すると、各章の末尾に「View on GitHub」リンクが表示されます（<span id="ja--book-yml--idx-21">GitHub 編集リンク</span>）:</p>
+<p><code>repository</code> フィールドを指定すると、各章の末尾に「View on GitHub」リンクが表示されます（<span id="ja--book-yml--idx-23">GitHub 編集リンク</span>）:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/my-book"</span>
 </code></pre></div></div>
@@ -2213,6 +2236,14 @@ mindmap
 <blockquote>
   <p>Mermaid の詳しい記法は <a href="https://mermaid.js.org/intro/">公式ドキュメント</a> を参照してください。</p>
 </blockquote>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>ビルド時に Node.js が利用可能な場合、ligarb は各 mermaid ブロックを
+バンドル済みの mermaid パーサで検証します。構文エラーがあると
+<code>ファイル:行</code> 付きの警告が表示されます（ビルド自体は成功し、出力 HTML には
+エラーボックスが表示されます）。Node.js が無い環境ではチェックはスキップされます。</p>
+</div>
 
 <h3 id="ja--markdown--数式katex">4.1.4 数式（KaTeX）</h3>
 
@@ -2931,8 +2962,22 @@ ligarb build book.en.yml    <span class="c"># 英語版のみ</span>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb serve                    <span class="c"># http://localhost:3000 で配信</span>
 ligarb serve <span class="nt">--port</span> 8080        <span class="c"># ポート指定</span>
+ligarb serve <span class="nt">--host</span> 0.0.0.0     <span class="c"># LAN の他端末からアクセス可能にする</span>
 ligarb serve path/to/book.yml   <span class="c"># book.yml のパスを指定</span>
 </code></pre></div></div>
+
+<h3 id="ja--serve--バインド先host">7.1.1 バインド先（–host）</h3>
+
+<p>既定では <code>127.0.0.1</code>（ループバックのみ）に bind するため、同じ PC からしかアクセスできません。
+<code>--host 0.0.0.0</code>（または具体的な LAN IP）を指定すると、他の端末から接続できます。
+たとえば WSL 上で動かしてホストの Windows からプレビューしたい、スマホで確認したい、といった場合に使います。</p>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>ループバック以外に bind すると起動時に警告が出ます。<code>serve</code> のレビュー/フィードバック API は
+ファイル書き込みや Claude 実行を伴うため、ネットワーク上の他端末から到達可能になります。
+信頼できるネットワークでのみ使ってください（POST には同一オリジン保護がかかります）。</p>
+</div>
 
 <h2 id="ja--serve--ライブリロード">7.2 ライブリロード</h2>
 
@@ -3347,7 +3392,9 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org  <span class="
 
 <p>あわせて <code>book.yml</code> に <span id="ja--github-review--idx-5"><code>github_review</code></span><code>.enabled: true</code> を追記し
 （読者向けの「Report as issue」UI を有効化）、公開ページへのリンク入り <code>README.md</code> を生成します
-（既存の <code>README.md</code> は上書きしません）。</p>
+（既存の <code>README.md</code> は上書きしません）。さらに <code>repository</code> から GitHub Pages の URL を導出して
+<span id="ja--github-review--idx-6"><code>site_url</code></span> を <code>book.yml</code> に追記します（ビルド出力に <code>og:url</code> と <code>canonical</code> が付きます。
+独自ドメインの場合は編集してください）。</p>
 
 <div class="admonition admonition-note">
 <p class="admonition-title">Note</p>
@@ -3359,7 +3406,7 @@ Claude 連携やワークフローを実際に動かす手順は、生成され�
 <h2 id="ja--github-review--repository-と-owner">9.2 repository と –owner</h2>
 
 <p>各ワークフローやフォームの <code>__OWNER__</code> / <code>__REPO__</code> プレースホルダは、<code>book.yml</code> の
-<span id="ja--github-review--idx-6"><code>repository</code></span> から埋められます。<code>repository</code> が未設定の場合、
+<span id="ja--github-review--idx-7"><code>repository</code></span> から埋められます。<code>repository</code> が未設定の場合、
 このコマンドはデフォルト値 <code>https://github.com/&lt;owner&gt;/&lt;ディレクトリ名&gt;</code> を <code>book.yml</code> に書き込みます。</p>
 
 <p><code>&lt;owner&gt;</code> は次のように決まります。</p>
@@ -3419,35 +3466,49 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
       <td>本のタイトル</td>
     </tr>
     <tr>
-      <td><span id="ja--config-reference--idx-1"><code>author</code></span></td>
+      <td><span id="ja--config-reference--idx-1"><code>description</code></span></td>
+      <td>String</td>
+      <td>いいえ</td>
+      <td>（自動）</td>
+      <td>OGP・<code>meta description</code> 用の説明文。省略時は表紙（または先頭章）の本文冒頭から自動抽出</td>
+    </tr>
+    <tr>
+      <td><span id="ja--config-reference--idx-2"><code>site_url</code></span></td>
+      <td>String</td>
+      <td>いいえ</td>
+      <td>—</td>
+      <td>公開先の正規 URL。設定すると <code>og:url</code> と <code>canonical</code> を出力。<code>setup-github-review</code> が <code>repository</code> から GitHub Pages URL を推測して追記</td>
+    </tr>
+    <tr>
+      <td><span id="ja--config-reference--idx-3"><code>author</code></span></td>
       <td>String</td>
       <td>いいえ</td>
       <td><code>""</code></td>
       <td>著者名</td>
     </tr>
     <tr>
-      <td><span id="ja--config-reference--idx-2"><code>language</code></span></td>
+      <td><span id="ja--config-reference--idx-4"><code>language</code></span></td>
       <td>String</td>
       <td>いいえ</td>
       <td><code>"en"</code></td>
       <td>HTML の <code>lang</code> 属性</td>
     </tr>
     <tr>
-      <td><span id="ja--config-reference--idx-3"><code>output_dir</code></span></td>
+      <td><span id="ja--config-reference--idx-5"><code>output_dir</code></span></td>
       <td>String</td>
       <td>いいえ</td>
       <td><code>"build"</code></td>
       <td>出力ディレクトリ</td>
     </tr>
     <tr>
-      <td><span id="ja--config-reference--idx-4"><code>chapter_numbers</code></span></td>
+      <td><span id="ja--config-reference--idx-6"><code>chapter_numbers</code></span></td>
       <td>Boolean</td>
       <td>いいえ</td>
       <td><code>true</code></td>
       <td>章番号の表示</td>
     </tr>
     <tr>
-      <td><span id="ja--config-reference--idx-5"><code>chapters</code></span></td>
+      <td><span id="ja--config-reference--idx-7"><code>chapters</code></span></td>
       <td>Array</td>
       <td>はい</td>
       <td>—</td>
@@ -3528,49 +3589,56 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
         <dd><a href="#ja--install--idx-3" onclick="showChapterAndScroll('ja--install', 'ja--install--idx-3'); return false;">2. インストールと準備</a></dd>
         <dd><a href="#ja--book-yml--idx-0" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-0'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">ai_generated</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-9" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-9'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-11" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-11'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">author</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-5" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-5'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-3" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-3'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">bibliography</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-13" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-13'); return false;">3. book.yml の書き方</a></dd>
+        <dt class="index-sub">chapter_numbers</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-8" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-8'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-6" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-6'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">chapters</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-17" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-17'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-7" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-7'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">description</dt>
         <dd class="index-sub"><a href="#ja--book-yml--idx-3" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-3'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#ja--config-reference--idx-1" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-1'); return false;">A. 設定リファレンス</a></dd>
-        <dt class="index-sub">bibliography</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-11" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-11'); return false;">3. book.yml の書き方</a></dd>
-        <dt class="index-sub">chapter_numbers</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-6" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-6'); return false;">3. book.yml の書き方</a></dd>
-        <dd class="index-sub"><a href="#ja--config-reference--idx-4" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-4'); return false;">A. 設定リファレンス</a></dd>
-        <dt class="index-sub">chapters</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-15" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-15'); return false;">3. book.yml の書き方</a></dd>
-        <dd class="index-sub"><a href="#ja--config-reference--idx-5" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-5'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">footer</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-10" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-10'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-12" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-12'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">github_review</dt>
         <dd class="index-sub"><a href="#ja--github-review--idx-5" onclick="showChapterAndScroll('ja--github-review', 'ja--github-review--idx-5'); return false;">9. GitHub で公開・レビュー</a></dd>
         <dt class="index-sub">inherit</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-14" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-14'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-16" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-16'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">language</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-4" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-4'); return false;">3. book.yml の書き方</a></dd>
-        <dd class="index-sub"><a href="#ja--config-reference--idx-2" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-2'); return false;">A. 設定リファレンス</a></dd>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-6" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-6'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-4" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-4'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">output_dir</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-5" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-5'); return false;">3. book.yml の書き方</a></dd>
-        <dd class="index-sub"><a href="#ja--config-reference--idx-3" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-3'); return false;">A. 設定リファレンス</a></dd>
-        <dt class="index-sub">repository</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-8" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-8'); return false;">3. book.yml の書き方</a></dd>
-        <dd class="index-sub"><a href="#ja--github-review--idx-6" onclick="showChapterAndScroll('ja--github-review', 'ja--github-review--idx-6'); return false;">9. GitHub で公開・レビュー</a></dd>
-        <dt class="index-sub">sources</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-12" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-12'); return false;">3. book.yml の書き方</a></dd>
-        <dt class="index-sub">style</dt>
         <dd class="index-sub"><a href="#ja--book-yml--idx-7" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-7'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-5" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-5'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">repository</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-10" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-10'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--github-review--idx-7" onclick="showChapterAndScroll('ja--github-review', 'ja--github-review--idx-7'); return false;">9. GitHub で公開・レビュー</a></dd>
+        <dt class="index-sub">site_url</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-4" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-4'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--github-review--idx-6" onclick="showChapterAndScroll('ja--github-review', 'ja--github-review--idx-6'); return false;">9. GitHub で公開・レビュー</a></dd>
+        <dd class="index-sub"><a href="#ja--config-reference--idx-2" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-2'); return false;">A. 設定リファレンス</a></dd>
+        <dt class="index-sub">sources</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-14" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-14'); return false;">3. book.yml の書き方</a></dd>
+        <dt class="index-sub">style</dt>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-9" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-9'); return false;">3. book.yml の書き方</a></dd>
         <dt class="index-sub">title</dt>
         <dd class="index-sub"><a href="#ja--book-yml--idx-2" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-2'); return false;">3. book.yml の書き方</a></dd>
         <dd class="index-sub"><a href="#ja--config-reference--idx-0" onclick="showChapterAndScroll('ja--config-reference', 'ja--config-reference--idx-0'); return false;">A. 設定リファレンス</a></dd>
         <dt class="index-sub">translations</dt>
-        <dd class="index-sub"><a href="#ja--book-yml--idx-13" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-13'); return false;">3. book.yml の書き方</a></dd>
+        <dd class="index-sub"><a href="#ja--book-yml--idx-15" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-15'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
       <h2 class="index-letter">C</h2>
       <dl class="index-entries">
         <dt>cover</dt>
-        <dd><a href="#ja--book-yml--idx-16" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-16'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-18" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-18'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3580,7 +3648,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
         <dd><a href="#ja--markdown--idx-0" onclick="showChapterAndScroll('ja--markdown', 'ja--markdown--idx-0'); return false;">4. Markdown の書き方と画像の配置</a></dd>
         <dt>GitHub 編集リンク</dt>
         <dd><a href="#ja--introduction--idx-8" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--idx-8'); return false;">1. はじめに</a></dd>
-        <dd><a href="#ja--book-yml--idx-21" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-21'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-23" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-23'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3649,7 +3717,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
       <h2 class="index-letter">S</h2>
       <dl class="index-entries">
         <dt>slug</dt>
-        <dd><a href="#ja--book-yml--idx-19" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-19'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-21" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-21'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3671,7 +3739,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
       <dl class="index-entries">
         <dt>カスタム CSS</dt>
         <dd><a href="#ja--introduction--idx-7" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--idx-7'); return false;">1. はじめに</a></dd>
-        <dd><a href="#ja--book-yml--idx-20" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-20'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-22" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-22'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3707,7 +3775,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
       <dl class="index-entries">
         <dt>パート</dt>
         <dd><a href="#ja--introduction--idx-4" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--idx-4'); return false;">1. はじめに</a></dd>
-        <dd><a href="#ja--book-yml--idx-17" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-17'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-19" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-19'); return false;">3. book.yml の書き方</a></dd>
         <dt>パーマリンク</dt>
         <dd><a href="#ja--introduction--idx-3" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--idx-3'); return false;">1. はじめに</a></dd>
       </dl>
@@ -3717,7 +3785,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
       <dl class="index-entries">
         <dt>付録</dt>
         <dd><a href="#ja--introduction--idx-5" onclick="showChapterAndScroll('ja--introduction', 'ja--introduction--idx-5'); return false;">1. はじめに</a></dd>
-        <dd><a href="#ja--book-yml--idx-18" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-18'); return false;">3. book.yml の書き方</a></dd>
+        <dd><a href="#ja--book-yml--idx-20" onclick="showChapterAndScroll('ja--book-yml', 'ja--book-yml--idx-20'); return false;">3. book.yml の書き方</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3908,6 +3976,7 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org
         <div class="toc-full-chapter">
           <a href="#en--serve" onclick="showChapter('en--serve'); return false;">7. Preview and Review</a>
           <ul>            <li class="toc-full-h2"><a href="#en--serve--ligarb-serve-local-server" onclick="showChapterAndScroll('en--serve', 'en--serve--ligarb-serve-local-server'); return false;">7.1 ligarb serve  Local Server</a></li>
+            <li class="toc-full-h3"><a href="#en--serve--bind-address-host" onclick="showChapterAndScroll('en--serve', 'en--serve--bind-address-host'); return false;">7.1.1 Bind address (host)</a></li>
             <li class="toc-full-h2"><a href="#en--serve--live-reload" onclick="showChapterAndScroll('en--serve', 'en--serve--live-reload'); return false;">7.2 Live Reload</a></li>
             <li class="toc-full-h2"><a href="#en--serve--review-ui" onclick="showChapterAndScroll('en--serve', 'en--serve--review-ui'); return false;">7.3 Review UI</a></li>
             <li class="toc-full-h3"><a href="#en--serve--comment-flow" onclick="showChapterAndScroll('en--serve', 'en--serve--comment-flow'); return false;">7.3.1 Comment Flow</a></li>
@@ -4129,79 +4198,91 @@ bundle <span class="nb">install</span>
       <td>Book title. Shown in the header and <code>&lt;title&gt;</code></td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-3">author</span></td>
+      <td><span id="en--book-yml--idx-3">description</span></td>
+      <td>No</td>
+      <td>(auto)</td>
+      <td>Description for the OGP / <code>meta description</code> tags. Auto-extracted from the cover (or first) chapter’s opening prose when omitted</td>
+    </tr>
+    <tr>
+      <td><span id="en--book-yml--idx-4">site_url</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Canonical published URL. When set, emits <code>og:url</code> / <code>canonical</code>. Auto-seeded from <code>repository</code> by <code>setup-github-review</code></td>
+    </tr>
+    <tr>
+      <td><span id="en--book-yml--idx-5">author</span></td>
       <td>No</td>
       <td>(empty)</td>
       <td>Author name. Shown in the header</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-4">language</span></td>
+      <td><span id="en--book-yml--idx-6">language</span></td>
       <td>No</td>
       <td>“en”</td>
       <td>HTML <code>lang</code> attribute</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-5">output_dir</span></td>
+      <td><span id="en--book-yml--idx-7">output_dir</span></td>
       <td>No</td>
       <td>“build”</td>
       <td>Output directory (relative to book.yml)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-6">chapter_numbers</span></td>
+      <td><span id="en--book-yml--idx-8">chapter_numbers</span></td>
       <td>No</td>
       <td>true</td>
       <td>Whether to show chapter numbers</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-7">style</span></td>
+      <td><span id="en--book-yml--idx-9">style</span></td>
       <td>No</td>
       <td>–</td>
       <td>Path to a custom CSS file</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-8">repository</span></td>
+      <td><span id="en--book-yml--idx-10">repository</span></td>
       <td>No</td>
       <td>–</td>
       <td>GitHub repository URL (for edit links)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-9">ai_generated</span></td>
+      <td><span id="en--book-yml--idx-11">ai_generated</span></td>
       <td>No</td>
       <td>false</td>
       <td>Mark as AI-generated content (badge, disclaimer, noindex meta tags)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-10">footer</span></td>
+      <td><span id="en--book-yml--idx-12">footer</span></td>
       <td>No</td>
       <td>–</td>
       <td>Text displayed at the bottom of each chapter (can override <code>ai_generated</code> default disclaimer)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-11">bibliography</span></td>
+      <td><span id="en--book-yml--idx-13">bibliography</span></td>
       <td>No</td>
       <td>–</td>
       <td>Path to bibliography data file (<code>.yml</code> or <code>.bib</code>)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-12">sources</span></td>
+      <td><span id="en--book-yml--idx-14">sources</span></td>
       <td>No</td>
       <td>–</td>
       <td>Reference files for AI writing</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-13">translations</span></td>
+      <td><span id="en--book-yml--idx-15">translations</span></td>
       <td>No</td>
       <td>–</td>
       <td>Multi-language support (lang code to config path)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-14">inherit</span></td>
+      <td><span id="en--book-yml--idx-16">inherit</span></td>
       <td>No</td>
       <td>–</td>
       <td>Parent config path (inherits shared settings)</td>
     </tr>
     <tr>
-      <td><span id="en--book-yml--idx-15">chapters</span></td>
+      <td><span id="en--book-yml--idx-17">chapters</span></td>
       <td>Yes</td>
       <td>–</td>
       <td>Chapter, part, and appendix structure (see below)</td>
@@ -4215,7 +4296,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="en--book-yml--cover-page">3.3.1 Cover Page</h3>
 
-<p>You can add a <span id="en--book-yml--idx-16">cover</span> page at the beginning of the book. The cover is not shown in the table of contents and is the first page displayed when the book is opened:</p>
+<p>You can add a <span id="en--book-yml--idx-18">cover</span> page at the beginning of the book. The cover is not shown in the table of contents and is the first page displayed when the book is opened:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">cover</span><span class="pi">:</span> <span class="s">cover.md</span>
@@ -4234,7 +4315,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="en--book-yml--grouping-with-parts">3.3.3 Grouping with Parts</h3>
 
-<p>For books with many chapters, you can group them into <span id="en--book-yml--idx-17">parts</span>:</p>
+<p>For books with many chapters, you can group them into <span id="en--book-yml--idx-19">parts</span>:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -4252,7 +4333,7 @@ Its h1 becomes the part title, and the body becomes the title page.</p>
 
 <h3 id="en--book-yml--adding-appendices">3.3.4 Adding Appendices</h3>
 
-<p>You can add <span id="en--book-yml--idx-18">appendices</span> at the end. Appendix chapters are numbered with letters (A, B, C, …):</p>
+<p>You can add <span id="en--book-yml--idx-20">appendices</span> at the end. Appendix chapters are numbered with letters (A, B, C, …):</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -4266,11 +4347,11 @@ Its h1 becomes the part title, and the body becomes the title page.</p>
 <h3 id="en--book-yml--file-naming-conventions">3.3.5 File Naming Conventions</h3>
 
 <p>There are no strict rules for file names, but <code>number-slug.md</code> is recommended for easy management.
-The <code>number-slug</code> portion becomes the chapter identifier (<span id="en--book-yml--idx-19">slug</span>) used in the URL <code>#</code>.</p>
+The <code>number-slug</code> portion becomes the chapter identifier (<span id="en--book-yml--idx-21">slug</span>) used in the URL <code>#</code>.</p>
 
 <h2 id="en--book-yml--custom-css">3.4 Custom CSS</h2>
 
-<p>Specify a <span id="en--book-yml--idx-20">CSS</span> file with the <code>style</code> field. It is loaded after the default styles:</p>
+<p>Specify a <span id="en--book-yml--idx-22">CSS</span> file with the <code>style</code> field. It is loaded after the default styles:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">style</span><span class="pi">:</span> <span class="s2">"</span><span class="s">custom.css"</span>
 </code></pre></div></div>
@@ -4285,7 +4366,7 @@ The <code>number-slug</code> portion becomes the chapter identifier (<span id="e
 
 <h2 id="en--book-yml--github-edit-links">3.5 GitHub Edit Links</h2>
 
-<p>Set the <code>repository</code> field to show “View on GitHub” links at the bottom of each chapter (<span id="en--book-yml--idx-21">GitHub edit links</span>):</p>
+<p>Set the <code>repository</code> field to show “View on GitHub” links at the bottom of each chapter (<span id="en--book-yml--idx-23">GitHub edit links</span>):</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/my-book"</span>
 </code></pre></div></div>
@@ -4559,6 +4640,15 @@ mindmap
 <blockquote>
   <p>See the <a href="https://mermaid.js.org/intro/">Mermaid documentation</a> for detailed syntax.</p>
 </blockquote>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>When Node.js is available at build time, ligarb validates each mermaid block
+with the bundled mermaid parser. Syntax errors are reported as warnings with
+their <code>file:line</code> location (the build still succeeds, and the output HTML shows
+an error box for the broken diagram). The check is skipped when Node.js is not
+installed.</p>
+</div>
 
 <h3 id="en--markdown--math-katex">4.1.4 Math (KaTeX)</h3>
 
@@ -5274,8 +5364,24 @@ A build is automatically run at startup, so there is no need to run <code>ligarb
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb serve                    <span class="c"># Serve at http://localhost:3000</span>
 ligarb serve <span class="nt">--port</span> 8080        <span class="c"># Specify port</span>
+ligarb serve <span class="nt">--host</span> 0.0.0.0     <span class="c"># Make it reachable from other LAN devices</span>
 ligarb serve path/to/book.yml   <span class="c"># Specify book.yml path</span>
 </code></pre></div></div>
+
+<h3 id="en--serve--bind-address-host">7.1.1 Bind address (–host)</h3>
+
+<p>By default the server binds to <code>127.0.0.1</code> (loopback only), so it is reachable
+only from the same machine. Pass <code>--host 0.0.0.0</code> (or a specific LAN IP) to reach
+it from other devices — for example, previewing from the Windows host when
+running under WSL, or checking on a phone on the same network.</p>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>Binding beyond loopback prints a warning at startup. The review/feedback APIs
+in <code>serve</code> perform file writes and can run Claude, so they become reachable by
+other hosts on the network. Only do this on a trusted network (POSTs are still
+protected by a same-origin check).</p>
+</div>
 
 <h2 id="en--serve--live-reload">7.2 Live Reload</h2>
 
@@ -5689,7 +5795,9 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org  <span class="
 
 <p>It also adds <span id="en--github-review--idx-5"><code>github_review</code></span><code>.enabled: true</code> to <code>book.yml</code>
 (enabling the reader-facing “Report as issue” UI) and generates a <code>README.md</code> linking to the
-published page (an existing <code>README.md</code> is never overwritten).</p>
+published page (an existing <code>README.md</code> is never overwritten). It also derives the GitHub Pages
+URL from <code>repository</code> and writes <span id="en--github-review--idx-6"><code>site_url</code></span> to <code>book.yml</code>, so the
+build output gets <code>og:url</code> and <code>canonical</code> (edit it if you use a custom domain).</p>
 
 <div class="admonition admonition-note">
 <p class="admonition-title">Note</p>
@@ -5701,7 +5809,7 @@ For the steps to actually activate the Claude integration and workflows, see the
 <h2 id="en--github-review--repository-and-owner">9.2 repository and –owner</h2>
 
 <p>The <code>__OWNER__</code> / <code>__REPO__</code> placeholders in the workflows and forms are filled from
-<code>book.yml</code>’s <span id="en--github-review--idx-6"><code>repository</code></span>. When <code>repository</code> is unset, this command
+<code>book.yml</code>’s <span id="en--github-review--idx-7"><code>repository</code></span>. When <code>repository</code> is unset, this command
 writes a default value of <code>https://github.com/&lt;owner&gt;/&lt;directory-name&gt;</code> into <code>book.yml</code>.</p>
 
 <p><code>&lt;owner&gt;</code> is resolved as follows:</p>
@@ -5761,35 +5869,49 @@ edits you want to keep.</p>
       <td>Book title</td>
     </tr>
     <tr>
-      <td><span id="en--config-reference--idx-1"><code>author</code></span></td>
+      <td><span id="en--config-reference--idx-1"><code>description</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td>(auto)</td>
+      <td>Description for the OGP / <code>meta description</code> tags. Auto-extracted from the cover (or first) chapter’s opening prose when omitted</td>
+    </tr>
+    <tr>
+      <td><span id="en--config-reference--idx-2"><code>site_url</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td>–</td>
+      <td>Canonical published URL. When set, emits <code>og:url</code> and <code>canonical</code>. <code>setup-github-review</code> seeds it from <code>repository</code> (the GitHub Pages URL)</td>
+    </tr>
+    <tr>
+      <td><span id="en--config-reference--idx-3"><code>author</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>""</code></td>
       <td>Author name</td>
     </tr>
     <tr>
-      <td><span id="en--config-reference--idx-2"><code>language</code></span></td>
+      <td><span id="en--config-reference--idx-4"><code>language</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>"en"</code></td>
       <td>HTML <code>lang</code> attribute</td>
     </tr>
     <tr>
-      <td><span id="en--config-reference--idx-3"><code>output_dir</code></span></td>
+      <td><span id="en--config-reference--idx-5"><code>output_dir</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>"build"</code></td>
       <td>Output directory</td>
     </tr>
     <tr>
-      <td><span id="en--config-reference--idx-4"><code>chapter_numbers</code></span></td>
+      <td><span id="en--config-reference--idx-6"><code>chapter_numbers</code></span></td>
       <td>Boolean</td>
       <td>No</td>
       <td><code>true</code></td>
       <td>Show chapter numbers</td>
     </tr>
     <tr>
-      <td><span id="en--config-reference--idx-5"><code>chapters</code></span></td>
+      <td><span id="en--config-reference--idx-7"><code>chapters</code></span></td>
       <td>Array</td>
       <td>Yes</td>
       <td>–</td>
@@ -5861,7 +5983,7 @@ edits you want to keep.</p>
         <dd><a href="#en--github-review--idx-2" onclick="showChapterAndScroll('en--github-review', 'en--github-review--idx-2'); return false;">9. Publish and Review on GitHub</a></dd>
         <dt>appendices</dt>
         <dd><a href="#en--introduction--idx-5" onclick="showChapterAndScroll('en--introduction', 'en--introduction--idx-5'); return false;">1. Introduction</a></dd>
-        <dd><a href="#en--book-yml--idx-18" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-18'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-20" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-20'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -5873,42 +5995,49 @@ edits you want to keep.</p>
         <dd><a href="#en--install--idx-3" onclick="showChapterAndScroll('en--install', 'en--install--idx-3'); return false;">2. Installation and Setup</a></dd>
         <dd><a href="#en--book-yml--idx-0" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-0'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">ai_generated</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-9" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-9'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--book-yml--idx-11" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-11'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">author</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-5" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-5'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-3" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-3'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">bibliography</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-13" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-13'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">chapter_numbers</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-8" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-8'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-6" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-6'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">chapters</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-17" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-17'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-7" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-7'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">description</dt>
         <dd class="index-sub"><a href="#en--book-yml--idx-3" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-3'); return false;">3. Writing book.yml</a></dd>
         <dd class="index-sub"><a href="#en--config-reference--idx-1" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-1'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">bibliography</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-11" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-11'); return false;">3. Writing book.yml</a></dd>
-        <dt class="index-sub">chapter_numbers</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-6" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-6'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#en--config-reference--idx-4" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-4'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">chapters</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-15" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-15'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#en--config-reference--idx-5" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-5'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">footer</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-10" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-10'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--book-yml--idx-12" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-12'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">github_review</dt>
         <dd class="index-sub"><a href="#en--github-review--idx-5" onclick="showChapterAndScroll('en--github-review', 'en--github-review--idx-5'); return false;">9. Publish and Review on GitHub</a></dd>
         <dt class="index-sub">inherit</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-14" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-14'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--book-yml--idx-16" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-16'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">language</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-4" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-4'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#en--config-reference--idx-2" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-2'); return false;">A. Configuration Reference</a></dd>
+        <dd class="index-sub"><a href="#en--book-yml--idx-6" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-6'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-4" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-4'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">output_dir</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-5" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-5'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#en--config-reference--idx-3" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-3'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">repository</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-8" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-8'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#en--github-review--idx-6" onclick="showChapterAndScroll('en--github-review', 'en--github-review--idx-6'); return false;">9. Publish and Review on GitHub</a></dd>
-        <dt class="index-sub">sources</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-12" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-12'); return false;">3. Writing book.yml</a></dd>
-        <dt class="index-sub">style</dt>
         <dd class="index-sub"><a href="#en--book-yml--idx-7" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-7'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-5" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-5'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">repository</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-10" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-10'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--github-review--idx-7" onclick="showChapterAndScroll('en--github-review', 'en--github-review--idx-7'); return false;">9. Publish and Review on GitHub</a></dd>
+        <dt class="index-sub">site_url</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-4" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-4'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--github-review--idx-6" onclick="showChapterAndScroll('en--github-review', 'en--github-review--idx-6'); return false;">9. Publish and Review on GitHub</a></dd>
+        <dd class="index-sub"><a href="#en--config-reference--idx-2" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-2'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">sources</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-14" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-14'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">style</dt>
+        <dd class="index-sub"><a href="#en--book-yml--idx-9" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-9'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">title</dt>
         <dd class="index-sub"><a href="#en--book-yml--idx-2" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-2'); return false;">3. Writing book.yml</a></dd>
         <dd class="index-sub"><a href="#en--config-reference--idx-0" onclick="showChapterAndScroll('en--config-reference', 'en--config-reference--idx-0'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">translations</dt>
-        <dd class="index-sub"><a href="#en--book-yml--idx-13" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-13'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#en--book-yml--idx-15" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-15'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -5921,11 +6050,11 @@ edits you want to keep.</p>
         <dt>configuration inheritance</dt>
         <dd><a href="#en--translations--idx-4" onclick="showChapterAndScroll('en--translations', 'en--translations--idx-4'); return false;">6. Multi-Language Support (Translations)</a></dd>
         <dt>cover</dt>
-        <dd><a href="#en--book-yml--idx-16" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-16'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-18" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-18'); return false;">3. Writing book.yml</a></dd>
         <dt>cross-references</dt>
         <dd><a href="#en--markdown--idx-10" onclick="showChapterAndScroll('en--markdown', 'en--markdown--idx-10'); return false;">4. Markdown Syntax and Images</a></dd>
         <dt>custom CSS</dt>
-        <dd><a href="#en--book-yml--idx-20" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-20'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-22" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-22'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -5961,7 +6090,7 @@ edits you want to keep.</p>
         <dd><a href="#en--markdown--idx-0" onclick="showChapterAndScroll('en--markdown', 'en--markdown--idx-0'); return false;">4. Markdown Syntax and Images</a></dd>
         <dt>GitHub edit links</dt>
         <dd><a href="#en--introduction--idx-8" onclick="showChapterAndScroll('en--introduction', 'en--introduction--idx-8'); return false;">1. Introduction</a></dd>
-        <dd><a href="#en--book-yml--idx-21" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-21'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-23" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-23'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -6037,7 +6166,7 @@ edits you want to keep.</p>
         <dt>Permalink</dt>
         <dd><a href="#en--introduction--idx-3" onclick="showChapterAndScroll('en--introduction', 'en--introduction--idx-3'); return false;">1. Introduction</a></dd>
         <dt>parts</dt>
-        <dd><a href="#en--book-yml--idx-17" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-17'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-19" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-19'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -6051,7 +6180,7 @@ edits you want to keep.</p>
       <h2 class="index-letter">S</h2>
       <dl class="index-entries">
         <dt>slug</dt>
-        <dd><a href="#en--book-yml--idx-19" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-19'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#en--book-yml--idx-21" onclick="showChapterAndScroll('en--book-yml', 'en--book-yml--idx-21'); return false;">3. Writing book.yml</a></dd>
         <dt>syntax highlighting</dt>
         <dd><a href="#en--markdown--idx-3" onclick="showChapterAndScroll('en--markdown', 'en--markdown--idx-3'); return false;">4. Markdown Syntax and Images</a></dd>
       </dl>

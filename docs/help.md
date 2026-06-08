@@ -57,6 +57,8 @@ that does the repo creation / secret / Pages / labels setup. It also:
   wrong and re-run. `<owner>` is the `--owner` (alias `--user`) flag when given
   — useful for an organization — otherwise `$USER`. If `repository:` is already
   set, passing `--owner` is an error (edit `repository:` in book.yml directly);
+- seeds a default `site_url:` (the GitHub Pages URL derived from `repository`)
+  if absent, so the build emits `og:url`/canonical — edit it for a custom domain;
 - creates a project `README.md` linking to the GitHub Pages site, unless one
   already exists (your README is never overwritten).
 
@@ -98,6 +100,13 @@ Multiple CONFIG paths can be given to serve multiple books.
 
 Options:
 - `--port PORT` — Server port (default: 3000)
+- `--host ADDR` — Bind address (default: 127.0.0.1, loopback only).
+  Use `0.0.0.0` (or a specific LAN IP) to reach the server from other
+  devices — e.g. from the Windows host when running under WSL, or a
+  phone on the same network. Binding beyond loopback prints a warning:
+  the review/feedback APIs (file writes, Claude runs) become reachable
+  by other hosts, so only do this on a trusted network. Same-origin
+  protection still applies (POSTs must come from the page's own origin).
 - `--multi` — Force multi-book mode (even with 1 CONFIG)
 
 **Single book mode** (1 CONFIG, without --multi):
@@ -129,6 +138,7 @@ Equivalent to: `ligarb serve --multi */book.yml`
 
 Options:
 - `--port PORT` — Server port (default: 3000)
+- `--host ADDR` — Bind address (default: 127.0.0.1; see `serve` above)
 
 ### `ligarb write [BRIEF]`
 
@@ -165,6 +175,8 @@ The configuration file is a YAML file with the following fields:
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `title` | required | — | The book title displayed in the header and \<title\> tag. |
+| `description` | optional | — | Short description for the `<meta name="description">` and Open Graph (`og:description`) tags. When omitted, it is auto-extracted from the first prose paragraph of the cover (or first) chapter. Not inherited by translations — set it per language. |
+| `site_url` | optional | — | Canonical published URL of the book. When set, emits `og:url` and `<link rel="canonical">`. Used verbatim, so set it to where this build is actually served. `setup-github-review` seeds it from `repository` (the GitHub Pages URL) if absent; edit it for custom domains or other hosting. |
 | `author` | optional | empty | Author name displayed in the header. |
 | `language` | optional | `"en"` | HTML lang attribute value. |
 | `output_dir` | optional | `"build"` | Output directory relative to book.yml. |
@@ -241,6 +253,23 @@ chapters:
 
 Part numbering is sequential across parts (1, 2, 3, ...).
 Appendix numbering uses letters (A, B, C, ...).
+
+### Social metadata (Open Graph)
+
+Every build emits Open Graph tags in `<head>` so the generated `index.html`
+previews nicely when shared: `og:type` (`book`), `og:title` and `og:site_name`
+(the book title), `og:locale` (derived from `language`, e.g. `ja` → `ja_JP`),
+and `book:author` when `author` is set. If a description is available (the
+`description` field, or auto-extracted from the cover/first chapter) it is also
+emitted as `<meta name="description">` and `og:description`. A
+`twitter:card` (`summary`) tag is always included. No image tag is produced.
+
+When `site_url` is set, `og:url` and `<link rel="canonical">` are emitted with
+that URL verbatim (the book is a single page, so it has one canonical URL).
+Running `setup-github-review` seeds `site_url` in book.yml from `repository`
+(the GitHub Pages URL — `https://<owner>.github.io/<repo>/`, or
+`https://<owner>.github.io/` for an `<owner>.github.io` repo), so books deployed
+that way get `og:url` automatically; edit it for a custom domain.
 
 ### Example book.yml (simple)
 
@@ -591,6 +620,22 @@ and build/css/.
 | `` ```functionplot `` | Function graphs (function-plot + d3, MIT) |
 
 These are rendered visually in the output HTML — use them freely.
+
+### Mermaid syntax checking
+
+When a build contains `` ```mermaid `` blocks and Node.js is available, ligarb
+validates each diagram with the bundled mermaid parser at build time. Diagrams
+that fail to parse are reported as warnings with their `file:line` location, for
+example:
+
+```
+Warning: mermaid syntax error in chapters/05-diagrams.md:42
+  Parse error on line 2:
+  ...
+```
+
+The build still succeeds (the broken diagram renders an error box in the output
+instead of an SVG). The check is skipped silently when Node.js is not installed.
 
 ### Mermaid examples
 

@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ligarb Manual</title>
+<meta property="og:type" content="book">
+<meta property="og:title" content="ligarb Manual">
+<meta property="og:site_name" content="ligarb Manual">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://ko1.github.io/ligarb/">
+<link rel="canonical" href="https://ko1.github.io/ligarb/">
+<meta name="description" content="A complete guide to the simple CLI tool that creates books from Markdown files.">
+<meta property="og:description" content="A complete guide to the simple CLI tool that creates books from Markdown files.">
+<meta name="twitter:card" content="summary">
+<meta property="book:author" content="Claude Code (asked by @ko1)">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="robots" content="noai, noimageai">
 <style>
@@ -1341,6 +1351,7 @@ details.mermaid-source pre {
         <div class="toc-full-chapter">
           <a href="#serve" onclick="showChapter('serve'); return false;">7. Preview and Review</a>
           <ul>            <li class="toc-full-h2"><a href="#serve--ligarb-serve-local-server" onclick="showChapterAndScroll('serve', 'serve--ligarb-serve-local-server'); return false;">7.1 ligarb serve  Local Server</a></li>
+            <li class="toc-full-h3"><a href="#serve--bind-address-host" onclick="showChapterAndScroll('serve', 'serve--bind-address-host'); return false;">7.1.1 Bind address (host)</a></li>
             <li class="toc-full-h2"><a href="#serve--live-reload" onclick="showChapterAndScroll('serve', 'serve--live-reload'); return false;">7.2 Live Reload</a></li>
             <li class="toc-full-h2"><a href="#serve--review-ui" onclick="showChapterAndScroll('serve', 'serve--review-ui'); return false;">7.3 Review UI</a></li>
             <li class="toc-full-h3"><a href="#serve--comment-flow" onclick="showChapterAndScroll('serve', 'serve--comment-flow'); return false;">7.3.1 Comment Flow</a></li>
@@ -1562,79 +1573,91 @@ bundle <span class="nb">install</span>
       <td>Book title. Shown in the header and <code>&lt;title&gt;</code></td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-3">author</span></td>
+      <td><span id="book-yml--idx-3">description</span></td>
+      <td>No</td>
+      <td>(auto)</td>
+      <td>Description for the OGP / <code>meta description</code> tags. Auto-extracted from the cover (or first) chapter’s opening prose when omitted</td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-4">site_url</span></td>
+      <td>No</td>
+      <td>–</td>
+      <td>Canonical published URL. When set, emits <code>og:url</code> / <code>canonical</code>. Auto-seeded from <code>repository</code> by <code>setup-github-review</code></td>
+    </tr>
+    <tr>
+      <td><span id="book-yml--idx-5">author</span></td>
       <td>No</td>
       <td>(empty)</td>
       <td>Author name. Shown in the header</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-4">language</span></td>
+      <td><span id="book-yml--idx-6">language</span></td>
       <td>No</td>
       <td>“en”</td>
       <td>HTML <code>lang</code> attribute</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-5">output_dir</span></td>
+      <td><span id="book-yml--idx-7">output_dir</span></td>
       <td>No</td>
       <td>“build”</td>
       <td>Output directory (relative to book.yml)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-6">chapter_numbers</span></td>
+      <td><span id="book-yml--idx-8">chapter_numbers</span></td>
       <td>No</td>
       <td>true</td>
       <td>Whether to show chapter numbers</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-7">style</span></td>
+      <td><span id="book-yml--idx-9">style</span></td>
       <td>No</td>
       <td>–</td>
       <td>Path to a custom CSS file</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-8">repository</span></td>
+      <td><span id="book-yml--idx-10">repository</span></td>
       <td>No</td>
       <td>–</td>
       <td>GitHub repository URL (for edit links)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-9">ai_generated</span></td>
+      <td><span id="book-yml--idx-11">ai_generated</span></td>
       <td>No</td>
       <td>false</td>
       <td>Mark as AI-generated content (badge, disclaimer, noindex meta tags)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-10">footer</span></td>
+      <td><span id="book-yml--idx-12">footer</span></td>
       <td>No</td>
       <td>–</td>
       <td>Text displayed at the bottom of each chapter (can override <code>ai_generated</code> default disclaimer)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-11">bibliography</span></td>
+      <td><span id="book-yml--idx-13">bibliography</span></td>
       <td>No</td>
       <td>–</td>
       <td>Path to bibliography data file (<code>.yml</code> or <code>.bib</code>)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-12">sources</span></td>
+      <td><span id="book-yml--idx-14">sources</span></td>
       <td>No</td>
       <td>–</td>
       <td>Reference files for AI writing</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-13">translations</span></td>
+      <td><span id="book-yml--idx-15">translations</span></td>
       <td>No</td>
       <td>–</td>
       <td>Multi-language support (lang code to config path)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-14">inherit</span></td>
+      <td><span id="book-yml--idx-16">inherit</span></td>
       <td>No</td>
       <td>–</td>
       <td>Parent config path (inherits shared settings)</td>
     </tr>
     <tr>
-      <td><span id="book-yml--idx-15">chapters</span></td>
+      <td><span id="book-yml--idx-17">chapters</span></td>
       <td>Yes</td>
       <td>–</td>
       <td>Chapter, part, and appendix structure (see below)</td>
@@ -1648,7 +1671,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="book-yml--cover-page">3.3.1 Cover Page</h3>
 
-<p>You can add a <span id="book-yml--idx-16">cover</span> page at the beginning of the book. The cover is not shown in the table of contents and is the first page displayed when the book is opened:</p>
+<p>You can add a <span id="book-yml--idx-18">cover</span> page at the beginning of the book. The cover is not shown in the table of contents and is the first page displayed when the book is opened:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">cover</span><span class="pi">:</span> <span class="s">cover.md</span>
@@ -1667,7 +1690,7 @@ bundle <span class="nb">install</span>
 
 <h3 id="book-yml--grouping-with-parts">3.3.3 Grouping with Parts</h3>
 
-<p>For books with many chapters, you can group them into <span id="book-yml--idx-17">parts</span>:</p>
+<p>For books with many chapters, you can group them into <span id="book-yml--idx-19">parts</span>:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -1685,7 +1708,7 @@ Its h1 becomes the part title, and the body becomes the title page.</p>
 
 <h3 id="book-yml--adding-appendices">3.3.4 Adding Appendices</h3>
 
-<p>You can add <span id="book-yml--idx-18">appendices</span> at the end. Appendix chapters are numbered with letters (A, B, C, …):</p>
+<p>You can add <span id="book-yml--idx-20">appendices</span> at the end. Appendix chapters are numbered with letters (A, B, C, …):</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">chapters</span><span class="pi">:</span>
   <span class="pi">-</span> <span class="na">part</span><span class="pi">:</span> <span class="s">part1.md</span>
@@ -1699,11 +1722,11 @@ Its h1 becomes the part title, and the body becomes the title page.</p>
 <h3 id="book-yml--file-naming-conventions">3.3.5 File Naming Conventions</h3>
 
 <p>There are no strict rules for file names, but <code>number-slug.md</code> is recommended for easy management.
-The <code>number-slug</code> portion becomes the chapter identifier (<span id="book-yml--idx-19">slug</span>) used in the URL <code>#</code>.</p>
+The <code>number-slug</code> portion becomes the chapter identifier (<span id="book-yml--idx-21">slug</span>) used in the URL <code>#</code>.</p>
 
 <h2 id="book-yml--custom-css">3.4 Custom CSS</h2>
 
-<p>Specify a <span id="book-yml--idx-20">CSS</span> file with the <code>style</code> field. It is loaded after the default styles:</p>
+<p>Specify a <span id="book-yml--idx-22">CSS</span> file with the <code>style</code> field. It is loaded after the default styles:</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">style</span><span class="pi">:</span> <span class="s2">"</span><span class="s">custom.css"</span>
 </code></pre></div></div>
@@ -1718,7 +1741,7 @@ The <code>number-slug</code> portion becomes the chapter identifier (<span id="b
 
 <h2 id="book-yml--github-edit-links">3.5 GitHub Edit Links</h2>
 
-<p>Set the <code>repository</code> field to show “View on GitHub” links at the bottom of each chapter (<span id="book-yml--idx-21">GitHub edit links</span>):</p>
+<p>Set the <code>repository</code> field to show “View on GitHub” links at the bottom of each chapter (<span id="book-yml--idx-23">GitHub edit links</span>):</p>
 
 <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">repository</span><span class="pi">:</span> <span class="s2">"</span><span class="s">https://github.com/user/my-book"</span>
 </code></pre></div></div>
@@ -1992,6 +2015,15 @@ mindmap
 <blockquote>
   <p>See the <a href="https://mermaid.js.org/intro/">Mermaid documentation</a> for detailed syntax.</p>
 </blockquote>
+
+<div class="admonition admonition-tip">
+<p class="admonition-title">Tip</p>
+<p>When Node.js is available at build time, ligarb validates each mermaid block
+with the bundled mermaid parser. Syntax errors are reported as warnings with
+their <code>file:line</code> location (the build still succeeds, and the output HTML shows
+an error box for the broken diagram). The check is skipped when Node.js is not
+installed.</p>
+</div>
 
 <h3 id="markdown--math-katex">4.1.4 Math (KaTeX)</h3>
 
@@ -2707,8 +2739,24 @@ A build is automatically run at startup, so there is no need to run <code>ligarb
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ligarb serve                    <span class="c"># Serve at http://localhost:3000</span>
 ligarb serve <span class="nt">--port</span> 8080        <span class="c"># Specify port</span>
+ligarb serve <span class="nt">--host</span> 0.0.0.0     <span class="c"># Make it reachable from other LAN devices</span>
 ligarb serve path/to/book.yml   <span class="c"># Specify book.yml path</span>
 </code></pre></div></div>
+
+<h3 id="serve--bind-address-host">7.1.1 Bind address (–host)</h3>
+
+<p>By default the server binds to <code>127.0.0.1</code> (loopback only), so it is reachable
+only from the same machine. Pass <code>--host 0.0.0.0</code> (or a specific LAN IP) to reach
+it from other devices — for example, previewing from the Windows host when
+running under WSL, or checking on a phone on the same network.</p>
+
+<div class="admonition admonition-warning">
+<p class="admonition-title">Warning</p>
+<p>Binding beyond loopback prints a warning at startup. The review/feedback APIs
+in <code>serve</code> perform file writes and can run Claude, so they become reachable by
+other hosts on the network. Only do this on a trusted network (POSTs are still
+protected by a same-origin check).</p>
+</div>
 
 <h2 id="serve--live-reload">7.2 Live Reload</h2>
 
@@ -3122,7 +3170,9 @@ ligarb setup-github-review <span class="nt">--owner</span> my-org  <span class="
 
 <p>It also adds <span id="github-review--idx-5"><code>github_review</code></span><code>.enabled: true</code> to <code>book.yml</code>
 (enabling the reader-facing “Report as issue” UI) and generates a <code>README.md</code> linking to the
-published page (an existing <code>README.md</code> is never overwritten).</p>
+published page (an existing <code>README.md</code> is never overwritten). It also derives the GitHub Pages
+URL from <code>repository</code> and writes <span id="github-review--idx-6"><code>site_url</code></span> to <code>book.yml</code>, so the
+build output gets <code>og:url</code> and <code>canonical</code> (edit it if you use a custom domain).</p>
 
 <div class="admonition admonition-note">
 <p class="admonition-title">Note</p>
@@ -3134,7 +3184,7 @@ For the steps to actually activate the Claude integration and workflows, see the
 <h2 id="github-review--repository-and-owner">9.2 repository and –owner</h2>
 
 <p>The <code>__OWNER__</code> / <code>__REPO__</code> placeholders in the workflows and forms are filled from
-<code>book.yml</code>’s <span id="github-review--idx-6"><code>repository</code></span>. When <code>repository</code> is unset, this command
+<code>book.yml</code>’s <span id="github-review--idx-7"><code>repository</code></span>. When <code>repository</code> is unset, this command
 writes a default value of <code>https://github.com/&lt;owner&gt;/&lt;directory-name&gt;</code> into <code>book.yml</code>.</p>
 
 <p><code>&lt;owner&gt;</code> is resolved as follows:</p>
@@ -3194,35 +3244,49 @@ edits you want to keep.</p>
       <td>Book title</td>
     </tr>
     <tr>
-      <td><span id="config-reference--idx-1"><code>author</code></span></td>
+      <td><span id="config-reference--idx-1"><code>description</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td>(auto)</td>
+      <td>Description for the OGP / <code>meta description</code> tags. Auto-extracted from the cover (or first) chapter’s opening prose when omitted</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-2"><code>site_url</code></span></td>
+      <td>String</td>
+      <td>No</td>
+      <td>–</td>
+      <td>Canonical published URL. When set, emits <code>og:url</code> and <code>canonical</code>. <code>setup-github-review</code> seeds it from <code>repository</code> (the GitHub Pages URL)</td>
+    </tr>
+    <tr>
+      <td><span id="config-reference--idx-3"><code>author</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>""</code></td>
       <td>Author name</td>
     </tr>
     <tr>
-      <td><span id="config-reference--idx-2"><code>language</code></span></td>
+      <td><span id="config-reference--idx-4"><code>language</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>"en"</code></td>
       <td>HTML <code>lang</code> attribute</td>
     </tr>
     <tr>
-      <td><span id="config-reference--idx-3"><code>output_dir</code></span></td>
+      <td><span id="config-reference--idx-5"><code>output_dir</code></span></td>
       <td>String</td>
       <td>No</td>
       <td><code>"build"</code></td>
       <td>Output directory</td>
     </tr>
     <tr>
-      <td><span id="config-reference--idx-4"><code>chapter_numbers</code></span></td>
+      <td><span id="config-reference--idx-6"><code>chapter_numbers</code></span></td>
       <td>Boolean</td>
       <td>No</td>
       <td><code>true</code></td>
       <td>Show chapter numbers</td>
     </tr>
     <tr>
-      <td><span id="config-reference--idx-5"><code>chapters</code></span></td>
+      <td><span id="config-reference--idx-7"><code>chapters</code></span></td>
       <td>Array</td>
       <td>Yes</td>
       <td>–</td>
@@ -3294,7 +3358,7 @@ edits you want to keep.</p>
         <dd><a href="#github-review--idx-2" onclick="showChapterAndScroll('github-review', 'github-review--idx-2'); return false;">9. Publish and Review on GitHub</a></dd>
         <dt>appendices</dt>
         <dd><a href="#introduction--idx-5" onclick="showChapterAndScroll('introduction', 'introduction--idx-5'); return false;">1. Introduction</a></dd>
-        <dd><a href="#book-yml--idx-18" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-18'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-20" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-20'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3306,42 +3370,49 @@ edits you want to keep.</p>
         <dd><a href="#install--idx-3" onclick="showChapterAndScroll('install', 'install--idx-3'); return false;">2. Installation and Setup</a></dd>
         <dd><a href="#book-yml--idx-0" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-0'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">ai_generated</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-9" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-9'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#book-yml--idx-11" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-11'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">author</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-5" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-5'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-3" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-3'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">bibliography</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-13" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-13'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">chapter_numbers</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-8" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-8'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-6" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-6'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">chapters</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-17" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-17'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-7" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-7'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">description</dt>
         <dd class="index-sub"><a href="#book-yml--idx-3" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-3'); return false;">3. Writing book.yml</a></dd>
         <dd class="index-sub"><a href="#config-reference--idx-1" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-1'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">bibliography</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-11" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-11'); return false;">3. Writing book.yml</a></dd>
-        <dt class="index-sub">chapter_numbers</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-6" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-6'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#config-reference--idx-4" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-4'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">chapters</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-15" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-15'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#config-reference--idx-5" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-5'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">footer</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-10" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-10'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#book-yml--idx-12" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-12'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">github_review</dt>
         <dd class="index-sub"><a href="#github-review--idx-5" onclick="showChapterAndScroll('github-review', 'github-review--idx-5'); return false;">9. Publish and Review on GitHub</a></dd>
         <dt class="index-sub">inherit</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-14" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-14'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#book-yml--idx-16" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-16'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">language</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-4" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-4'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#config-reference--idx-2" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-2'); return false;">A. Configuration Reference</a></dd>
+        <dd class="index-sub"><a href="#book-yml--idx-6" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-6'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-4" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-4'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">output_dir</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-5" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-5'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#config-reference--idx-3" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-3'); return false;">A. Configuration Reference</a></dd>
-        <dt class="index-sub">repository</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-8" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-8'); return false;">3. Writing book.yml</a></dd>
-        <dd class="index-sub"><a href="#github-review--idx-6" onclick="showChapterAndScroll('github-review', 'github-review--idx-6'); return false;">9. Publish and Review on GitHub</a></dd>
-        <dt class="index-sub">sources</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-12" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-12'); return false;">3. Writing book.yml</a></dd>
-        <dt class="index-sub">style</dt>
         <dd class="index-sub"><a href="#book-yml--idx-7" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-7'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-5" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-5'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">repository</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-10" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-10'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#github-review--idx-7" onclick="showChapterAndScroll('github-review', 'github-review--idx-7'); return false;">9. Publish and Review on GitHub</a></dd>
+        <dt class="index-sub">site_url</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-4" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-4'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#github-review--idx-6" onclick="showChapterAndScroll('github-review', 'github-review--idx-6'); return false;">9. Publish and Review on GitHub</a></dd>
+        <dd class="index-sub"><a href="#config-reference--idx-2" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-2'); return false;">A. Configuration Reference</a></dd>
+        <dt class="index-sub">sources</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-14" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-14'); return false;">3. Writing book.yml</a></dd>
+        <dt class="index-sub">style</dt>
+        <dd class="index-sub"><a href="#book-yml--idx-9" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-9'); return false;">3. Writing book.yml</a></dd>
         <dt class="index-sub">title</dt>
         <dd class="index-sub"><a href="#book-yml--idx-2" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-2'); return false;">3. Writing book.yml</a></dd>
         <dd class="index-sub"><a href="#config-reference--idx-0" onclick="showChapterAndScroll('config-reference', 'config-reference--idx-0'); return false;">A. Configuration Reference</a></dd>
         <dt class="index-sub">translations</dt>
-        <dd class="index-sub"><a href="#book-yml--idx-13" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-13'); return false;">3. Writing book.yml</a></dd>
+        <dd class="index-sub"><a href="#book-yml--idx-15" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-15'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3354,11 +3425,11 @@ edits you want to keep.</p>
         <dt>configuration inheritance</dt>
         <dd><a href="#translations--idx-4" onclick="showChapterAndScroll('translations', 'translations--idx-4'); return false;">6. Multi-Language Support (Translations)</a></dd>
         <dt>cover</dt>
-        <dd><a href="#book-yml--idx-16" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-16'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-18" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-18'); return false;">3. Writing book.yml</a></dd>
         <dt>cross-references</dt>
         <dd><a href="#markdown--idx-10" onclick="showChapterAndScroll('markdown', 'markdown--idx-10'); return false;">4. Markdown Syntax and Images</a></dd>
         <dt>custom CSS</dt>
-        <dd><a href="#book-yml--idx-20" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-20'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-22" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-22'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3394,7 +3465,7 @@ edits you want to keep.</p>
         <dd><a href="#markdown--idx-0" onclick="showChapterAndScroll('markdown', 'markdown--idx-0'); return false;">4. Markdown Syntax and Images</a></dd>
         <dt>GitHub edit links</dt>
         <dd><a href="#introduction--idx-8" onclick="showChapterAndScroll('introduction', 'introduction--idx-8'); return false;">1. Introduction</a></dd>
-        <dd><a href="#book-yml--idx-21" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-21'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-23" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-23'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3470,7 +3541,7 @@ edits you want to keep.</p>
         <dt>Permalink</dt>
         <dd><a href="#introduction--idx-3" onclick="showChapterAndScroll('introduction', 'introduction--idx-3'); return false;">1. Introduction</a></dd>
         <dt>parts</dt>
-        <dd><a href="#book-yml--idx-17" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-17'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-19" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-19'); return false;">3. Writing book.yml</a></dd>
       </dl>
     </div>
     <div class="index-group">
@@ -3484,7 +3555,7 @@ edits you want to keep.</p>
       <h2 class="index-letter">S</h2>
       <dl class="index-entries">
         <dt>slug</dt>
-        <dd><a href="#book-yml--idx-19" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-19'); return false;">3. Writing book.yml</a></dd>
+        <dd><a href="#book-yml--idx-21" onclick="showChapterAndScroll('book-yml', 'book-yml--idx-21'); return false;">3. Writing book.yml</a></dd>
         <dt>syntax highlighting</dt>
         <dd><a href="#markdown--idx-3" onclick="showChapterAndScroll('markdown', 'markdown--idx-3'); return false;">4. Markdown Syntax and Images</a></dd>
       </dl>
