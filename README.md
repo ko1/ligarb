@@ -10,14 +10,26 @@
 
 ## 特徴
 
-- Markdown ファイル群 → 単一 `index.html`（外部依存なしで開ける）
-- 検索可能な目次サイドバー（h1〜h3）、章ごとの表示切り替えとパーマリンク
-- Part / Appendix による構造化と、章・節の自動ナンバリング
+### 製本機能
+
+- Markdown ファイル群 → 単一 `index.html`（Web サーバー不要、外部依存なしで開ける）
+- **cover / 章 / part / appendix** による構造化と、章・節の自動ナンバリング
+- 検索可能な目次サイドバー（h1〜h3）、章ごとの表示切り替え、パーマリンク、相互参照
 - コードハイライト・図表・数式・関数グラフを**自動検出してダウンロード**
   （highlight.js / mermaid / KaTeX / function-plot）
-- 脚注（kramdown 記法、章ごとにスコープ）、ダークモード、カスタム CSS
-- レスポンシブ & 印刷対応（ページ番号付き）
-- 多言語対応（言語切り替え UI 付き）
+- mermaid 図はビルド時に構文チェック（誤りを `file:line` で警告）
+- 脚注（kramdown 記法、章ごとにスコープ）、Note / Tip / Warning などの admonition
+- 参考文献（BibTeX）、画像の取り込み、`View on GitHub` リンク
+- ダークモード、カスタム CSS、レスポンシブ & 印刷対応（ページ番号付き）
+- 多言語対応（翻訳ハブ + 言語切り替え UI）
+
+### 執筆・レビュー機能
+
+- `ligarb serve` のライブプレビュー（保存して `ligarb build` でブラウザ更新、Linux は inotify で即検知）
+- 本文を選択 → コメント → **Claude（Opus）がレビュー** → diff を確認 → Approve でソースに適用＆リビルド（履歴は `.ligarb/reviews/` に保存）
+- `ligarb write` で AI に本を丸ごと執筆させる（企画書 `brief.yml` から生成）
+- `ligarb setup-github-review` で GitHub Pages 公開 + 読者フィードバック（Report as issue）+ Claude 連携の足場を生成
+- `ligarb help` は AI に読ませる前提の仕様書を兼ねる
 
 ## インストール
 
