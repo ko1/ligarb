@@ -4,12 +4,18 @@ require_relative "test_helper"
 
 # Tests for the public "Report as issue" feedback UI (github_review).
 class FeedbackTest < Minitest::Test
-  # Builds a book in a tmpdir (no git → relative_path is base-dir relative) and
-  # returns [html, stdout, stderr].
+  # Builds a book in a tmpdir and returns [html, stdout, stderr].
+  #
+  # The tmpdir is made its own git root (empty .git) so relative_path is
+  # resolved against the tmpdir, yielding deterministic source paths like
+  # "ch1.md". Without this, find_git_root walks up to a stray .git ancestor
+  # (e.g. the host's /tmp or the project repo when Dir.tmpdir falls back to "."),
+  # which would prefix the paths and break the data-src-file assertions.
   def build_book(data, files: {"ch1.md" => "# Chapter 1\n\nHello"})
     html = nil
     out, err = capture_io do
       Dir.mktmpdir do |dir|
+        FileUtils.mkdir(File.join(dir, ".git"))
         files.each do |name, content|
           path = File.join(dir, name)
           FileUtils.mkdir_p(File.dirname(path))
