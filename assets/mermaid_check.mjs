@@ -47,7 +47,11 @@ function makeStub(name, overrides = {}) {
 globalThis.window = globalThis;
 // nodeType 9 = DOCUMENT_NODE; DOMPurify checks it to decide it has a real DOM.
 globalThis.document = makeStub("document", { nodeType: 9 });
-globalThis.navigator = { userAgent: "node" };
+// Node >= 21 ships a built-in read-only `navigator` global; assigning to it
+// throws a TypeError. Only define our stub when the runtime lacks one.
+if (!("navigator" in globalThis)) {
+  globalThis.navigator = { userAgent: "node" };
+}
 globalThis.addEventListener = noop;
 globalThis.location = { href: "http://localhost/", protocol: "http:" };
 globalThis.Element = function Element() {};
