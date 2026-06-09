@@ -88,7 +88,7 @@ ligarb serve --port 8080  # ポート指定
 - 本文を選択して「Comment」でコメントすると、Claude（Opus）がレビューし、変更を提案します。「Show patch」で diff を確認、「Approve」でソースに適用＆リビルド。
 - レビュー履歴は `.ligarb/reviews/` に JSON で保存されます。
 
-レビュー機能には [Claude Code](https://claude.com/claude-code) の CLI が必要です。
+レビュー機能は内部で [Claude Code](https://claude.com/claude-code) の `claude -p` を呼び出すため、その CLI が必要です。
 
 ## AI で本を書く
 
@@ -110,7 +110,7 @@ notes: |
   5章くらいで。コード例を多めにしてください。
 ```
 
-[Claude Code](https://claude.com/claude-code) の CLI が必要です。手動で使う場合は `ligarb help` の出力（AI 向け仕様書を兼ねる）を AI に読ませると、仕様に従った本を生成できます。
+`ligarb write` は内部で [Claude Code](https://claude.com/claude-code) の `claude -p` を呼び出すため、その CLI が必要です。手動で使う場合は `ligarb help` の出力（AI 向け仕様書を兼ねる）を AI に読ませると、仕様に従った本を生成できます。
 
 ## GitHub で公開・レビューする
 
