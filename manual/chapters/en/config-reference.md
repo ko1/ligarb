@@ -15,7 +15,16 @@
 
 ## chapters Elements
 
-The `chapters` array can contain the following 3 types of elements:
+The `chapters` array can contain the following 4 types of elements:
+
+### Cover
+
+```yaml
+chapters:
+  - cover: cover.md
+```
+
+Specify a Markdown file for `cover`. It becomes the landing page shown when the book is opened, and is not listed in the sidebar table of contents.
 
 ### Chapter (string)
 
