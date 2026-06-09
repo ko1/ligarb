@@ -9,7 +9,12 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # head / debug are nightly Ruby builds that periodically break on bundler or
+    # rubygems issues unrelated to this project; let them fail without blocking
+    # the workflow or canceling the stable-version jobs.
+    continue-on-error: ${{ matrix.ruby-version == 'head' || matrix.ruby-version == 'debug' }}
     strategy:
+      fail-fast: false
       matrix:
         ruby-version: ["3.2", "3.3", "3.4", "4.0", "head", "debug"]
     steps:
