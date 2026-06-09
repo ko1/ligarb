@@ -58,4 +58,18 @@ class MermaidCheckerTest < Minitest::Test
       assert_match(/Parse error/, err)
     end
   end
+
+  # Regression: a <br> in a node label is valid mermaid, but the Node DOM stub
+  # cannot run DOMPurify over HTML, which used to surface as a false-positive
+  # "syntax error" warning. Such environment errors must be suppressed.
+  def test_html_label_is_not_a_false_positive
+    skip "node not available" unless node_available?
+    skip "mermaid.min.js not available" unless MERMAID_JS
+    make_chapter("```mermaid\ngraph LR\n  A[1行目<br>2行目] --> B[OK]\n```") do |ch|
+      _out, err = capture_subprocess_io do
+        assert_equal 0, Ligarb::MermaidChecker.check([ch], MERMAID_JS)
+      end
+      refute_match(/mermaid syntax error/, err)
+    end
+  end
 end

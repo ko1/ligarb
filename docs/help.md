@@ -636,6 +636,7 @@ Warning: mermaid syntax error in chapters/05-diagrams.md:42
 
 The build still succeeds (the broken diagram renders an error box in the output
 instead of an SVG). The check is skipped silently when Node.js is not installed.
+HTML inside node labels (such as `<br>`) is exempt from the check and never warns.
 
 ### Mermaid examples
 

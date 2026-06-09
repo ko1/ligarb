@@ -2,11 +2,19 @@
 //
 // Usage: node mermaid_check.mjs <path/to/mermaid.min.js>
 //   stdin:  JSON array of {"id": <any>, "text": <mermaid source>}
-//   stdout: JSON array of {"id": <any>, "error": <message or null>}
+//   stdout: JSON array of {"id": <any>, "error": <message or null>,
+//                          "kind": "syntax" | "environment"}
 //
 // Loads the browser UMD bundle of mermaid in Node by stubbing just enough
 // of the DOM (mermaid.parse() only parses; it never renders, but DOMPurify
 // refuses to initialize without something that looks like a document).
+//
+// The DOM stub is intentionally minimal, so it cannot satisfy DOMPurify when a
+// node label contains HTML (e.g. "A[1<br>2]"): sanitizing real markup needs a
+// real DOM tree to walk, which the stub does not provide. That surfaces as a
+// generic JS error (e.g. TypeError "Right-hand side of 'instanceof'..."), NOT a
+// diagram syntax error. classifyError() tells the two apart so callers only
+// warn about genuine mermaid problems and not these harness limitations.
 
 const noop = () => {};
 
@@ -73,14 +81,36 @@ if (!mermaid || typeof mermaid.parse !== "function") {
   process.exit(2);
 }
 
+// Decide whether a thrown error is a genuine mermaid diagram problem
+// ("syntax") or an artifact of our minimal DOM stub ("environment").
+//
+//   - jison grammar errors carry a structured `.hash`  -> syntax
+//   - mermaid's typed errors (e.g. UnknownDiagramError) -> syntax
+//   - generic JS runtime errors (TypeError/ReferenceError/RangeError/EvalError)
+//     with no hash come from the DOM stub                -> environment
+//   - anything else is reported as syntax, erring toward visibility
+function classifyError(e) {
+  if (e && e.hash !== undefined) return "syntax";
+  const name = e && e.name;
+  if (name && name.endsWith("DiagramError")) return "syntax";
+  if (["TypeError", "ReferenceError", "RangeError", "EvalError"].includes(name)) {
+    return "environment";
+  }
+  return "syntax";
+}
+
 const blocks = JSON.parse(readFileSync(0, "utf8"));
 const results = [];
 for (const block of blocks) {
   try {
     await mermaid.parse(block.text);
-    results.push({ id: block.id, error: null });
+    results.push({ id: block.id, error: null, kind: "syntax" });
   } catch (e) {
-    results.push({ id: block.id, error: String(e && e.message ? e.message : e) });
+    results.push({
+      id: block.id,
+      error: String(e && e.message ? e.message : e),
+      kind: classifyError(e),
+    });
   }
 }
 console.log(JSON.stringify(results));

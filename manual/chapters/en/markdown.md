@@ -146,7 +146,8 @@ mindmap
 > with the bundled mermaid parser. Syntax errors are reported as warnings with
 > their `file:line` location (the build still succeeds, and the output HTML shows
 > an error box for the broken diagram). The check is skipped when Node.js is not
-> installed.
+> installed. HTML inside node labels (such as `<br>`) is exempt from the check
+> and never warns.
 
 ### Math (KaTeX)
 

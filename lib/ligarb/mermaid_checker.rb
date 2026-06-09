@@ -39,7 +39,10 @@ module Ligarb
       error_count = 0
       results.each do |result|
         error = result["error"]
-        next unless error
+        # "environment" errors are limitations of the Node DOM stub (e.g. a node
+        # label containing HTML like <br>), not diagram syntax errors, so they
+        # would be false positives — skip them. See assets/mermaid_check.mjs.
+        next unless error && result["kind"] == "syntax"
 
         error_count += 1
         block = blocks[result["id"]]
